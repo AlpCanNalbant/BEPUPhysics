@@ -11,8 +11,6 @@ namespace BEPUphysics.BroadPhaseEntries
     ///</summary>
     public abstract class StaticCollidable : Collidable, ISpaceObject, IMaterialOwner, IDeferredEventCreatorOwner
     {
-
-
         ///<summary>
         /// Performs common initialization.
         ///</summary>
@@ -42,10 +40,7 @@ namespace BEPUphysics.BroadPhaseEntries
         ///</summary>
         public Material Material
         {
-            get
-            {
-                return material;
-            }
+            get => material;
             set
             {
                 if (material != null)
@@ -57,7 +52,7 @@ namespace BEPUphysics.BroadPhaseEntries
             }
         }
 
-        Action<Material> materialChangedDelegate;
+        readonly Action<Material> materialChangedDelegate;
         protected virtual void OnMaterialChanged(Material newMaterial)
         {
             for (int i = 0; i < pairs.Count; i++)
@@ -70,52 +65,28 @@ namespace BEPUphysics.BroadPhaseEntries
         /// Gets whether this collidable is associated with an active entity. Returns false for all static collidables.
         /// </summary>
         public override bool IsActive
-        {
-            get { return false; }
-        }
-
-
+            => false;
 
         Space space;
         Space ISpaceObject.Space
         {
-            get
-            {
-                return space;
-            }
-            set
-            {
-                space = value;
-            }
+            get => space;
+            set => space = value;
         }
         ///<summary>
         /// Gets the space that owns the mesh.
         ///</summary>
         public Space Space
-        {
-            get
-            {
-                return space;
-            }
-        }
+            => space;
 
         void ISpaceObject.OnAdditionToSpace(Space newSpace)
-        {
-        }
+        { }
 
         void ISpaceObject.OnRemovalFromSpace(Space oldSpace)
-        {
-        }
-
-
+        { }
 
         IDeferredEventCreator IDeferredEventCreatorOwner.EventCreator
-        {
-            get
-            {
-                return EventCreator;
-            }
-        }
+            => EventCreator;
 
         /// <summary>
         /// Gets the event creator associated with this collidable.
@@ -124,6 +95,5 @@ namespace BEPUphysics.BroadPhaseEntries
         {
             get;
         }
-
     }
 }

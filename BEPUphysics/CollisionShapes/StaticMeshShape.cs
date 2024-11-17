@@ -1,5 +1,5 @@
 ﻿using BEPUutilities;
- 
+
 using BEPUphysics.DataStructures;
 
 namespace BEPUphysics.CollisionShapes
@@ -23,11 +23,6 @@ namespace BEPUphysics.CollisionShapes
             }
         }
 
-
-
-
-
-
         ///<summary>
         /// Constructs a new StaticMeshShape.
         ///</summary>
@@ -39,8 +34,6 @@ namespace BEPUphysics.CollisionShapes
             triangleMeshData = new TransformableMeshData(vertices, indices, worldTransform);
         }
 
-
-
         ///<summary>
         /// Constructs a new StaticMeshShape.
         ///</summary>
@@ -50,7 +43,5 @@ namespace BEPUphysics.CollisionShapes
         {
             triangleMeshData = new TransformableMeshData(vertices, indices);
         }
-
-
     }
 }

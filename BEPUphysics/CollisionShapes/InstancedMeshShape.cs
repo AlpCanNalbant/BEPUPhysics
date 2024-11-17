@@ -61,8 +61,7 @@ namespace BEPUphysics.CollisionShapes
             float maxZ = -float.MaxValue;
             for (int i = 0; i < triangleMesh.Data.vertices.Length; i++)
             {
-                Vector3 vertex;
-                triangleMesh.Data.GetVertexPosition(i, out vertex);
+                triangleMesh.Data.GetVertexPosition(i, out Vector3 vertex);
                 Matrix3x3.Transform(ref vertex, ref transform.LinearTransform, out vertex);
                 if (vertex.X < minX)
                     minX = vertex.X;
@@ -82,7 +81,7 @@ namespace BEPUphysics.CollisionShapes
             boundingBox.Min.X = transform.Translation.X + minX;
             boundingBox.Min.Y = transform.Translation.Y + minY;
             boundingBox.Min.Z = transform.Translation.Z + minZ;
-            
+
             boundingBox.Max.X = transform.Translation.X + maxX;
             boundingBox.Max.Y = transform.Translation.Y + maxY;
             boundingBox.Max.Z = transform.Translation.Z + maxZ;

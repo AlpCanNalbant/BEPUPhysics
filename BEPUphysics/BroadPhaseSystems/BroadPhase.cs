@@ -12,7 +12,7 @@ namespace BEPUphysics.BroadPhaseSystems
     ///</summary>
     public abstract class BroadPhase : MultithreadedProcessingStage
     {
-        readonly SpinLock overlapAddLock = new SpinLock();
+        readonly SpinLock overlapAddLock = new();
 
         ///<summary>
         /// Gets the object which is locked by the broadphase during synchronized update processes.
@@ -31,16 +31,12 @@ namespace BEPUphysics.BroadPhaseSystems
             AllowMultithreading = true;
         }
         //TODO: Initial capacity?  Special collection type other than list due to structs? RawList? Clear at beginning of each frame?
-        readonly RawList<BroadPhaseOverlap> overlaps = new RawList<BroadPhaseOverlap>();
+        readonly RawList<BroadPhaseOverlap> overlaps = [];
         /// <summary>
         /// Gets the list of overlaps identified in the previous broad phase update.
         /// </summary>
         public RawList<BroadPhaseOverlap> Overlaps
-        {
-            get { return overlaps; }
-        }
-
-
+            => overlaps;
 
         ///<summary>
         /// Gets an interface to the broad phase's support for volume-based queries.
@@ -52,12 +48,11 @@ namespace BEPUphysics.BroadPhaseSystems
         /// </summary>
         /// <param name="entry">Entry to add.</param>
         public virtual void Add(BroadPhaseEntry entry)
-        {
-            if (entry.BroadPhase == null)
-                entry.BroadPhase = this;
-            else
-                throw new ArgumentException("Cannot add entry; it already belongs to a broad phase.");
-        }
+        // {
+            => entry.BroadPhase ??= this;
+            // else // Don't throw edited by WCS
+            //     throw new ArgumentException("Cannot add entry; it already belongs to a broad phase.");
+        // }
 
         /// <summary>
         /// Removes an entry from the broad phase.
@@ -67,8 +62,10 @@ namespace BEPUphysics.BroadPhaseSystems
         {
             if (entry.BroadPhase == this)
                 entry.BroadPhase = null;
-            else
-                throw new ArgumentException("Cannot remove entry; it does not belong to this broad phase.");
+            // else // Don't throw edited by WCS
+            // {
+            //     throw new ArgumentException("Cannot remove entry; it does not belong to this broad phase.");
+            // }
         }
 
         protected internal void AddOverlap(BroadPhaseOverlap overlap)
@@ -96,7 +93,7 @@ namespace BEPUphysics.BroadPhaseSystems
 
         protected internal CollisionRule GetCollisionRule(BroadPhaseEntry entryA, BroadPhaseEntry entryB)
         {
-            if (entryA.IsActive || entryB.IsActive)
+            if ((entryA != null) && (entryB != null) && (entryA.IsActive || entryB.IsActive))
                 return CollisionRules.collisionRuleCalculator(entryA, entryB);
             return CollisionRule.NoBroadPhase;
         }
@@ -106,7 +103,7 @@ namespace BEPUphysics.BroadPhaseSystems
         //The PUG definitely can- consider two entities that are both in two adjacent cells.
         //Could say 'whatever' to it and handle it in the narrow phase-  use the NeedsUpdate property.
         //If NeedsUpdate is false, that means it's already been updated once.  Consider multithreaded problems.
-        //Would require an interlocked compare exchange or something similar to protect it.  
+        //Would require an interlocked compare exchange or something similar to protect it.
         //Slightly ruins the whole 'embarassingly parallel' aspect.
 
         //Need a something which has O(1) add, O(1) contains check, and fast iteration without requiring external nodes since everything gets regenerated each frame.

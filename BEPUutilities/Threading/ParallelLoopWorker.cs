@@ -3,15 +3,17 @@ using System.Threading;
 
 namespace BEPUutilities.Threading
 {
-    internal class ParallelLoopWorker : IDisposable
+    internal sealed class ParallelLoopWorker : IDisposable
     {
+        internal bool WorkerThreadsRunningCondition = true;
+
         private readonly ParallelLooper manager;
         internal bool disposed;
-        internal object disposedLocker = new object();
+        internal object disposedLocker = new();
         internal int finalIndex;
 
         internal AutoResetEvent getToWork;
-        
+
         internal int iterationsPerSteal;
         private Thread thread;
         private Action threadStart;
@@ -27,19 +29,12 @@ namespace BEPUutilities.Threading
             thread.Start();
         }
 
-
-
-
-
         internal void Work()
         {
-            if (threadStart != null)
-            {
-                threadStart();
-            }
+            threadStart?.Invoke();
             threadStart = null;
 
-            while (true)
+            while (WorkerThreadsRunningCondition)
             {
                 //When the owning ParallelLooper is told to start a loop, it will notify the worker via this signal.
                 getToWork.WaitOne();
@@ -69,13 +64,12 @@ namespace BEPUutilities.Threading
             }
         }
 
-
-
         /// <summary>
         /// Disposes the worker.
         /// </summary>
         public void Dispose()
         {
+            WorkerThreadsRunningCondition = false;
             lock (disposedLocker)
             {
                 if (!disposed)
@@ -93,8 +87,6 @@ namespace BEPUutilities.Threading
         /// Releases resources used by the object.
         /// </summary>
         ~ParallelLoopWorker()
-        {
-            Dispose();
-        }
+            => Dispose();
     }
 }

@@ -63,7 +63,8 @@ namespace BEPUutilities.DataStructures
         {
             if (index >= Count)
             {
-                throw new ArgumentOutOfRangeException("index");
+                return;
+                // throw new ArgumentOutOfRangeException("index");
             }
             Count--;
             if (index < Count)

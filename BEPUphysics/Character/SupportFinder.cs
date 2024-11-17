@@ -270,6 +270,8 @@ namespace BEPUphysics.Character
         /// </summary>
         private QueryManager QueryManager { get; set; }
 
+        // public CharacterHasSupport CharacterHasSupport;
+
         /// <summary>
         /// Constructs a new support finder.
         /// </summary>
@@ -326,6 +328,10 @@ namespace BEPUphysics.Character
                 ContactCategorizer.CategorizeContacts(pair, characterBody.CollisionInformation, ref downDirection, ref tractionContacts, ref supportContacts, ref sideContacts, ref headContacts);
             }
 
+            // if ((HasSupport = supportContacts.Count > 0) && (CharacterHasSupport != null))
+            // {
+            //     CharacterHasSupport?.Invoke(characterBody);
+            // }
             HasSupport = supportContacts.Count > 0;
             HasTraction = tractionContacts.Count > 0;
 
@@ -335,7 +341,7 @@ namespace BEPUphysics.Character
             //If ray tests are allowed when support contacts exist, the character will maintain traction despite climbing the wall.
             //The VerticalMotionConstraint can stop the character from climbing in many cases, but it's nice not to have to rely on it.
             //Disallowing ray tests when supports exist does have a cost, though. For example, consider rounded steps.
-            //If the character walks off a step such that it is still in contact with the step but is far enough down that the slope is too steep for traction, 
+            //If the character walks off a step such that it is still in contact with the step but is far enough down that the slope is too steep for traction,
             //the ray test won't recover traction. This situation just isn't very common.)
             if (!HasSupport && hadTraction)
             {

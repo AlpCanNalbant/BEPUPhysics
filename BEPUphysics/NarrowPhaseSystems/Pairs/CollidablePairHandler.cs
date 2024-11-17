@@ -28,7 +28,7 @@ namespace BEPUphysics.NarrowPhaseSystems.Pairs
         /// <summary>
         /// Gets the first entity associated with the pair.  This could be null if no entity is associated with CollidableA.
         /// </summary>
-        public abstract Entity EntityA { get; }        
+        public abstract Entity EntityA { get; }
         /// <summary>
         /// Gets the second entity associated with the pair.  This could be null if no entity is associated with CollidableB.
         /// </summary>
@@ -45,16 +45,11 @@ namespace BEPUphysics.NarrowPhaseSystems.Pairs
 
         protected internal abstract int ContactCount { get; }
 
-
-
         protected internal int previousContactCount;
 
 
         protected CollidablePairHandler()
-        {
-            Contacts = new ContactCollection(this);
-        }
-
+            => Contacts = new ContactCollection(this);
 
         protected internal float timeOfImpact = 1;
         ///<summary>
@@ -63,12 +58,7 @@ namespace BEPUphysics.NarrowPhaseSystems.Pairs
         /// updated object.
         ///</summary>
         public float TimeOfImpact
-        {
-            get
-            {
-                return timeOfImpact;
-            }
-        }
+            => timeOfImpact;
 
         ///<summary>
         /// Updates the time of impact for the pair.
@@ -77,21 +67,14 @@ namespace BEPUphysics.NarrowPhaseSystems.Pairs
         ///<param name="dt">Timestep duration.</param>
         public abstract void UpdateTimeOfImpact(Collidable requester, float dt);
 
-
         protected bool suppressEvents;
         ///<summary>
         /// Gets or sets whether or not to suppress events from this pair handler.
         ///</summary>
         public bool SuppressEvents
         {
-            get
-            {
-                return suppressEvents;
-            }
-            set
-            {
-                suppressEvents = value;
-            }
+            get => suppressEvents;
+            set => suppressEvents = value;
         }
 
         ///<summary>
@@ -101,8 +84,6 @@ namespace BEPUphysics.NarrowPhaseSystems.Pairs
         /// hierarchies of pairs for compound collisions.
         ///</summary>
         public IPairHandlerParent Parent { get; set; }
-
-
 
         ///<summary>
         /// Initializes the pair handler.
@@ -141,9 +122,7 @@ namespace BEPUphysics.NarrowPhaseSystems.Pairs
                 CollidableA.EventTriggerer.OnContactCreated(CollidableB, this, contact);
                 CollidableB.EventTriggerer.OnContactCreated(CollidableA, this, contact);
             }
-            if (Parent != null)
-                Parent.OnContactAdded(contact);
-
+            Parent?.OnContactAdded(contact);
         }
 
         protected virtual void OnContactRemoved(Contact contact)
@@ -154,18 +133,14 @@ namespace BEPUphysics.NarrowPhaseSystems.Pairs
                 CollidableA.EventTriggerer.OnContactRemoved(CollidableB, this, contact);
                 CollidableB.EventTriggerer.OnContactRemoved(CollidableA, this, contact);
             }
-            if (Parent != null)
-                Parent.OnContactRemoved(contact);
-
+            Parent?.OnContactRemoved(contact);
         }
-
 
         ///<summary>
         /// Cleans up the pair handler.
         ///</summary>
         public override void CleanUp()
         {
-
             //Child types remove contacts from the pair handler and call OnContactRemoved.
             //Child types manage the removal of the constraint from the space, if necessary.
 
@@ -223,13 +198,9 @@ namespace BEPUphysics.NarrowPhaseSystems.Pairs
         /// Uses default choices (such as the owning entities' materials).
         ///</summary>
         public void UpdateMaterialProperties()
-        {
-            UpdateMaterialProperties(null, null);
-        }
-
+            => UpdateMaterialProperties(null, null);
 
         protected internal abstract void GetContactInformation(int index, out ContactInformation info);
-
 
         ///<summary>
         /// Gets a list of the contacts in the pair and their associated constraint information.
@@ -257,8 +228,6 @@ namespace BEPUphysics.NarrowPhaseSystems.Pairs
         /// Forces the pair handler to clean out its contacts.
         /// </summary>
         public virtual void ClearContacts()
-        {
-            previousContactCount = 0;
-        }
+            => previousContactCount = 0;
     }
 }

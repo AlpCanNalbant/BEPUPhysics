@@ -29,9 +29,7 @@ namespace BEPUutilities.DataStructures
         /// Constructs an empty list.
         ///</summary>
         public RawValueList()
-        {
-            Elements = new T[4];
-        }
+            => Elements = new T[4];
         ///<summary>
         /// Constructs an empty list.
         ///</summary>
@@ -54,7 +52,7 @@ namespace BEPUutilities.DataStructures
         {
             if (index >= Count)
             {
-                throw new ArgumentOutOfRangeException("index");
+                return; // throw new ArgumentOutOfRangeException("index");
             }
             Count--;
             if (index < Count)
@@ -69,10 +67,7 @@ namespace BEPUutilities.DataStructures
         ///</summary>
         public int Capacity
         {
-            get
-            {
-                return Elements.Length;
-            }
+            get => Elements.Length;
             set
             {
                 T[] newArray = new T[value];
@@ -99,9 +94,7 @@ namespace BEPUutilities.DataStructures
         /// Clears the list of all elements.
         ///</summary>
         public void Clear()
-        {
-            Count = 0;
-        }
+            => Count = 0;
 
         ///<summary>
         /// Removes an element from the list.
@@ -123,9 +116,6 @@ namespace BEPUutilities.DataStructures
         ///<param name="item">Item to search for.</param>
         ///<returns>Index of the searched element.</returns>
         public int IndexOf(ref T item)
-        {
-            return Array.IndexOf(Elements, item);
-        }
-
+            => Array.IndexOf(Elements, item);
     }
 }

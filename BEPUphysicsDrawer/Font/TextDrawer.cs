@@ -94,12 +94,12 @@ namespace BEPUphysicsDrawer.Font
 
         //These last bits are based on some sample code posted by Stephen Styrchak (http://forums.xna.com/forums/p/45512/271953.aspx).
 
-        /// <summary>  
+        /// <summary>
         /// Draws an integer.
-        /// </summary>  
-        /// <param name="value">The integer value to draw.</param>  
-        /// <param name="position">The screen position specifying where to draw the value.</param>  
-        /// <returns>The next position on the line to draw text. This value uses position.Y and position.X plus the equivalent of calling spriteFont.MeasureString on value.ToString(CultureInfo.InvariantCulture).</returns>  
+        /// </summary>
+        /// <param name="value">The integer value to draw.</param>
+        /// <param name="position">The screen position specifying where to draw the value.</param>
+        /// <returns>The next position on the line to draw text. This value uses position.Y and position.X plus the equivalent of calling spriteFont.MeasureString on value.ToString(CultureInfo.InvariantCulture).</returns>
         public Vector2 Draw(int value, Vector2 position)
         {
             Vector2 nextPosition = position;
@@ -142,24 +142,24 @@ namespace BEPUphysicsDrawer.Font
             return position;
         }
 
-        /// <summary>  
+        /// <summary>
         /// Draws a double.
-        /// </summary>  
-        /// <param name="value">The double value to draw.</param>  
-        /// <param name="position">The screen position specifying where to draw the value.</param>  
-        /// <returns>The next position on the line to draw text. This value uses position.Y and position.X plus the equivalent of calling spriteFont.MeasureString on value.ToString(CultureInfo.InvariantCulture).</returns>  
+        /// </summary>
+        /// <param name="value">The double value to draw.</param>
+        /// <param name="position">The screen position specifying where to draw the value.</param>
+        /// <returns>The next position on the line to draw text. This value uses position.Y and position.X plus the equivalent of calling spriteFont.MeasureString on value.ToString(CultureInfo.InvariantCulture).</returns>
         public Vector2 Draw(double value, Vector2 position)
         {
             return Draw(value, 1, position);
         }
 
-        /// <summary>  
+        /// <summary>
         /// Draws a double.
-        /// </summary>  
-        /// <param name="value">The double value to draw.</param>  
+        /// </summary>
+        /// <param name="value">The double value to draw.</param>
         /// <param name="numPlaces">Maximum number of digits to include after the decimal.</param>
-        /// <param name="position">The screen position specifying where to draw the value.</param>  
-        /// <returns>The next position on the line to draw text. This value uses position.Y and position.X plus the equivalent of calling spriteFont.MeasureString on value.ToString(CultureInfo.InvariantCulture).</returns>  
+        /// <param name="position">The screen position specifying where to draw the value.</param>
+        /// <returns>The next position on the line to draw text. This value uses position.Y and position.X plus the equivalent of calling spriteFont.MeasureString on value.ToString(CultureInfo.InvariantCulture).</returns>
         public Vector2 Draw(double value, int numPlaces, Vector2 position)
         {
             Vector2 nextPosition = position;

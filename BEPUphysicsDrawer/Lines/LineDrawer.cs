@@ -47,7 +47,7 @@ namespace BEPUphysicsDrawer.Lines
             this.game = game;
             lineDrawer = new BasicEffect(game.GraphicsDevice);
 
-            //Set up the default type mapping.   
+            //Set up the default type mapping.
             displayTypes.Add(typeof(PointOnPlaneJoint), typeof(DisplayPointOnPlaneJoint));
             displayTypes.Add(typeof(SwivelHingeAngularJoint), typeof(DisplaySwivelHingeAngularJoint));
             displayTypes.Add(typeof(PointOnLineJoint), typeof(DisplayPointOnLineJoint));
@@ -107,8 +107,8 @@ namespace BEPUphysicsDrawer.Lines
         /// <param name="line">Line to make invisible.</param>
         public void Deactivate(Line line)
         {
-            line.ColorA = new Color(line.ColorA.R, line.ColorA.G, line.ColorA.B, 0);
-            line.ColorB = new Color(line.ColorB.R, line.ColorB.G, line.ColorB.B, 0);
+            line.ColorA = new Color(line.ColorA.R, line.ColorA.G, line.ColorA.B, (byte)0);
+            line.ColorB = new Color(line.ColorB.R, line.ColorB.G, line.ColorB.B, (byte)0);
         }
 
         /// <summary>
@@ -117,8 +117,8 @@ namespace BEPUphysicsDrawer.Lines
         /// <param name="line">Line to make visible.</param>
         public void Activate(Line line)
         {
-            line.ColorA = new Color(line.ColorA.R, line.ColorA.G, line.ColorA.B, 255);
-            line.ColorB = new Color(line.ColorB.R, line.ColorB.G, line.ColorB.B, 255);
+            line.ColorA = new Color(line.ColorA.R, line.ColorA.G, line.ColorA.B, (byte)255);
+            line.ColorB = new Color(line.ColorB.R, line.ColorB.G, line.ColorB.B, (byte)255);
         }
 
         /// <summary>
@@ -201,7 +201,7 @@ namespace BEPUphysicsDrawer.Lines
             }
             if (o is SolverGroup)
             {
-                //Solver groups are special.  If no special type-specific display object 
+                //Solver groups are special.  If no special type-specific display object
                 //has been registered for a solver group, add every child individually.
                 foreach (SolverUpdateable item in (o as SolverGroup).SolverUpdateables)
                 {
@@ -230,7 +230,7 @@ namespace BEPUphysicsDrawer.Lines
             }
             if (o is SolverGroup)
             {
-                //Solver groups are special.  If no special type-specific display object 
+                //Solver groups are special.  If no special type-specific display object
                 //has been registered for a solver group, remove every child individually.
                 bool removed = true;
                 foreach (var item in (o as SolverGroup).SolverUpdateables)
@@ -260,7 +260,7 @@ namespace BEPUphysicsDrawer.Lines
         public void Dispose()
         {
             if (!disposed)
-            { 
+            {
                 disposed = true;
                 blendState.Dispose();
                 lineDrawer.Dispose();

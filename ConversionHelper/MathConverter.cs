@@ -230,7 +230,7 @@ namespace ConversionHelper
             quaternion.W = bepuQuaternion.W;
         }
 
-        public static void Convert(ref Quaternion quaternion, out  BEPUutilities.Quaternion bepuQuaternion)
+        public static void Convert(ref Quaternion quaternion, out BEPUutilities.Quaternion bepuQuaternion)
         {
             bepuQuaternion.X = quaternion.X;
             bepuQuaternion.Y = quaternion.Y;

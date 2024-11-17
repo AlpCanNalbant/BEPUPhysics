@@ -18,14 +18,12 @@ namespace BEPUphysicsDrawer.Models
             var tempVertices = new VertexPositionNormalTexture[shape.TriangleMesh.Data.Vertices.Length];
             for (int i = 0; i < shape.TriangleMesh.Data.Vertices.Length; i++)
             {
-                BEPUutilities.Vector3 position;
-                shape.TriangleMesh.Data.GetVertexPosition(i, out position);
+                shape.TriangleMesh.Data.GetVertexPosition(i, out BEPUutilities.Vector3 position);
                 tempVertices[i] = new VertexPositionNormalTexture(
                     MathConverter.Convert(position),
-                    Vector3.Zero, 
+                    Vector3.Zero,
                     Vector2.Zero);
             }
-
             for (int i = 0; i < shape.TriangleMesh.Data.Indices.Length; i++)
             {
                 indices.Add((ushort)shape.TriangleMesh.Data.Indices[i]);
@@ -42,13 +40,11 @@ namespace BEPUphysicsDrawer.Models
                 tempVertices[b].Normal += normal;
                 tempVertices[c].Normal += normal;
             }
-
             for (int i = 0; i < tempVertices.Length; i++)
             {
                 tempVertices[i].Normal.Normalize();
                 vertices.Add(tempVertices[i]);
             }
         }
-
     }
 }

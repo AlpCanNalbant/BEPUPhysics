@@ -21,10 +21,7 @@ namespace BEPUphysics.BroadPhaseEntries.Events
         /// </summary>
         int IDeferredEventCreator.ChildDeferredEventCreators
         {
-            get
-            {
-                return childDeferredEventCreators;
-            }
+            get => childDeferredEventCreators;
             set
             {
                 int previousValue = childDeferredEventCreators;
@@ -56,10 +53,7 @@ namespace BEPUphysics.BroadPhaseEntries.Events
         /// </summary>
         protected internal CompoundEventManager Parent
         {
-            get
-            {
-                return parent;
-            }
+            get => parent;
             set
             {
                 //The child deferred event creator links must be maintained.
@@ -78,16 +72,10 @@ namespace BEPUphysics.BroadPhaseEntries.Events
         ///</summary>
         public T Owner
         {
-            get
-            {
-                return owner;
-            }
+            get => owner;
             protected internal set
-            {
-                owner = value;
-            }
+                => owner = value;
         }
-
 
         #region Events
         /// <summary>
@@ -184,40 +172,26 @@ namespace BEPUphysics.BroadPhaseEntries.Events
         }
 
         protected virtual bool EventsAreInactive()
-        {
-            return InternalPairCreated == null &&
-                   InternalPairRemoved == null &&
-                   InternalPairUpdated == null;
-        }
-
+            => InternalPairCreated == null &&
+               InternalPairRemoved == null &&
+               InternalPairUpdated == null;
 
         protected void AddToEventfuls()
-        {
-            ((IDeferredEventCreator)this).IsActive = true;
-        }
-
+            => ((IDeferredEventCreator)this).IsActive = true;
 
         private DeferredEventDispatcher deferredEventDispatcher;
         DeferredEventDispatcher IDeferredEventCreator.DeferredEventDispatcher
         {
-            get
-            {
-                return deferredEventDispatcher;
-            }
-            set
-            {
-                deferredEventDispatcher = value;
-            }
+            get => deferredEventDispatcher;
+            set => deferredEventDispatcher = value;
         }
 
-        readonly ConcurrentDeque<EventStoragePairCreated> eventStoragePairCreated = new ConcurrentDeque<EventStoragePairCreated>(0);
-        readonly ConcurrentDeque<EventStoragePairRemoved> eventStoragePairRemoved = new ConcurrentDeque<EventStoragePairRemoved>(0);
-        readonly ConcurrentDeque<EventStoragePairUpdated> eventStoragePairUpdated = new ConcurrentDeque<EventStoragePairUpdated>(0);
+        readonly ConcurrentDeque<EventStoragePairCreated> eventStoragePairCreated = new(0);
+        readonly ConcurrentDeque<EventStoragePairRemoved> eventStoragePairRemoved = new(0);
+        readonly ConcurrentDeque<EventStoragePairUpdated> eventStoragePairUpdated = new(0);
 
         void IDeferredEventCreator.DispatchEvents()
-        {
-            DispatchEvents();
-        }
+            => DispatchEvents();
         protected virtual void DispatchEvents()
         {
             //Note: Deferred event creation should be performed sequentially with dispatching.
@@ -226,20 +200,12 @@ namespace BEPUphysics.BroadPhaseEntries.Events
             //Note: If the deferred event handler is removed during the execution of the engine, the handler may be null.
             //In this situation, ignore the event.
             //This is not a particularly clean behavior, but it's better than just crashing.
-            EventStoragePairCreated collisionPairCreated;
-            while (eventStoragePairCreated.TryUnsafeDequeueFirst(out collisionPairCreated))
-                if (InternalPairCreated != null)
-                    InternalPairCreated(owner, collisionPairCreated.other, collisionPairCreated.pair);
-            EventStoragePairRemoved collisionPairRemoved;
-            while (eventStoragePairRemoved.TryUnsafeDequeueFirst(out collisionPairRemoved))
-                if (InternalPairRemoved != null)
-                    InternalPairRemoved(owner, collisionPairRemoved.other);
-            EventStoragePairUpdated collisionPairUpdated;
-            while (eventStoragePairUpdated.TryUnsafeDequeueFirst(out collisionPairUpdated))
-                if (InternalPairUpdated != null)
-                    InternalPairUpdated(owner, collisionPairUpdated.other, collisionPairUpdated.pair);
-
-
+            while (eventStoragePairCreated.TryUnsafeDequeueFirst(out EventStoragePairCreated collisionPairCreated))
+                InternalPairCreated?.Invoke(owner, collisionPairCreated.other, collisionPairCreated.pair);
+            while (eventStoragePairRemoved.TryUnsafeDequeueFirst(out EventStoragePairRemoved collisionPairRemoved))
+                InternalPairRemoved?.Invoke(owner, collisionPairRemoved.other);
+            while (eventStoragePairUpdated.TryUnsafeDequeueFirst(out EventStoragePairUpdated collisionPairUpdated))
+                InternalPairUpdated?.Invoke(owner, collisionPairUpdated.other, collisionPairUpdated.pair);
         }
 
 
@@ -247,8 +213,7 @@ namespace BEPUphysics.BroadPhaseEntries.Events
         {
             if (InternalPairCreated != null)
                 eventStoragePairCreated.Enqueue(new EventStoragePairCreated(other, collisionPair));
-            if (CreatingPair != null)
-                CreatingPair(owner, other, collisionPair);
+            CreatingPair?.Invoke(owner, other, collisionPair);
         }
 
         public void OnPairRemoved(BroadPhaseEntry other)
@@ -257,18 +222,14 @@ namespace BEPUphysics.BroadPhaseEntries.Events
             {
                 eventStoragePairRemoved.Enqueue(new EventStoragePairRemoved(other));
             }
-            if (RemovingPair != null)
-            {
-                RemovingPair(owner, other);
-            }
+            RemovingPair?.Invoke(owner, other);
         }
 
         public void OnPairUpdated(BroadPhaseEntry other, NarrowPhasePair collisionPair)
         {
             if (InternalPairUpdated != null)
                 eventStoragePairUpdated.Enqueue(new EventStoragePairUpdated(other, collisionPair));
-            if (PairUpdating != null)
-                PairUpdating(owner, other, collisionPair);
+            PairUpdating?.Invoke(owner, other, collisionPair);
         }
 
 
@@ -276,10 +237,7 @@ namespace BEPUphysics.BroadPhaseEntries.Events
         //IsActive is enabled whenever this collision information can dispatch events.
         bool IDeferredEventCreator.IsActive
         {
-            get
-            {
-                return isActive;
-            }
+            get => isActive;
             set
             {
                 if (!isActive && value)
@@ -288,9 +246,7 @@ namespace BEPUphysics.BroadPhaseEntries.Events
                     //Notify the parent that it needs to activate.
                     if (parent != null)
                         ((IDeferredEventCreator)parent).ChildDeferredEventCreators++;
-
-                    if (deferredEventDispatcher != null)
-                        deferredEventDispatcher.CreatorActivityChanged(this);
+                    deferredEventDispatcher?.CreatorActivityChanged(this);
                 }
                 else if (isActive && !value)
                 {
@@ -298,9 +254,7 @@ namespace BEPUphysics.BroadPhaseEntries.Events
                     //Notify the parent that it can deactivate.
                     if (parent != null)
                         ((IDeferredEventCreator)parent).ChildDeferredEventCreators--;
-
-                    if (deferredEventDispatcher != null)
-                        deferredEventDispatcher.CreatorActivityChanged(this);
+                    deferredEventDispatcher?.CreatorActivityChanged(this);
                 }
             }
         }
@@ -321,12 +275,5 @@ namespace BEPUphysics.BroadPhaseEntries.Events
         }
 
         #endregion
-
-
-
     }
-
-
-
-
 }

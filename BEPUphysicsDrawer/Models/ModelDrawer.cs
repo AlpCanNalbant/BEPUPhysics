@@ -24,8 +24,6 @@ namespace BEPUphysicsDrawer.Models
         private readonly RasterizerState wireframeState;
         protected Texture2D colors;
 
-
-
         private static readonly Dictionary<Type, Type> displayTypes = new Dictionary<Type, Type>();
         private static readonly Dictionary<Type, ShapeMeshGetter> shapeMeshGetters = new Dictionary<Type, ShapeMeshGetter>();
 
@@ -244,8 +242,9 @@ namespace BEPUphysicsDrawer.Models
         /// </summary>
         public void Update()
         {
-            foreach (SelfDrawingModelDisplayObject displayObject in selfDrawingDisplayObjects)
-                displayObject.Update();
+            // foreach (SelfDrawingModelDisplayObject displayObject in selfDrawingDisplayObjects)
+            for (int i = 0; i < selfDrawingDisplayObjects.Count; ++i)
+                selfDrawingDisplayObjects[i].Update();
             UpdateManagedModels();
         }
 
@@ -261,14 +260,30 @@ namespace BEPUphysicsDrawer.Models
         /// <param name="projectionMatrix">Projection matrix to use to draw the objects.</param>
         public void Draw(Matrix viewMatrix, Matrix projectionMatrix)
         {
-            Game.GraphicsDevice.RasterizerState = IsWireframe ? wireframeState : fillState;
+            // var oldFillMode = graphics.FillMode;
+            // var oldCullMode = graphics.CullMode;
+            // if (!IsWireframe)
+            // {
+            //     graphics.FillMode = FillMode.Solid;
+            // }
+            // else
+            // {
+            //     graphics.FillMode = FillMode.WireFrame;
+            //     graphics.CullMode = CullMode.None;
+            // }
 
-            Game.GraphicsDevice.BlendState = BlendState.Opaque;
-            Game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            // Game.GraphicsDevice.RasterizerState = IsWireframe ? wireframeState : fillState;
 
-            foreach (SelfDrawingModelDisplayObject displayObject in selfDrawingDisplayObjects)
-                displayObject.Draw(viewMatrix, projectionMatrix);
+            // Game.GraphicsDevice.BlendState = BlendState.Opaque;
+            // Game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+
+            // foreach (SelfDrawingModelDisplayObject displayObject in selfDrawingDisplayObjects)
+            for (int i = 0; i < selfDrawingDisplayObjects.Count; ++i)
+                selfDrawingDisplayObjects[i].Draw(viewMatrix, projectionMatrix);
             DrawManagedModels(viewMatrix, projectionMatrix);
+
+            // graphics.FillMode = oldFillMode;
+            // graphics.CullMode = oldCullMode;
         }
 
         /// <summary>
@@ -276,8 +291,7 @@ namespace BEPUphysicsDrawer.Models
         /// </summary>
         /// <param name="viewMatrix">View matrix to use to draw the objects.</param>
         /// <param name="projectionMatrix">Projection matrix to use to draw the objects.</param>
-        protected abstract void DrawManagedModels(Matrix viewMatrix, Matrix projectionMatrix);
-
+        public abstract void DrawManagedModels(Matrix viewMatrix, Matrix projectionMatrix);
 
         public delegate void ShapeMeshGetter(EntityCollidable collidable, List<VertexPositionNormalTexture> vertices, List<ushort> indices);
 

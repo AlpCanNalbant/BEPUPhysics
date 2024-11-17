@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using BEPUphysics.BroadPhaseEntries;
 using BEPUutilities;
- 
+
 
 namespace BEPUphysics.BroadPhaseSystems.Hierarchies
 {
@@ -12,20 +12,13 @@ namespace BEPUphysics.BroadPhaseSystems.Hierarchies
     {
         private readonly DynamicHierarchy hierarchy;
         internal DynamicHierarchyQueryAccelerator(DynamicHierarchy hierarchy)
-        {
-            this.hierarchy = hierarchy;
-        }
+            => this.hierarchy = hierarchy;
 
         /// <summary>
         /// Gets the broad phase associated with this query accelerator.
         /// </summary>
         public BroadPhase BroadPhase
-        {
-            get
-            {
-                return hierarchy;
-            }
-        }
+            => hierarchy;
 
         /// <summary>
         /// Collects all entries with bounding boxes which intersect the given bounding box.
@@ -33,11 +26,7 @@ namespace BEPUphysics.BroadPhaseSystems.Hierarchies
         /// <param name="box">Bounding box to test against the world.</param>
         /// <param name="entries">Entries of the space which intersect the bounding box.</param>
         public void GetEntries(BoundingBox box, IList<BroadPhaseEntry> entries)
-        {
-            if (hierarchy.root != null)
-                hierarchy.root.GetOverlaps(ref box, entries);
-
-        }
+            => hierarchy.root?.GetOverlaps(ref box, entries);
 
         ///// <summary>
         ///// Collects all entries with bounding boxes which intersect the given frustum.
@@ -57,12 +46,7 @@ namespace BEPUphysics.BroadPhaseSystems.Hierarchies
         /// <param name="sphere">Sphere to test against the world.</param>
         /// <param name="entries">Entries of the space which intersect the sphere.</param>
         public void GetEntries(BoundingSphere sphere, IList<BroadPhaseEntry> entries)
-        {
-            if (hierarchy.root != null)
-                hierarchy.root.GetOverlaps(ref sphere, entries);
-
-        }
-
+            => hierarchy.root?.GetOverlaps(ref sphere, entries);
 
         /// <summary>
         /// Finds all intersections between the ray and broad phase entries.
@@ -72,15 +56,19 @@ namespace BEPUphysics.BroadPhaseSystems.Hierarchies
         /// <param name="entries">Entries which have bounding boxes that overlap the ray.</param>
         public bool RayCast(Ray ray, float maximumLength, IList<BroadPhaseEntry> entries)
         {
-            if (hierarchy.root != null)
+            try
             {
-                hierarchy.root.GetOverlaps(ref ray, maximumLength, entries);
+                if (hierarchy.root != null)
+                {
+                    hierarchy.root.GetOverlaps(ref ray, maximumLength, entries);
 
-                return entries.Count > 0;
+                    return entries.Count > 0;
+                }
             }
+            catch
+            { }
             return false;
         }
-
 
         /// <summary>
         /// Finds all intersections between the ray and broad phase entries.
@@ -89,15 +77,18 @@ namespace BEPUphysics.BroadPhaseSystems.Hierarchies
         /// <param name="entries">Entries which have bounding boxes that overlap the ray.</param>
         public bool RayCast(Ray ray, IList<BroadPhaseEntry> entries)
         {
-            if (hierarchy.root != null)
+            try
             {
-                hierarchy.root.GetOverlaps(ref ray, float.MaxValue, entries);
+                if (hierarchy.root != null)
+                {
+                    hierarchy.root.GetOverlaps(ref ray, float.MaxValue, entries);
 
-                return entries.Count > 0;
+                    return entries.Count > 0;
+                }
             }
+            catch
+            { }
             return false;
         }
-
-
     }
 }

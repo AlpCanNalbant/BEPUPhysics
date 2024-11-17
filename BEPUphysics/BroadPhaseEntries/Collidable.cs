@@ -14,11 +14,7 @@ namespace BEPUphysics.BroadPhaseEntries
     public abstract class Collidable : BroadPhaseEntry
     {
         protected Collidable()
-        {
-            shapeChangedDelegate = OnShapeChanged;
-        }
-
-
+            => shapeChangedDelegate = OnShapeChanged;
 
         protected internal CollisionShape shape; //Having this non-private allows for some very special-casey stuff; see TriangleShape initialization.
         ///<summary>
@@ -26,10 +22,7 @@ namespace BEPUphysics.BroadPhaseEntries
         ///</summary>
         public CollisionShape Shape
         {
-            get
-            {
-                return shape;
-            }
+            get => shape;
             protected set
             {
                 if (shape != null && shapeChangedHooked)
@@ -49,10 +42,7 @@ namespace BEPUphysics.BroadPhaseEntries
         /// <remarks>Yes, this is a hack.</remarks>
         public bool ShapeChangedHooked
         {
-            get
-            {
-                return shapeChangedHooked;
-            }
+            get => shapeChangedHooked;
             set
             {
                 if (shape != null)
@@ -72,44 +62,30 @@ namespace BEPUphysics.BroadPhaseEntries
 
         protected internal abstract IContactEventTriggerer EventTriggerer { get; }
 
-
-
         /// <summary>
         /// Gets or sets whether or not to ignore shape changes.  When true, changing the collision shape will not force the collidable to perform any updates.
         /// Does not modify the shape changed event delegate list.
         /// </summary>
         public bool IgnoreShapeChanges { get; set; }
 
-        Action<CollisionShape> shapeChangedDelegate;
+        readonly Action<CollisionShape> shapeChangedDelegate;
         protected virtual void OnShapeChanged(CollisionShape collisionShape)
-        {
-        }
+        { }
 
-
-        internal RawList<CollidablePairHandler> pairs = new RawList<CollidablePairHandler>();
+        internal RawList<CollidablePairHandler> pairs = [];
         ///<summary>
         /// Gets the list of pairs associated with the collidable.
         /// These pairs are found by the broad phase and are managed by the narrow phase;
         /// they can contain other collidables, entities, and contacts.
         ///</summary>
         public ReadOnlyList<CollidablePairHandler> Pairs
-        {
-            get
-            {
-                return new ReadOnlyList<CollidablePairHandler>(pairs);
-            }
-        }
+            => new(pairs);
 
         ///<summary>
         /// Gets a list of all other collidables that this collidable overlaps.
         ///</summary>
         public CollidableCollection OverlappedCollidables
-        {
-            get
-            {
-                return new CollidableCollection(this);
-            }
-        }
+            => new(this);
 
         protected override void CollisionRulesUpdated()
         {
@@ -118,8 +94,6 @@ namespace BEPUphysics.BroadPhaseEntries
                 pairs[i].CollisionRule = CollisionRules.CollisionRuleCalculator(pairs[i].BroadPhaseOverlap.entryA, pairs[i].BroadPhaseOverlap.entryB);
             }
         }
-
-
 
         internal void AddPair(CollidablePairHandler pair, ref int index)
         {
@@ -143,9 +117,5 @@ namespace BEPUphysics.BroadPhaseEntries
             }
             index = -1;
         }
-
-
     }
-
-
 }

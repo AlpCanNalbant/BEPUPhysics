@@ -13,7 +13,7 @@ namespace BEPUutilities.Threading
         private readonly AutoResetEvent loopFinished;
         private int workerCount;
 
-        internal List<ParallelLoopWorker> workers = new List<ParallelLoopWorker>();
+        internal List<ParallelLoopWorker> workers = [];
 
         internal int currentBeginIndex, currentEndIndex;
         internal Action<int> currentLoopBody;
@@ -25,8 +25,8 @@ namespace BEPUutilities.Threading
         /// </summary>
         public int MinimumTasksPerThread
         {
-            get { return minimumTasksPerThread; }
-            set { minimumTasksPerThread = value; }
+            get => minimumTasksPerThread;
+            set => minimumTasksPerThread = value;
         }
 
         /// <summary>
@@ -35,8 +35,8 @@ namespace BEPUutilities.Threading
         /// </summary>
         public int MaximumIterationsPerTask
         {
-            get { return maximumIterationsPerTask; }
-            set { maximumIterationsPerTask = value; }
+            get => maximumIterationsPerTask;
+            set => maximumIterationsPerTask = value;
         }
 
 #if WINDOWS
@@ -53,34 +53,26 @@ namespace BEPUutilities.Threading
         /// Constructs a new parallel loop manager.
         /// </summary>
         public ParallelLooper()
-        {
-            loopFinished = new AutoResetEvent(false);
-        }
+            => loopFinished = new AutoResetEvent(false);
 
         /// <summary>
         /// Gets the number of threads used by the looper.
         /// </summary>
         public int ThreadCount
-        {
-            get { return workers.Count; }
-        }
+            => workers.Count;
 
         /// <summary>
         /// Adds a thread to the manager.
         /// </summary>
         public void AddThread()
-        {
-            AddThread(null);
-        }
+            => AddThread(null);
 
         /// <summary>
         /// Adds a thread to the manager.
         /// </summary>
         /// <param name="threadStart">Initialization to run on the worker thread.</param>
         public void AddThread(Action threadStart)
-        {
-            workers.Add(new ParallelLoopWorker(this, threadStart));
-        }
+            => workers.Add(new ParallelLoopWorker(this, threadStart));
 
         /// <summary>
         /// Removes a thread from the manager.
@@ -127,11 +119,11 @@ namespace BEPUutilities.Threading
             currentLoopBody = loopBody;
             iterationsPerSteal = Math.Max(1, iterationCount / taskSubdivisions);
             jobIndex = 0;
-            float maxJobs = iterationCount / (float) iterationsPerSteal;
+            float maxJobs = iterationCount / (float)iterationsPerSteal;
             if (maxJobs % 1 == 0)
-                maxJobIndex = (int) maxJobs;
+                maxJobIndex = (int)maxJobs;
             else
-                maxJobIndex = 1 + (int) maxJobs;
+                maxJobIndex = 1 + (int)maxJobs;
 
             for (int i = 0; i < workers.Count; i++)
             {
@@ -151,13 +143,17 @@ namespace BEPUutilities.Threading
 
 
         private bool disposed;
-        private readonly object disposedLocker = new object();
+        private readonly object disposedLocker = new();
 
         /// <summary>
         /// Releases resources used by the object.
         /// </summary>
         public void Dispose()
         {
+            foreach (var worker in workers)
+            {
+                worker.WorkerThreadsRunningCondition = false;
+            }
             lock (disposedLocker)
             {
                 if (!disposed)
@@ -177,11 +173,6 @@ namespace BEPUutilities.Threading
         /// Releases resources used by the object.
         /// </summary>
         ~ParallelLooper()
-        {
-            Dispose();
-        }
-
-
-
+            => Dispose();
     }
 }

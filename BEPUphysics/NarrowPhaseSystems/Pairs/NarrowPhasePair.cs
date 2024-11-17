@@ -27,14 +27,8 @@ namespace BEPUphysics.NarrowPhaseSystems.Pairs
         ///</summary>
         public CollisionRule CollisionRule
         {
-            get
-            {
-                return broadPhaseOverlap.collisionRule;
-            }
-            set
-            {
-                broadPhaseOverlap.collisionRule = value;
-            }
+            get => broadPhaseOverlap.collisionRule;
+            set => broadPhaseOverlap.collisionRule = value;
         }
 
         protected internal BroadPhaseOverlap broadPhaseOverlap;
@@ -43,10 +37,7 @@ namespace BEPUphysics.NarrowPhaseSystems.Pairs
         ///</summary>
         public BroadPhaseOverlap BroadPhaseOverlap
         {
-            get
-            {
-                return broadPhaseOverlap;
-            }
+            get => broadPhaseOverlap;
             set
             {
                 broadPhaseOverlap = value;

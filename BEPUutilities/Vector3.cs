@@ -61,19 +61,15 @@ namespace BEPUutilities
         /// Computes the squared length of the vector.
         /// </summary>
         /// <returns>Squared length of the vector.</returns>
-        public float LengthSquared()
-        {
-            return X * X + Y * Y + Z * Z;
-        }
+        public readonly float LengthSquared()
+            => X * X + Y * Y + Z * Z;
 
         /// <summary>
         /// Computes the length of the vector.
         /// </summary>
         /// <returns>Length of the vector.</returns>
-        public float Length()
-        {
-            return (float)Math.Sqrt(X * X + Y * Y + Z * Z);
-        }
+        public readonly float Length()
+            => (float)Math.Sqrt(X * X + Y * Y + Z * Z);
 
         /// <summary>
         /// Normalizes the vector.
@@ -90,10 +86,8 @@ namespace BEPUutilities
         /// Gets a string representation of the vector.
         /// </summary>
         /// <returns>String representing the vector.</returns>
-        public override string ToString()
-        {
-            return "{" + X + ", " + Y + ", " + Z + "}";
-        }
+        public override readonly string ToString()
+            => "{" + X + ", " + Y + ", " + Z + "}";
 
         /// <summary>
         /// Computes the dot product of two vectors.
@@ -102,9 +96,7 @@ namespace BEPUutilities
         /// <param name="b">Second vector in the product.</param>
         /// <returns>Resulting dot product.</returns>
         public static float Dot(Vector3 a, Vector3 b)
-        {
-            return a.X * b.X + a.Y * b.Y + a.Z * b.Z;
-        }
+            => a.X * b.X + a.Y * b.Y + a.Z * b.Z;
 
         /// <summary>
         /// Computes the dot product of two vectors.
@@ -113,9 +105,8 @@ namespace BEPUutilities
         /// <param name="b">Second vector in the product.</param>
         /// <param name="product">Resulting dot product.</param>
         public static void Dot(ref Vector3 a, ref Vector3 b, out float product)
-        {
-            product = a.X * b.X + a.Y * b.Y + a.Z * b.Z;
-        }
+            => product = a.X * b.X + a.Y * b.Y + a.Z * b.Z;
+
         /// <summary>
         /// Adds two vectors together.
         /// </summary>
@@ -217,8 +208,7 @@ namespace BEPUutilities
         /// <returns>Result of the componentwise multiplication.</returns>
         public static Vector3 operator *(Vector3 a, Vector3 b)
         {
-            Vector3 result;
-            Multiply(ref a, ref b, out result);
+            Multiply(ref a, ref b, out Vector3 result);
             return result;
         }
 
@@ -286,9 +276,8 @@ namespace BEPUutilities
         /// <param name="b">Second vector to test for equivalence.</param>
         /// <returns>Whether the vectors were equivalent.</returns>
         public static bool operator ==(Vector3 a, Vector3 b)
-        {
-            return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
-        }
+            => a.X == b.X && a.Y == b.Y && a.Z == b.Z;
+
         /// <summary>
         /// Tests two vectors for componentwise inequivalence.
         /// </summary>
@@ -296,9 +285,7 @@ namespace BEPUutilities
         /// <param name="b">Second vector to test for inequivalence.</param>
         /// <returns>Whether the vectors were inequivalent.</returns>
         public static bool operator !=(Vector3 a, Vector3 b)
-        {
-            return a.X != b.X || a.Y != b.Y || a.Z != b.Z;
-        }
+            => a.X != b.X || a.Y != b.Y || a.Z != b.Z;
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
@@ -307,10 +294,8 @@ namespace BEPUutilities
         /// true if the current object is equal to the <paramref name="other"/> parameter; otherwise, false.
         /// </returns>
         /// <param name="other">An object to compare with this object.</param>
-        public bool Equals(Vector3 other)
-        {
-            return X == other.X && Y == other.Y && Z == other.Z;
-        }
+        public readonly bool Equals(Vector3 other)
+            => X == other.X && Y == other.Y && Z == other.Z;
 
         /// <summary>
         /// Indicates whether this instance and a specified object are equal.
@@ -319,11 +304,11 @@ namespace BEPUutilities
         /// true if <paramref name="obj"/> and this instance are the same type and represent the same value; otherwise, false.
         /// </returns>
         /// <param name="obj">Another object to compare to. </param><filterpriority>2</filterpriority>
-        public override bool Equals(object obj)
+        public override readonly bool Equals(object obj)
         {
-            if (obj is Vector3)
+            if (obj is Vector3 vector)
             {
-                return Equals((Vector3)obj);
+                return Equals(vector);
             }
             return false;
         }
@@ -335,12 +320,10 @@ namespace BEPUutilities
         /// A 32-bit signed integer that is the hash code for this instance.
         /// </returns>
         /// <filterpriority>2</filterpriority>
-        public override int GetHashCode()
-        {
-            return X.GetHashCode() + Y.GetHashCode() + Z.GetHashCode();
-        }
+        public override readonly int GetHashCode()
+            => X.GetHashCode() + Y.GetHashCode() + Z.GetHashCode();
 
-        
+
         /// <summary>
         /// Computes the squared distance between two vectors.
         /// </summary>
@@ -391,8 +374,7 @@ namespace BEPUutilities
         /// <returns>Distance between the two vectors.</returns>
         public static float Distance(Vector3 a, Vector3 b)
         {
-            float toReturn;
-            Distance(ref a, ref b, out toReturn);
+            Distance(ref a, ref b, out float toReturn);
             return toReturn;
         }
 
@@ -400,132 +382,93 @@ namespace BEPUutilities
         /// Gets the zero vector.
         /// </summary>
         public static Vector3 Zero
-        {
-            get
-            {
-                return new Vector3();
-            }
-        }
+            => new();
 
         /// <summary>
         /// Gets the up vector (0,1,0).
         /// </summary>
         public static Vector3 Up
-        {
-            get
+            => new()
             {
-                return new Vector3()
-                {
-                    X = 0,
-                    Y = 1,
-                    Z = 0
-                };
-            }
-        }
+                X = 0,
+                Y = 1,
+                Z = 0
+            };
 
         /// <summary>
         /// Gets the down vector (0,-1,0).
         /// </summary>
         public static Vector3 Down
-        {
-            get
+            => new()
             {
-                return new Vector3()
-                {
-                    X = 0,
-                    Y = -1,
-                    Z = 0
-                };
-            }
-        }
+                X = 0,
+                Y = -1,
+                Z = 0
+            };
 
         /// <summary>
         /// Gets the right vector (1,0,0).
         /// </summary>
         public static Vector3 Right
-        {
-            get
-            {
-                return new Vector3()
+            => new()
                 {
                     X = 1,
                     Y = 0,
                     Z = 0
                 };
-            }
-        }
 
         /// <summary>
         /// Gets the left vector (-1,0,0).
         /// </summary>
         public static Vector3 Left
-        {
-            get
-            {
-                return new Vector3()
+            => new()
                 {
                     X = -1,
                     Y = 0,
                     Z = 0
                 };
-            }
-        }
 
         /// <summary>
         /// Gets the forward vector (0,0,-1).
         /// </summary>
         public static Vector3 Forward
-        {
-            get
-            {
-                return new Vector3()
+            => new()
                 {
                     X = 0,
                     Y = 0,
                     Z = -1
                 };
-            }
-        }
 
         /// <summary>
         /// Gets the back vector (0,0,1).
         /// </summary>
         public static Vector3 Backward
-        {
-            get
-            {
-                return new Vector3()
+            => new()
                 {
                     X = 0,
                     Y = 0,
                     Z = 1
                 };
-            }
-        }
 
         /// <summary>
         /// Gets a vector pointing along the X axis.
         /// </summary>
         public static Vector3 UnitX
-        {
-            get { return new Vector3 { X = 1 }; }
-        }
+            => new()
+            { X = 1 };
 
         /// <summary>
         /// Gets a vector pointing along the Y axis.
         /// </summary>
         public static Vector3 UnitY
-        {
-            get { return new Vector3 { Y = 1 }; }
-        }
+            => new()
+            { Y = 1 };
 
         /// <summary>
         /// Gets a vector pointing along the Z axis.
         /// </summary>
         public static Vector3 UnitZ
-        {
-            get { return new Vector3 { Z = 1 }; }
-        }
+            => new() { Z = 1 };
 
         /// <summary>
         /// Computes the cross product between two vectors.
@@ -535,8 +478,7 @@ namespace BEPUutilities
         /// <returns>Cross product of the two vectors.</returns>
         public static Vector3 Cross(Vector3 a, Vector3 b)
         {
-            Vector3 toReturn;
-            Vector3.Cross(ref a, ref b, out toReturn);
+            Vector3.Cross(ref a, ref b, out Vector3 toReturn);
             return toReturn;
         }
         /// <summary>
@@ -562,8 +504,7 @@ namespace BEPUutilities
         /// <returns>Normalized vector.</returns>
         public static Vector3 Normalize(Vector3 v)
         {
-            Vector3 toReturn;
-            Vector3.Normalize(ref v, out toReturn);
+            Vector3.Normalize(ref v, out Vector3 toReturn);
             return toReturn;
         }
 
@@ -620,8 +561,7 @@ namespace BEPUutilities
         /// <returns>Vector with nonnegative elements.</returns>
         public static Vector3 Abs(Vector3 v)
         {
-            Vector3 result;
-            Abs(ref v, out result);
+            Abs(ref v, out Vector3 result);
             return result;
         }
 
@@ -646,8 +586,7 @@ namespace BEPUutilities
         /// <returns>Vector containing the lesser values of each vector.</returns>
         public static Vector3 Min(Vector3 a, Vector3 b)
         {
-            Vector3 result;
-            Min(ref a, ref b, out result);
+            Min(ref a, ref b, out Vector3 result);
             return result;
         }
 
@@ -673,8 +612,7 @@ namespace BEPUutilities
         /// <returns>Vector containing the greater values of each vector.</returns>
         public static Vector3 Max(Vector3 a, Vector3 b)
         {
-            Vector3 result;
-            Max(ref a, ref b, out result);
+            Max(ref a, ref b, out Vector3 result);
             return result;
         }
 
@@ -687,8 +625,7 @@ namespace BEPUutilities
         /// <returns>Interpolated intermediate state.</returns>
         public static Vector3 Lerp(Vector3 start, Vector3 end, float interpolationAmount)
         {
-            Vector3 toReturn;
-            Lerp(ref start, ref end, interpolationAmount, out toReturn);
+            Lerp(ref start, ref end, interpolationAmount, out Vector3 toReturn);
             return toReturn;
         }
         /// <summary>
@@ -738,8 +675,7 @@ namespace BEPUutilities
         /// <returns>Interpolated intermediate state.</returns>
         public static Vector3 Hermite(Vector3 value1, Vector3 tangent1, Vector3 value2, Vector3 tangent2, float interpolationAmount)
         {
-            Vector3 toReturn;
-            Hermite(ref value1, ref tangent1, ref value2, ref tangent2, interpolationAmount, out toReturn);
+            Hermite(ref value1, ref tangent1, ref value2, ref tangent2, interpolationAmount, out Vector3 toReturn);
             return toReturn;
         }
     }

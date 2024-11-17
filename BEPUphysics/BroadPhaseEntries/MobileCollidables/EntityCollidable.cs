@@ -2,7 +2,7 @@
 using BEPUphysics.CollisionShapes;
 using BEPUphysics.Entities;
 using BEPUutilities;
- 
+
 using BEPUphysics.Settings;
 using System;
 using BEPUphysics.PositionUpdating;
@@ -20,27 +20,15 @@ namespace BEPUphysics.BroadPhaseEntries.MobileCollidables
         }
 
         protected EntityCollidable(EntityShape shape)
-        {
-            base.Shape = shape;
-        }
-
-
-
-
+            => base.Shape = shape;
 
         /// <summary>
         /// Gets the shape of the collidable.
         /// </summary>
         public new EntityShape Shape
         {
-            get
-            {
-                return (EntityShape)shape;
-            }
-            protected set
-            {
-                base.Shape = value;
-            }
+            get => (EntityShape)shape;
+            protected set => base.Shape = value;
         }
 
         protected internal Entity entity;
@@ -49,10 +37,7 @@ namespace BEPUphysics.BroadPhaseEntries.MobileCollidables
         ///</summary>
         public Entity Entity
         {
-            get
-            {
-                return entity;
-            }
+            get => entity;
             protected internal set
             {
                 entity = value;
@@ -60,10 +45,8 @@ namespace BEPUphysics.BroadPhaseEntries.MobileCollidables
             }
         }
 
-
         protected virtual void OnEntityChanged()
-        {
-        }
+        { }
 
         protected internal RigidTransform worldTransform;
         ///<summary>
@@ -74,17 +57,12 @@ namespace BEPUphysics.BroadPhaseEntries.MobileCollidables
         ///</summary>
         public RigidTransform WorldTransform
         {
-            get
-            {
-                return worldTransform;
-            }
+            get => worldTransform;
             set
             {
                 //Remove the local position.  The UpdateBoundingBoxForTransform will reintroduce it; we want the final result to put the shape (i.e. the WorldTransform) right where defined.
-                Quaternion conjugate;
-                Quaternion.Conjugate(ref value.Orientation, out conjugate);
-                Vector3 worldOffset;
-                Quaternion.Transform(ref localPosition, ref conjugate, out worldOffset);
+                Quaternion.Conjugate(ref value.Orientation, out Quaternion conjugate);
+                Quaternion.Transform(ref localPosition, ref conjugate, out Vector3 worldOffset);
                 Vector3.Subtract(ref value.Position, ref worldOffset, out value.Position);
                 UpdateBoundingBoxForTransform(ref value);
             }
@@ -94,12 +72,7 @@ namespace BEPUphysics.BroadPhaseEntries.MobileCollidables
         /// Gets whether this collidable is associated with an active entity. True if it is, false if it's not.
         /// </summary>
         public override bool IsActive
-        {
-            get
-            {
-                return entity != null ? entity.activityInformation.IsActive : false;
-            }
-        }
+            => entity != null && entity.activityInformation.IsActive;
 
         protected internal Vector3 localPosition;
         ///<summary>
@@ -109,14 +82,10 @@ namespace BEPUphysics.BroadPhaseEntries.MobileCollidables
         ///</summary>
         public Vector3 LocalPosition
         {
-            get
-            {
-                return localPosition;
-            }
+            get => localPosition;
             set
             {
                 localPosition = value;
-
                 localPosition.Validate();
             }
         }
@@ -127,9 +96,7 @@ namespace BEPUphysics.BroadPhaseEntries.MobileCollidables
         /// UpdateBoundingBoxForTransform instead.
         ///</summary>
         public override void UpdateBoundingBox()
-        {
-            UpdateBoundingBox(0);
-        }
+            => UpdateBoundingBox(0);
 
         ///<summary>
         /// Updates the bounding box of the mobile collidable according to the associated entity's current state.
@@ -184,10 +151,7 @@ namespace BEPUphysics.BroadPhaseEntries.MobileCollidables
         /// </summary>
         /// <param name="transform">Transform to use for the collidable.</param>
         public void UpdateBoundingBoxForTransform(ref RigidTransform transform)
-        {
-            UpdateBoundingBoxForTransform(ref transform, 0);
-        }
-
+            => UpdateBoundingBoxForTransform(ref transform, 0);
 
         protected internal abstract void UpdateBoundingBoxInternal(float dt);
 
@@ -249,7 +213,7 @@ namespace BEPUphysics.BroadPhaseEntries.MobileCollidables
                 //this isn't too important.  If an updating system is used where the bounding box MUST fully contain the frame's motion
                 //then the commented area should be used.
                 //Math.Min(entity.angularVelocity.Length() * dt, Shape.maximumRadius) * velocityScaling;
-                //TODO: consider using minimum radius 
+                //TODO: consider using minimum radius
 
             }
 
@@ -259,12 +223,11 @@ namespace BEPUphysics.BroadPhaseEntries.MobileCollidables
 
 
         protected override void CollisionRulesUpdated()
-        {
+
             //Try to activate the entity since our collision rules just changed; broadphase might need to update some stuff.
             //Beware, though; if this collidable is still being constructed, then the entity won't be available.
-            if (entity != null)
-                entity.activityInformation.Activate();
-        }
+            => entity?.activityInformation.Activate();
+
 
 
         protected internal ContactEventManager<EntityCollidable> events;
@@ -273,10 +236,7 @@ namespace BEPUphysics.BroadPhaseEntries.MobileCollidables
         ///</summary>
         public ContactEventManager<EntityCollidable> Events
         {
-            get
-            {
-                return events;
-            }
+            get => events;
             set
             {
                 if (value.Owner != null && //Can't use a manager which is owned by a different entity.
@@ -299,22 +259,12 @@ namespace BEPUphysics.BroadPhaseEntries.MobileCollidables
             }
         }
         protected internal override IContactEventTriggerer EventTriggerer
-        {
-            get { return events; }
-        }
-
+            => events;
 
         ///<summary>
         /// Gets an enumerable collection of all entities overlapping this collidable.
         ///</summary>
         public EntityCollidableCollection OverlappedEntities
-        {
-            get
-            {
-                return new EntityCollidableCollection(this);
-            }
-        }
-
-
+            => new(this);
     }
 }

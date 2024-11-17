@@ -14,14 +14,8 @@ namespace BEPUphysics.PositionUpdating
         ///</summary>
         public TimeStepSettings TimeStepSettings
         {
-            get
-            {
-                return timeStepSettings;
-            }
-            set
-            {
-                timeStepSettings = value;
-            }
+            get => timeStepSettings;
+            set => timeStepSettings = value;
         }
 
         protected PositionUpdater(TimeStepSettings timeStepSettings, IParallelLooper parallelLooper)

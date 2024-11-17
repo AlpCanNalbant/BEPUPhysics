@@ -23,23 +23,20 @@ namespace BEPUutilities.ResourceManagement
             Initialize(initialResourceCount);
         }
 
-
         /// <summary>
         /// Constructs a new locking resource pool.
         /// </summary>
         /// <param name="initialResourceCount">Number of resources to include in the pool by default.</param>
         public UnsafeResourcePool(int initialResourceCount)
             : this(initialResourceCount, null)
-        {
-        }
+        { }
 
         /// <summary>
         /// Constructs a new locking resource pool.
         /// </summary>
         public UnsafeResourcePool()
             : this(10)
-        {
-        }
+        { }
 
         /// <summary>
         /// Gets the number of resources in the pool.
@@ -48,19 +45,14 @@ namespace BEPUutilities.ResourceManagement
         /// dynamically.
         /// </summary>
         public override int Count
-        {
-            get { return stack.Count; }
-        }
+            => stack.Count;
 
         /// <summary>
         /// Gives an item back to the resource pool.
         /// </summary>
         /// <param name="item">Item to return.</param>
         public override void GiveBack(T item)
-        {
-            stack.Push(item);
-        }
-
+            => stack.Push(item);
 
         /// <summary>
         /// Initializes the pool with some resources.
@@ -74,10 +66,12 @@ namespace BEPUutilities.ResourceManagement
                 stack.Pop();
             }
             if (InstanceInitializer != null)
+            {
                 foreach (T t in stack)
                 {
                     InstanceInitializer(t);
                 }
+            }
             while (stack.Count < initialResourceCount)
             {
                 stack.Push(CreateNewResource());
@@ -92,7 +86,14 @@ namespace BEPUutilities.ResourceManagement
         {
             if (stack.Count > 0)
             {
-                return stack.Pop();
+                try
+                {
+                    return stack.Pop();
+                }
+                catch
+                {
+                    return CreateNewResource();
+                }
             }
             else
             {
@@ -104,8 +105,6 @@ namespace BEPUutilities.ResourceManagement
         /// Clears out the resource pool.
         /// </summary>
         public override void Clear()
-        {
-            stack.Clear();
-        }
+            => stack.Clear();
     }
 }

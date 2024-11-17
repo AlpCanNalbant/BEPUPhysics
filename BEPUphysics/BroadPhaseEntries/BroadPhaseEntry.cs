@@ -35,11 +35,9 @@ namespace BEPUphysics.BroadPhaseEntries
         /// </summary>
         /// <returns>Hash code for the object.</returns>
         public override int GetHashCode()
-        {
-            return hashCode;
-        }
+            => hashCode;
 
-        private Action collisionRulesUpdatedDelegate;
+        private readonly Action collisionRulesUpdatedDelegate;
         protected abstract void CollisionRulesUpdated();
 
         protected internal BoundingBox boundingBox;
@@ -48,11 +46,8 @@ namespace BEPUphysics.BroadPhaseEntries
         /// </summary>
         public BoundingBox BoundingBox
         {
-            get { return boundingBox; }
-            set
-            {
-                boundingBox = value;
-            }
+            get => boundingBox;
+            set => boundingBox = value;
         }
 
         /// <summary>
@@ -66,7 +61,7 @@ namespace BEPUphysics.BroadPhaseEntries
         /// </summary>
         public CollisionRules CollisionRules
         {
-            get { return collisionRules; }
+            get => collisionRules;
             set
             {
                 if (collisionRules != value)
@@ -107,8 +102,6 @@ namespace BEPUphysics.BroadPhaseEntries
             return false;
         }
 
-
-
         /// <summary>
         /// Sweeps a convex shape against the entry.
         /// </summary>
@@ -142,13 +135,10 @@ namespace BEPUphysics.BroadPhaseEntries
         /// </summary>
         public abstract void UpdateBoundingBox();
 
-        
+
         /// <summary>
         /// Gets or sets the user data associated with this entry.
         /// </summary>
         public object Tag { get; set; }
-
-
     }
-
 }

@@ -10,15 +10,15 @@ namespace BEPUphysicsDrawer.Models
     /// <summary>
     /// Manages and draws instanced models.
     /// </summary>
-    public class InstancedModelDrawer : ModelDrawer
+    public sealed class InstancedModelDrawer : ModelDrawer
     {
-        //'Instanced' may be a little bit of a misnomer, since the vertex buffers contain the local space vertices for every single 
+        //'Instanced' may be a little bit of a misnomer, since the vertex buffers contain the local space vertices for every single
         //display object.  This is due to the fact that each model being drawn can be completely unique.
         //Even two Capsules could require more than a simple scaling transform to be identical.
-        //Instead of using a single set of vertex data and redrawing it, this 'instancing' system 
+        //Instead of using a single set of vertex data and redrawing it, this 'instancing' system
         //will get the GPU to do the transformation heavy lifting.
 
-        private readonly List<ModelDisplayObjectBatch> batches = new List<ModelDisplayObjectBatch>();
+        private readonly List<ModelDisplayObjectBatch> batches = [];
         private readonly Effect instancingEffect;
         private readonly EffectParameter projectionParameter;
 
@@ -29,7 +29,7 @@ namespace BEPUphysicsDrawer.Models
         public InstancedModelDrawer(Game game)
             : base(game)
         {
-            instancingEffect = game.Content.Load<Effect>("InstancedEffect");
+            instancingEffect = game.Content.Load<Effect>("Effects/InstancedEffect");
 
             worldTransformsParameter = instancingEffect.Parameters["WorldTransforms"];
             textureIndicesParameter = instancingEffect.Parameters["TextureIndices"];
@@ -43,21 +43,33 @@ namespace BEPUphysicsDrawer.Models
             instancingEffect.Parameters["AmbientAmount"].SetValue(.5f);
 
             instancingEffect.Parameters["Colors"].SetValue(colors);
-
         }
-
-
 
         public override void Add(ModelDisplayObject displayObject)
         {
-            foreach (ModelDisplayObjectBatch batch in batches)
+            // foreach (ModelDisplayObjectBatch batch in batches)
+            // {
+            //     if (batch.Add(displayObject, this))
+            //         return;
+            // }
+
+            // BELOW LINES IS (WCS) Edit (For loop used instead Foreach also exceptions are ignored).
+            for (int i = 0; i < batches.Count; ++i)
             {
-                if (batch.Add(displayObject, this))
-                    return;
+                try
+                {
+                    if (batches[i].Add(displayObject, this))
+                        return;
+                }
+                catch
+                {
+                    break;
+                }
             }
+
             //If we made it here, that means there was no batch that could handle the display object.
             //This could be because the batches were full, or it could be that this
-            //display object is just really large (like a terrain) and violated the 
+            //display object is just really large (like a terrain) and violated the
             //primitive count limit.
 
             //So throw the object in a new batch.
@@ -92,9 +104,10 @@ namespace BEPUphysicsDrawer.Models
 
         protected override void UpdateManagedModels()
         {
-            foreach (ModelDisplayObjectBatch batch in batches)
+            // foreach (ModelDisplayObjectBatch batch in batches)
+            for (int i = 0; i < batches.Count; ++i)
             {
-                batch.Update();
+                batches[i].Update();
             }
         }
 
@@ -103,16 +116,17 @@ namespace BEPUphysicsDrawer.Models
         /// </summary>
         /// <param name="viewMatrix">View matrix to use to draw the objects.</param>
         /// <param name="projectionMatrix">Projection matrix to use to draw the objects.</param>
-        protected override void DrawManagedModels(Matrix viewMatrix, Matrix projectionMatrix)
+        public override void DrawManagedModels(Matrix viewMatrix, Matrix projectionMatrix)
         {
             viewParameter.SetValue(MathConverter.Convert(viewMatrix));
             projectionParameter.SetValue(MathConverter.Convert(projectionMatrix));
 
-            for (int i = 0; i < instancingEffect.CurrentTechnique.Passes.Count; i++)
+            for (int i = 0; i < instancingEffect.CurrentTechnique.Passes.Count; ++i)
             {
-                foreach (ModelDisplayObjectBatch batch in batches)
+                // foreach (ModelDisplayObjectBatch batch in batches)
+                for (int j = 0; j < batches.Count; ++j)
                 {
-                    batch.Draw(instancingEffect, worldTransformsParameter, textureIndicesParameter, instancingEffect.CurrentTechnique.Passes[i]);
+                    batches[j].Draw(instancingEffect, worldTransformsParameter, textureIndicesParameter, instancingEffect.CurrentTechnique.Passes[i]);
                 }
             }
         }

@@ -20,28 +20,19 @@ namespace BEPUphysics.BroadPhaseEntries
     /// </remarks>
     public class StaticMesh : StaticCollidable
     {
-
         TriangleMesh mesh;
         ///<summary>
         /// Gets the TriangleMesh acceleration structure used by the StaticMesh.
         ///</summary>
-        public TriangleMesh Mesh
-        {
-            get
-            {
-                return mesh;
-            }
-        }
+        public TriangleMesh Mesh => mesh;
+
 
         ///<summary>
         /// Gets or sets the world transform of the mesh.
         ///</summary>
         public AffineTransform WorldTransform
         {
-            get
-            {
-                return ((TransformableMeshData)mesh.Data).worldTransform;
-            }
+            get => ((TransformableMeshData)mesh.Data).worldTransform;
             set
             {
                 ((TransformableMeshData)mesh.Data).WorldTransform = value;
@@ -59,7 +50,6 @@ namespace BEPUphysics.BroadPhaseEntries
         {
             base.Shape = new StaticMeshShape(vertices, indices);
             Events = new ContactEventManager<StaticMesh>();
-
         }
 
         ///<summary>
@@ -77,13 +67,7 @@ namespace BEPUphysics.BroadPhaseEntries
         ///<summary>
         /// Gets the shape used by the mesh.
         ///</summary>
-        public new StaticMeshShape Shape
-        {
-            get
-            {
-                return (StaticMeshShape)shape;
-            }
-        }
+        public new StaticMeshShape Shape => (StaticMeshShape)shape;
 
         internal TriangleSidedness sidedness = TriangleSidedness.DoubleSided;
         ///<summary>
@@ -91,14 +75,8 @@ namespace BEPUphysics.BroadPhaseEntries
         ///</summary>
         public TriangleSidedness Sidedness
         {
-            get
-            {
-                return sidedness;
-            }
-            set
-            {
-                sidedness = value;
-            }
+            get => sidedness;
+            set => sidedness = value;
         }
 
         internal bool improveBoundaryBehavior = true;
@@ -109,14 +87,8 @@ namespace BEPUphysics.BroadPhaseEntries
         /// </summary>
         public bool ImproveBoundaryBehavior
         {
-            get
-            {
-                return improveBoundaryBehavior;
-            }
-            set
-            {
-                improveBoundaryBehavior = value;
-            }
+            get => improveBoundaryBehavior;
+            set => improveBoundaryBehavior = value;
         }
 
 
@@ -127,10 +99,7 @@ namespace BEPUphysics.BroadPhaseEntries
         ///</summary>
         public ContactEventManager<StaticMesh> Events
         {
-            get
-            {
-                return events;
-            }
+            get => events;
             set
             {
                 if (value.Owner != null && //Can't use a manager which is owned by a different entity.
@@ -143,14 +112,8 @@ namespace BEPUphysics.BroadPhaseEntries
                     events.Owner = this;
             }
         }
-        protected internal override IContactEventTriggerer EventTriggerer
-        {
-            get { return events; }
-        }
-        protected override IDeferredEventCreator EventCreator
-        {
-            get { return events; }
-        }
+        protected internal override IContactEventTriggerer EventTriggerer => events;
+        protected override IDeferredEventCreator EventCreator => events;
 
         protected override void OnShapeChanged(CollisionShape collisionShape)
         {
@@ -165,9 +128,7 @@ namespace BEPUphysics.BroadPhaseEntries
         /// Updates the bounding box to the current state of the entry.
         /// </summary>
         public override void UpdateBoundingBox()
-        {
-            boundingBox = mesh.Tree.BoundingBox;
-        }
+            => boundingBox = mesh.Tree.BoundingBox;
 
         /// <summary>
         /// Tests a ray against the entry.
@@ -177,9 +138,7 @@ namespace BEPUphysics.BroadPhaseEntries
         /// <param name="rayHit">Hit location of the ray on the entry, if any.</param>
         /// <returns>Whether or not the ray hit the entry.</returns>
         public override bool RayCast(Ray ray, float maximumLength, out RayHit rayHit)
-        {
-            return mesh.RayCast(ray, maximumLength, sidedness, out rayHit);
-        }
+            => mesh.RayCast(ray, maximumLength, sidedness, out rayHit);
 
         /// <summary>
         /// Casts a convex shape against the collidable.
@@ -192,8 +151,7 @@ namespace BEPUphysics.BroadPhaseEntries
         public override bool ConvexCast(ConvexShape castShape, ref RigidTransform startingTransform, ref Vector3 sweep, out RayHit hit)
         {
             hit = new RayHit();
-            BoundingBox boundingBox;
-            castShape.GetSweptBoundingBox(ref startingTransform, ref sweep, out boundingBox);
+            castShape.GetSweptBoundingBox(ref startingTransform, ref sweep, out BoundingBox boundingBox);
             var tri = PhysicsThreadResources.GetTriangle();
             var hitElements = CommonResources.GetIntList();
             if (Mesh.Tree.GetOverlaps(boundingBox, hitElements))
@@ -202,8 +160,7 @@ namespace BEPUphysics.BroadPhaseEntries
                 for (int i = 0; i < hitElements.Count; i++)
                 {
                     mesh.Data.GetTriangle(hitElements[i], out tri.vA, out tri.vB, out tri.vC);
-                    Vector3 center;
-                    Vector3.Add(ref tri.vA, ref tri.vB, out center);
+                    Vector3.Add(ref tri.vA, ref tri.vB, out Vector3 center);
                     Vector3.Add(ref center, ref tri.vC, out center);
                     Vector3.Multiply(ref center, 1f / 3f, out center);
                     Vector3.Subtract(ref tri.vA, ref center, out tri.vA);
@@ -213,14 +170,13 @@ namespace BEPUphysics.BroadPhaseEntries
                     float radius = tri.vB.LengthSquared();
                     if (tri.MaximumRadius < radius)
                         tri.MaximumRadius = radius;
-                    radius = tri.vC.LengthSquared(); 
+                    radius = tri.vC.LengthSquared();
                     if (tri.MaximumRadius < radius)
                         tri.MaximumRadius = radius;
                     tri.MaximumRadius = (float)Math.Sqrt(tri.MaximumRadius);
                     tri.collisionMargin = 0;
                     var triangleTransform = new RigidTransform {Orientation = Quaternion.Identity, Position = center};
-                    RayHit tempHit;
-                    if (MPRToolbox.Sweep(castShape, tri, ref sweep, ref Toolbox.ZeroVector, ref startingTransform, ref triangleTransform, out tempHit) && tempHit.T < hit.T)
+                    if (MPRToolbox.Sweep(castShape, tri, ref sweep, ref Toolbox.ZeroVector, ref startingTransform, ref triangleTransform, out RayHit tempHit) && tempHit.T < hit.T)
                     {
                         hit = tempHit;
                     }
@@ -244,11 +200,6 @@ namespace BEPUphysics.BroadPhaseEntries
         ///<param name="rayHit">Data about the ray's intersection with the mesh, if any.</param>
         ///<returns>Whether or not the ray hit the mesh.</returns>
         public bool RayCast(Ray ray, float maximumLength, TriangleSidedness sidedness, out RayHit rayHit)
-        {
-            return mesh.RayCast(ray, maximumLength, sidedness, out rayHit);
-        }
-
-
-
+            => mesh.RayCast(ray, maximumLength, sidedness, out rayHit);
     }
 }

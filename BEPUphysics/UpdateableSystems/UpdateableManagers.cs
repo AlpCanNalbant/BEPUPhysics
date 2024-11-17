@@ -14,8 +14,7 @@ namespace BEPUphysics.UpdateableSystems
         ///<param name="timeStepSettings">Time step settings to use.</param>
         public DuringForcesUpdateableManager(TimeStepSettings timeStepSettings)
             : base(timeStepSettings)
-        {
-        }
+        { }
 
         ///<summary>
         /// Constructs a manager.
@@ -24,22 +23,28 @@ namespace BEPUphysics.UpdateableSystems
         /// <param name="parallelLooper">Parallel loop provider to use.</param>
         public DuringForcesUpdateableManager(TimeStepSettings timeStepSettings, IParallelLooper parallelLooper)
             : base(timeStepSettings, parallelLooper)
-        {
-        }
+        { }
 
         protected override void MultithreadedUpdate(int i)
         {
-            if (simultaneouslyUpdatedUpdateables[i].IsUpdating)
-                simultaneouslyUpdatedUpdateables[i].Update(timeStepSettings.TimeStepDuration);
+            if ((i >= 0) && (i < simultaneouslyUpdatedUpdateables.Count) && (simultaneouslyUpdatedUpdateables[i] != null) && simultaneouslyUpdatedUpdateables[i].IsUpdating)
+            {
+                try
+                {
+                    simultaneouslyUpdatedUpdateables[i].Update(timeStepSettings.TimeStepDuration);
+                }
+                catch
+                { }
+            }
         }
 
         protected override void SequentialUpdate(int i)
         {
             if (sequentiallyUpdatedUpdateables[i].IsUpdating)
+            {
                 sequentiallyUpdatedUpdateables[i].Update(timeStepSettings.TimeStepDuration);
+            }
         }
-
-
     }
 
     ///<summary>
@@ -53,8 +58,7 @@ namespace BEPUphysics.UpdateableSystems
         ///<param name="timeStepSettings">Time step settings to use.</param>
         public BeforeNarrowPhaseUpdateableManager(TimeStepSettings timeStepSettings)
             : base(timeStepSettings)
-        {
-        }
+        { }
 
         ///<summary>
         /// Constructs a manager.
@@ -63,21 +67,28 @@ namespace BEPUphysics.UpdateableSystems
         /// <param name="parallelLooper">Parallel loop provider to use.</param>
         public BeforeNarrowPhaseUpdateableManager(TimeStepSettings timeStepSettings, IParallelLooper parallelLooper)
             : base(timeStepSettings, parallelLooper)
-        {
-        }
+        { }
 
         protected override void MultithreadedUpdate(int i)
         {
-            if (simultaneouslyUpdatedUpdateables[i].IsUpdating)
-                simultaneouslyUpdatedUpdateables[i].Update(timeStepSettings.TimeStepDuration);
+            if ((i >= 0) && (i < simultaneouslyUpdatedUpdateables.Count) && (simultaneouslyUpdatedUpdateables[i] != null) && simultaneouslyUpdatedUpdateables[i].IsUpdating)
+            {
+                try
+                {
+                    simultaneouslyUpdatedUpdateables[i].Update(timeStepSettings.TimeStepDuration);
+                }
+                catch
+                { }
+            }
         }
 
         protected override void SequentialUpdate(int i)
         {
             if (sequentiallyUpdatedUpdateables[i].IsUpdating)
+            {
                 sequentiallyUpdatedUpdateables[i].Update(timeStepSettings.TimeStepDuration);
+            }
         }
-
     }
 
     ///<summary>
@@ -91,8 +102,7 @@ namespace BEPUphysics.UpdateableSystems
         ///<param name="timeStepSettings">Time step settings to use.</param>
         public BeforeSolverUpdateableManager(TimeStepSettings timeStepSettings)
             : base(timeStepSettings)
-        {
-        }
+        { }
 
         ///<summary>
         /// Constructs a manager.
@@ -101,21 +111,28 @@ namespace BEPUphysics.UpdateableSystems
         /// <param name="parallelLooper">Parallel loop provider to use.</param>
         public BeforeSolverUpdateableManager(TimeStepSettings timeStepSettings, IParallelLooper parallelLooper)
             : base(timeStepSettings, parallelLooper)
-        {
-        }
+        { }
 
         protected override void MultithreadedUpdate(int i)
         {
-            if (simultaneouslyUpdatedUpdateables[i].IsUpdating)
-                simultaneouslyUpdatedUpdateables[i].Update(timeStepSettings.TimeStepDuration);
+            if ((i >= 0) && (i < simultaneouslyUpdatedUpdateables.Count) && (simultaneouslyUpdatedUpdateables[i] != null) && simultaneouslyUpdatedUpdateables[i].IsUpdating)
+            {
+                try
+                {
+                    simultaneouslyUpdatedUpdateables[i].Update(timeStepSettings.TimeStepDuration);
+                }
+                catch
+                { }
+            }
         }
 
         protected override void SequentialUpdate(int i)
         {
             if (sequentiallyUpdatedUpdateables[i].IsUpdating)
+            {
                 sequentiallyUpdatedUpdateables[i].Update(timeStepSettings.TimeStepDuration);
+            }
         }
-
     }
 
     ///<summary>
@@ -129,8 +146,7 @@ namespace BEPUphysics.UpdateableSystems
         ///<param name="timeStepSettings">Time step settings to use.</param>
         public BeforePositionUpdateUpdateableManager(TimeStepSettings timeStepSettings)
             : base(timeStepSettings)
-        {
-        }
+        { }
 
         ///<summary>
         /// Constructs a manager.
@@ -139,22 +155,28 @@ namespace BEPUphysics.UpdateableSystems
         /// <param name="parallelLooper">Parallel loop provider to use.</param>
         public BeforePositionUpdateUpdateableManager(TimeStepSettings timeStepSettings, IParallelLooper parallelLooper)
             : base(timeStepSettings, parallelLooper)
-        {
-        }
+        { }
 
         protected override void MultithreadedUpdate(int i)
         {
-            if (simultaneouslyUpdatedUpdateables[i].IsUpdating)
-                simultaneouslyUpdatedUpdateables[i].Update(timeStepSettings.TimeStepDuration);
+            if ((i >= 0) && (i < simultaneouslyUpdatedUpdateables.Count) && (simultaneouslyUpdatedUpdateables[i] != null) && simultaneouslyUpdatedUpdateables[i].IsUpdating)
+            {
+                try
+                {
+                    simultaneouslyUpdatedUpdateables[i].Update(timeStepSettings.TimeStepDuration);
+                }
+                catch
+                { }
+            }
         }
 
         protected override void SequentialUpdate(int i)
         {
             if (sequentiallyUpdatedUpdateables[i].IsUpdating)
+            {
                 sequentiallyUpdatedUpdateables[i].Update(timeStepSettings.TimeStepDuration);
+            }
         }
-
-
     }
 
     ///<summary>
@@ -168,8 +190,7 @@ namespace BEPUphysics.UpdateableSystems
         ///<param name="timeStepSettings">Time step settings to use.</param>
         public EndOfTimeStepUpdateableManager(TimeStepSettings timeStepSettings)
             : base(timeStepSettings)
-        {
-        }
+        { }
 
         ///<summary>
         /// Constructs a manager.
@@ -178,22 +199,28 @@ namespace BEPUphysics.UpdateableSystems
         /// <param name="parallelLooper">Parallel loop provider to use.</param>
         public EndOfTimeStepUpdateableManager(TimeStepSettings timeStepSettings, IParallelLooper parallelLooper)
             : base(timeStepSettings, parallelLooper)
-        {
-        }
+        { }
 
         protected override void MultithreadedUpdate(int i)
         {
-            if (simultaneouslyUpdatedUpdateables[i].IsUpdating)
-                simultaneouslyUpdatedUpdateables[i].Update(timeStepSettings.TimeStepDuration);
+            if ((i >= 0) && (i < simultaneouslyUpdatedUpdateables.Count) && (simultaneouslyUpdatedUpdateables[i] != null) && simultaneouslyUpdatedUpdateables[i].IsUpdating)
+            {
+                try
+                {
+                    simultaneouslyUpdatedUpdateables[i].Update(timeStepSettings.TimeStepDuration);
+                }
+                catch
+                { }
+            }
         }
 
         protected override void SequentialUpdate(int i)
         {
             if (sequentiallyUpdatedUpdateables[i].IsUpdating)
+            {
                 sequentiallyUpdatedUpdateables[i].Update(timeStepSettings.TimeStepDuration);
+            }
         }
-
-
     }
 
     ///<summary>
@@ -207,8 +234,7 @@ namespace BEPUphysics.UpdateableSystems
         ///<param name="timeStepSettings">Time step settings to use.</param>
         public EndOfFrameUpdateableManager(TimeStepSettings timeStepSettings)
             : base(timeStepSettings)
-        {
-        }
+        { }
 
         ///<summary>
         /// Constructs a manager.
@@ -217,21 +243,27 @@ namespace BEPUphysics.UpdateableSystems
         /// <param name="parallelLooper">Parallel loop provider to use.</param>
         public EndOfFrameUpdateableManager(TimeStepSettings timeStepSettings, IParallelLooper parallelLooper)
             : base(timeStepSettings, parallelLooper)
-        {
-        }
+        { }
 
         protected override void MultithreadedUpdate(int i)
         {
-            if (simultaneouslyUpdatedUpdateables[i].IsUpdating)
-                simultaneouslyUpdatedUpdateables[i].Update(timeStepSettings.TimeStepDuration);
+            if ((i >= 0) && (i < simultaneouslyUpdatedUpdateables.Count) && (simultaneouslyUpdatedUpdateables[i] != null) && simultaneouslyUpdatedUpdateables[i].IsUpdating)
+            {
+                try
+                {
+                    simultaneouslyUpdatedUpdateables[i].Update(timeStepSettings.TimeStepDuration);
+                }
+                catch
+                { }
+            }
         }
 
         protected override void SequentialUpdate(int i)
         {
             if (sequentiallyUpdatedUpdateables[i].IsUpdating)
+            {
                 sequentiallyUpdatedUpdateables[i].Update(timeStepSettings.TimeStepDuration);
+            }
         }
-
-
     }
 }

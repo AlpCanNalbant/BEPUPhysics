@@ -24,8 +24,6 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         ///</summary>
         public static int NumberOfSamplesPerDimension = 10;
 
-
-
         ///<summary>
         /// Computes the volume contribution of a point.
         ///</summary>
@@ -50,9 +48,6 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
             contribution.M32 = contribution.M23;
         }
 
-
-
-
         /// <summary>
         /// Set of directions sampled by the inertia helper when constructing a mesh representation of a convex object.
         /// </summary>
@@ -63,12 +58,8 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         /// </summary>
         public static int[] SampleTriangleIndices;
 
-
         static InertiaHelper()
-        {
-            GenerateSphere(1, out SampleDirections, out SampleTriangleIndices);
-        }
-
+            => GenerateSphere(1, out SampleDirections, out SampleTriangleIndices);
 
         /// <summary>
         /// Generates a sphere by progressively refining a tetrahedral mesh.
@@ -244,14 +235,12 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
                     var a = vertices[aIndex];
                     var b = vertices[bIndex];
                     var c = vertices[cIndex];
-                    int abMidIndex;
                     var edge = new TriangleMeshConvexContactManifold.Edge(aIndex, bIndex);
-                    if (!edges.TryGetValue(edge, out abMidIndex))
+                    if (!edges.TryGetValue(edge, out int abMidIndex))
                     {
                         //This edge hasn't yet been handled by another triangle.
                         //Create a vertex.
-                        Vector3 mid;
-                        Vector3.Add(ref a, ref b, out mid);
+                        Vector3.Add(ref a, ref b, out Vector3 mid);
                         mid.Normalize();
                         abMidIndex = vertexCount;
                         vertices.Add(ref mid, ref vertexCount);
@@ -260,14 +249,12 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
                         edges.Add(edge, abMidIndex);
                     }
 
-                    int bcMidIndex;
                     edge = new TriangleMeshConvexContactManifold.Edge(bIndex, cIndex);
-                    if (!edges.TryGetValue(edge, out bcMidIndex))
+                    if (!edges.TryGetValue(edge, out int bcMidIndex))
                     {
                         //This edge hasn't yet been handled by another triangle.
                         //Create a vertex.
-                        Vector3 mid;
-                        Vector3.Add(ref b, ref c, out mid);
+                        Vector3.Add(ref b, ref c, out Vector3 mid);
                         mid.Normalize();
                         bcMidIndex = vertexCount;
                         vertices.Add(ref mid, ref vertexCount);
@@ -276,13 +263,11 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
                         edges.Add(edge, bcMidIndex);
                     }
 
-                    int acMidIndex;
                     edge = new TriangleMeshConvexContactManifold.Edge(aIndex, cIndex);
-                    if (!edges.TryGetValue(edge, out acMidIndex))
+                    if (!edges.TryGetValue(edge, out int acMidIndex))
                     {
                         //This edge hasn't yet been handled by another triangle.
-                        Vector3 mid;
-                        Vector3.Add(ref a, ref c, out mid);
+                        Vector3.Add(ref a, ref c, out Vector3 mid);
                         mid.Normalize();
                         acMidIndex = vertexCount;
                         vertices.Add(ref mid, ref vertexCount);
@@ -331,9 +316,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         }
 
         private static int GetExpectedVertexCount(int subdivisionCount)
-        {
-            return 2 + 5 * (1 << (2 * subdivisionCount + 1));
-        }
+            => 2 + 5 * (1 << (2 * subdivisionCount + 1));
 
 
         /// <summary>
@@ -415,7 +398,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
             // [ -c' -a'  c  ]
             float a = 0, b = 0, c = 0, ao = 0, bo = 0, co = 0;
 
-            Vector3 summedCenter = new Vector3();
+            Vector3 summedCenter = new();
             float scaledVolume = 0;
             for (int i = 0; i < triangleIndices.Count; i += 3)
             {
@@ -430,8 +413,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
 
                 scaledVolume += scaledTetrahedronVolume;
 
-                Vector3 tetrahedronCentroid;
-                Vector3.Add(ref v2, ref v3, out tetrahedronCentroid);
+                Vector3.Add(ref v2, ref v3, out Vector3 tetrahedronCentroid);
                 Vector3.Add(ref tetrahedronCentroid, ref v4, out tetrahedronCentroid);
                 Vector3.Multiply(ref tetrahedronCentroid, scaledTetrahedronVolume, out tetrahedronCentroid);
                 Vector3.Add(ref tetrahedronCentroid, ref summedCenter, out summedCenter);
@@ -481,13 +463,12 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
                 //There's a operation that moves a local inertia tensor to a displaced position.
                 //The inverse of that operation can be computed and applied to the displaced inertia to center it on the origin.
 
-                Matrix3x3 additionalInertia;
-                GetPointContribution(1, ref Toolbox.ZeroVector, ref center, out additionalInertia);
+                GetPointContribution(1, ref Toolbox.ZeroVector, ref center, out Matrix3x3 additionalInertia);
                 Matrix3x3.Subtract(ref volumeDistribution, ref additionalInertia, out volumeDistribution);
 
                 //The derivation that shows the above point mass usage is valid goes something like this, with lots of details left out:
                 //Consider the usual form of the tensor, created from the summation of a bunch of pointmasses representing the shape.
-                //Each sum contribution relies on a particular offset, r. When the center of mass isn't aligned with (0,0,0), 
+                //Each sum contribution relies on a particular offset, r. When the center of mass isn't aligned with (0,0,0),
                 //r = c + b, where c is the center of mass and b is the offset of r from the center of mass.
                 //So, each term of the matrix (like M11 = sum(mi * (ry*ry + rz*rz))) can be rephrased in terms of the center and the offset:
                 //M11 = sum(mi * ((cy + by) * (cy + by) + (cz + bz) * (cz + bz)))
@@ -516,10 +497,10 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         //    additionalInertia.M32 = -mass * offset.Z * offset.Y;
         //    additionalInertia.M33 = mass * (offset.X * offset.X + offset.Y * offset.Y);
 
-     
+
         //}
 
-        
+
         /// <summary>
         /// Computes a minimum radius estimate of a shape based on a convex mesh representation.
         /// </summary>
@@ -544,11 +525,9 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
 
                 //This normal calculation creates a dependency on winding.
                 //It needs to be consistent with the SampleDirections triangle winding.
-                Vector3 v2v3, v2v4;
-                Vector3.Subtract(ref v3, ref v2, out v2v3);
-                Vector3.Subtract(ref v4, ref v2, out v2v4);
-                Vector3 normal;
-                Vector3.Cross(ref v2v4, ref v2v3, out normal);
+                Vector3.Subtract(ref v3, ref v2, out Vector3 v2v3);
+                Vector3.Subtract(ref v4, ref v2, out Vector3 v2v4);
+                Vector3.Cross(ref v2v4, ref v2v3, out Vector3 normal);
 
                 //Watch out: this could very easily be a degenerate triangle; the sampling approach tends to create them.
                 float lengthSquared = normal.LengthSquared();
@@ -557,11 +536,9 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
                 else
                     continue;
 
-                Vector3 fromCenterToPlane;
-                Vector3.Subtract(ref v2, ref center, out fromCenterToPlane);
+                Vector3.Subtract(ref v2, ref center, out Vector3 fromCenterToPlane);
 
-                float distance;
-                Vector3.Dot(ref normal, ref fromCenterToPlane, out distance);
+                Vector3.Dot(ref normal, ref fromCenterToPlane, out float distance);
                 if (distance < 0)
                     throw new ArgumentException("Invalid distance. Ensure the mesh is convex, has consistent winding, and contains the passed-in center.");
 
@@ -570,10 +547,9 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
             }
             return minimumDistance;
 
-            //Technically, we could also compute a maximum radius estimate... 
+            //Technically, we could also compute a maximum radius estimate...
             //but that amounts to finding the furthest distance contained by the set of planes defined by the sampled extreme points and their associated sample directions.
             //That's a trickier thing to compute quickly, and it's not all that important to make the estimate ultra tight.
-
         }
 
         //TODO: These will be replaced when a better resource pooling system is implemented.
@@ -587,9 +563,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         /// <param name="item">The item to add.</param>
         /// <param name="count">Length of the array. Will be incremented.</param>
         private static void Add<T>(this T[] array, T item, ref int count)
-        {
-            array[count++] = item;
-        }
+            => array[count++] = item;
 
         /// <summary>
         /// Treats an array like a list and adds an element to it.
@@ -600,11 +574,6 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         /// <param name="item">The item to add.</param>
         /// <param name="count">Length of the array. Will be incremented.</param>
         private static void Add<T>(this T[] array, ref T item, ref int count)
-        {
-            array[count++] = item;
-        }
-
-
-
+            => array[count++] = item;
     }
 }

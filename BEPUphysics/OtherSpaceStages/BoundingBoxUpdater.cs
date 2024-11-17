@@ -13,8 +13,8 @@ namespace BEPUphysics.OtherSpaceStages
     {
 
         //TODO: should the Entries field be publicly accessible since there's not any custom add/remove logic?
-        RawList<MobileCollidable> entries = new RawList<MobileCollidable>();
-        TimeStepSettings timeStepSettings;
+        readonly RawList<MobileCollidable> entries = [];
+        readonly TimeStepSettings timeStepSettings;
         ///<summary>
         /// Gets or sets the time step settings used by the updater.
         ///</summary>
@@ -41,16 +41,15 @@ namespace BEPUphysics.OtherSpaceStages
             AllowMultithreading = true;
 
         }
-        Action<int> multithreadedLoopBodyDelegate;
+        readonly Action<int> multithreadedLoopBodyDelegate;
         void LoopBody(int i)
         {
-            var entry = entries.Elements[i];
-            if (entry.IsActive)
+            MobileCollidable entry;
+            if ((i < entries.Count) && ((entry = entries.Elements[i]) != null) && entry.IsActive)
             {
                 entry.UpdateBoundingBox(timeStepSettings.TimeStepDuration);
                 entry.boundingBox.Validate();
             }
-
         }
 
         ///<summary>
@@ -58,22 +57,18 @@ namespace BEPUphysics.OtherSpaceStages
         ///</summary>
         ///<param name="entry">Entry to add.</param>
         public void Add(MobileCollidable entry)
-        {
+        // {
             //TODO: Contains check?
-            entries.Add(entry);
-        }
+            => entries.Add(entry);
+        // }
         ///<summary>
         /// Removes an entry from the updater.
         ///</summary>
         ///<param name="entry">Entry to remove.</param>
         public void Remove(MobileCollidable entry)
-        {
-            entries.Remove(entry);
-        }
+            => entries.Remove(entry);
         protected override void UpdateMultithreaded()
-        {
-            ParallelLooper.ForLoop(0, entries.Count, multithreadedLoopBodyDelegate);
-        }
+            => ParallelLooper.ForLoop(0, entries.Count, multithreadedLoopBodyDelegate);
 
         protected override void UpdateSingleThreaded()
         {

@@ -1,6 +1,6 @@
 ﻿using System;
 using BEPUphysics.BroadPhaseEntries.MobileCollidables;
- 
+
 using BEPUutilities;
 
 namespace BEPUphysics.CollisionShapes.ConvexShapes
@@ -129,19 +129,20 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         public override void GetLocalExtremePointWithoutMargin(ref Vector3 direction, out Vector3 extremePoint)
         {
             float horizontalLengthSquared = direction.X * direction.X + direction.Z * direction.Z;
+            float dirY = (!float.IsNaN(direction.Y)) ? direction.Y : 0f;
             if (horizontalLengthSquared > Toolbox.Epsilon)
             {
                 float multiplier = (radius - collisionMargin) / (float)Math.Sqrt(horizontalLengthSquared);
-                extremePoint = new Vector3(direction.X * multiplier, Math.Sign(direction.Y) * (halfHeight - collisionMargin), direction.Z * multiplier);
+                extremePoint = new Vector3(direction.X * multiplier, Math.Sign(dirY) * (halfHeight - collisionMargin), direction.Z * multiplier);
             }
             else
             {
-                extremePoint = new Vector3(0, Math.Sign(direction.Y) * (halfHeight - collisionMargin), 0);
+                extremePoint = new Vector3(0, Math.Sign(dirY) * (halfHeight - collisionMargin), 0);
             }
 
         }
 
-        
+
         /// <summary>
         /// Retrieves an instance of an EntityCollidable that uses this EntityShape.  Mainly used by compound bodies.
         /// </summary>
@@ -197,7 +198,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
             {
                 //The ray is nearly parallel with the axis.
                 //Skip the cylinder-sides test.  We're either inside the cylinder and won't hit the sides, or we're outside
-                //and won't hit the sides.  
+                //and won't hit the sides.
                 if (localRay.Position.Y > halfHeight)
                     goto upperTest;
                 if (localRay.Position.Y < -halfHeight)
@@ -255,7 +256,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
 
             if (hit.Location.Y < halfHeight)
                 goto lowerTest;
-        upperTest:
+            upperTest:
             //Nope! It may be intersecting the ends of the cylinder though.
             //We're above the cylinder, so cast a ray against the upper cap.
             if (localRay.Direction.Y > -1e-9)
@@ -268,7 +269,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
             Vector3 planeIntersection;
             Vector3.Multiply(ref localRay.Direction, t, out planeIntersection);
             Vector3.Add(ref localRay.Position, ref planeIntersection, out planeIntersection);
-            if(planeIntersection.X * planeIntersection.X + planeIntersection.Z * planeIntersection.Z < radius * radius + 1e-9 && t < maximumLength)
+            if (planeIntersection.X * planeIntersection.X + planeIntersection.Z * planeIntersection.Z < radius * radius + 1e-9 && t < maximumLength)
             {
                 //Pull the hit into world space.
                 Quaternion.Transform(ref Toolbox.UpVector, ref transform.Orientation, out hit.Normal);

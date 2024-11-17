@@ -21,9 +21,7 @@ namespace BEPUutilities.DataStructures
         /// Constructs a new observable dictionary.
         /// </summary>
         public ObservableDictionary()
-        {
-            WrappedDictionary = new Dictionary<TKey, TValue>();
-        }
+            => WrappedDictionary = [];
 
         ///<summary>
         /// Adds a pair to the dictionary.
@@ -66,13 +64,6 @@ namespace BEPUutilities.DataStructures
         public event Action Changed;
 
         protected void OnChanged()
-        {
-            if (Changed != null)
-            {
-                Changed();
-            }
-        }
-
-        
+            => Changed?.Invoke();
     }
 }

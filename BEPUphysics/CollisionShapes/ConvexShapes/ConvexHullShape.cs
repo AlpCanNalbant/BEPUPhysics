@@ -18,13 +18,8 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         /// Gets the point set of the convex hull.
         ///</summary>
         public ReadOnlyList<Vector3> Vertices
-        {
-            get
-            {
-                return new ReadOnlyList<Vector3>(vertices);
-            }
-        }
-        Vector3[] vertices;
+            => new(vertices);
+        readonly Vector3[] vertices;
 
         private readonly float unexpandedMinimumRadius;
         private readonly float unexpandedMaximumRadius;
@@ -43,10 +38,8 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
 
             var surfaceVertices = CommonResources.GetVectorList();
             var hullTriangleIndices = CommonResources.GetIntList();
-
-            Vector3 center;
-            UpdateConvexShapeInfo(ComputeDescription(vertices, collisionMargin, out center, hullTriangleIndices, surfaceVertices));
-            this.vertices = surfaceVertices.ToArray();
+            UpdateConvexShapeInfo(ComputeDescription(vertices, collisionMargin, out _, hullTriangleIndices, surfaceVertices));
+            this.vertices = [.. surfaceVertices];
 
 
             CommonResources.GiveBack(hullTriangleIndices);
@@ -72,7 +65,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
             var hullTriangleIndices = CommonResources.GetIntList();
 
             UpdateConvexShapeInfo(ComputeDescription(vertices, collisionMargin, out center, hullTriangleIndices, surfaceVertices));
-            this.vertices = surfaceVertices.ToArray();
+            this.vertices = [.. surfaceVertices];
 
             CommonResources.GiveBack(hullTriangleIndices);
             CommonResources.GiveBack(surfaceVertices);
@@ -209,20 +202,19 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
             boundingBox = new BoundingBox();
 #endif
 
-            Matrix3x3 o;
-            Matrix3x3.CreateFromQuaternion(ref shapeTransform.Orientation, out o);
+            Matrix3x3.CreateFromQuaternion(ref shapeTransform.Orientation, out Matrix3x3 o);
 
-            float minX, maxX;
-            float minY, maxY;
-            float minZ, maxZ;
+            float minX;
+            float minY;
+            float minZ;
             var right = new Vector3(o.M11, o.M21, o.M31);
             var up = new Vector3(o.M12, o.M22, o.M32);
             var backward = new Vector3(o.M13, o.M23, o.M33);
-            Vector3.Dot(ref vertices[0], ref right, out maxX);
+            Vector3.Dot(ref vertices[0], ref right, out float maxX);
             minX = maxX;
-            Vector3.Dot(ref vertices[0], ref up, out maxY);
+            Vector3.Dot(ref vertices[0], ref up, out float maxY);
             minY = maxY;
-            Vector3.Dot(ref vertices[0], ref backward, out maxZ);
+            Vector3.Dot(ref vertices[0], ref backward, out float maxZ);
             minZ = maxZ;
             int minXIndex = 0;
             int maxXIndex = 0;
@@ -232,8 +224,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
             int maxZIndex = 0;
             for (int i = 1; i < vertices.Length; ++i)
             {
-                float dot;
-                Vector3.Dot(ref vertices[i], ref right, out dot);
+                Vector3.Dot(ref vertices[i], ref right, out float dot);
                 if (dot < minX)
                 {
                     minX = dot;
@@ -271,9 +262,8 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
             }
 
             //Rather than transforming each axis independently (and doing three times as many operations as required), just get the 6 required values directly.
-            Vector3 positive, negative;
-            TransformLocalExtremePoints(ref vertices[maxXIndex], ref vertices[maxYIndex], ref vertices[maxZIndex], ref o, out positive);
-            TransformLocalExtremePoints(ref vertices[minXIndex], ref vertices[minYIndex], ref vertices[minZIndex], ref o, out negative);
+            TransformLocalExtremePoints(ref vertices[maxXIndex], ref vertices[maxYIndex], ref vertices[maxZIndex], ref o, out Vector3 positive);
+            TransformLocalExtremePoints(ref vertices[minXIndex], ref vertices[minYIndex], ref vertices[minZIndex], ref o, out Vector3 negative);
 
             //The positive and negative vectors represent the X, Y and Z coordinates of the extreme points in world space along the world space axes.
             boundingBox.Max.X = shapeTransform.Position.X + positive.X + collisionMargin;
@@ -288,13 +278,11 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
 
         public override void GetLocalExtremePointWithoutMargin(ref Vector3 direction, out Vector3 extremePoint)
         {
-            float max;
-            Vector3.Dot(ref vertices[0], ref direction, out max);
+            Vector3.Dot(ref vertices[0], ref direction, out float max);
             int maxIndex = 0;
             for (int i = 1; i < vertices.Length; i++)
             {
-                float dot;
-                Vector3.Dot(ref vertices[i], ref direction, out dot);
+                Vector3.Dot(ref vertices[i], ref direction, out float dot);
                 if (dot > max)
                 {
                     max = dot;
@@ -311,9 +299,8 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         /// </summary>
         /// <returns>EntityCollidable that uses this shape.</returns>
         public override EntityCollidable GetCollidableInstance()
-        {
-            return new ConvexCollidable<ConvexHullShape>(this);
-        }
+            => new ConvexCollidable<ConvexHullShape>(this);
+
 
 
     }

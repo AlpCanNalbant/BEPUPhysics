@@ -13,19 +13,15 @@ namespace BEPUphysics.BroadPhaseSystems
         /// <summary>
         /// First entry in the pair.
         /// </summary>
-        public BroadPhaseEntry EntryA
-        {
-            get { return entryA; }
-        }
+        public readonly BroadPhaseEntry EntryA
+            => entryA;
 
         internal BroadPhaseEntry entryB;
         /// <summary>
         /// Second entry in the pair.
         /// </summary>
-        public BroadPhaseEntry EntryB
-        {
-            get { return entryB; }
-        }
+        public readonly BroadPhaseEntry EntryB
+            => entryB;
 
         internal CollisionRule collisionRule;
 
@@ -57,20 +53,18 @@ namespace BEPUphysics.BroadPhaseSystems
         /// <summary>
         /// Gets the collision rule calculated for the pair.
         /// </summary>
-        public CollisionRule CollisionRule
-        {
-            get { return collisionRule; }
-        }
+        public readonly CollisionRule CollisionRule
+            => collisionRule;
 
         /// <summary>
         /// Gets the hash code of the object.
         /// </summary>
         /// <returns>Hash code of the object.</returns>
-        public override int GetHashCode()
-        {
+        public override readonly int GetHashCode()
+        // {
             //TODO: Use old prime-based system?
-            return (int)((entryA.hashCode + entryB.hashCode) * 0xd8163841);
-        }
+            => (int)((entryA.hashCode + entryB.hashCode) * 0xd8163841);
+        // }
 
 
         #region IEquatable<BroadPhaseOverlap> Members
@@ -80,16 +74,12 @@ namespace BEPUphysics.BroadPhaseSystems
         /// </summary>
         /// <param name="other">Overlap to compare.</param>
         /// <returns>Whether or not the overlaps were equal.</returns>
-        public bool Equals(BroadPhaseOverlap other)
-        {
-            return (other.entryA == entryA && other.entryB == entryB) || (other.entryA == entryB && other.entryB == entryA);
-        }
+        public readonly bool Equals(BroadPhaseOverlap other)
+            => (other.entryA == entryA && other.entryB == entryB) || (other.entryA == entryB && other.entryB == entryA);
 
         #endregion
 
-        public override string ToString()
-        {
-            return "{" + entryA + ", " + entryB + "}";
-        }
+        public override readonly string ToString()
+            => "{" + entryA + ", " + entryB + "}";
     }
 }

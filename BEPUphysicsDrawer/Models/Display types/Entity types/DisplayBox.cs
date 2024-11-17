@@ -13,7 +13,6 @@ namespace BEPUphysicsDrawer.Models
     /// </summary>
     public static class DisplayBox
     {
-
         public static void GetShapeMeshData(EntityCollidable collidable, List<VertexPositionNormalTexture> vertices, List<ushort> indices)
         {
             var boxShape = collidable.Shape as BoxShape;

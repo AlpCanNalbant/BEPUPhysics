@@ -276,7 +276,7 @@ namespace BEPUphysics.Character
                     {
                         //This is a complicated case.  We must perform a semi-downstep query.
                         //It's different than a downstep because the head may be obstructed as well. Also, in downstepping, the character always goes *down*.
-                        //In this, while the bottom of the character is extending downward, the character position actually either stays the same or goes up. 
+                        //In this, while the bottom of the character is extending downward, the character position actually either stays the same or goes up.
                         //(We arbitrarily ignore the case where the character could push off a ceiling.)
                         //The goal is to put the feet of the character on any support that can be found, and then verify that the rest of its body fits in that location.
                         float lowestBound = 0;

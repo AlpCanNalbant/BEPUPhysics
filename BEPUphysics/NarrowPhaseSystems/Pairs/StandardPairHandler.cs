@@ -35,17 +35,13 @@ namespace BEPUphysics.NarrowPhaseSystems.Pairs
         {
             ContactConstraint.AddContact(contact);
             base.OnContactAdded(contact);
-
         }
 
         protected override void OnContactRemoved(Contact contact)
         {
             ContactConstraint.RemoveContact(contact);
             base.OnContactRemoved(contact);
-
         }
-
-
 
         ///<summary>
         /// Initializes the pair handler.
@@ -60,32 +56,22 @@ namespace BEPUphysics.NarrowPhaseSystems.Pairs
             ContactConstraint.Initialize(EntityA, EntityB);
 
             base.Initialize(entryA, entryB);
-
-
-
         }
 
         ///<summary>
         /// Forces an update of the pair's material properties.
         ///</summary>
         public override void UpdateMaterialProperties(Material a, Material b)
-        {
-            ContactConstraint.UpdateMaterialProperties(
-                a ?? (EntityA == null ? null : EntityA.material),
-                b ?? (EntityB == null ? null : EntityB.material));
-        }
+            => ContactConstraint.UpdateMaterialProperties(
+                a ?? (EntityA?.material),
+                b ?? (EntityB?.material));
 
         /// <summary>
         /// Updates the material interaction properties of the pair handler's constraint.
         /// </summary>
         /// <param name="properties">Properties to use.</param>
         public override void UpdateMaterialProperties(InteractionProperties properties)
-        {
-            ContactConstraint.MaterialInteraction = properties;
-        }
-
-
-
+            => ContactConstraint.MaterialInteraction = properties;
 
         ///<summary>
         /// Cleans up the pair handler.
@@ -106,25 +92,20 @@ namespace BEPUphysics.NarrowPhaseSystems.Pairs
                 else if (NarrowPhase != null)
                     NarrowPhase.NotifyUpdateableRemoved(ContactConstraint);
             }
-            else
+            else if (Parent != null && ContactConstraint.SolverGroup != null)
             {
                 //Even though it's not in the solver, we still may need to notify the parent to remove it.
-                if (Parent != null && ContactConstraint.SolverGroup != null)
-                    Parent.RemoveSolverUpdateable(ContactConstraint);
+                // if (Parent != null && ContactConstraint.SolverGroup != null)
+                Parent.RemoveSolverUpdateable(ContactConstraint);
             }
             //Contact constraint cleanup changes the involved entities, which is acceptable because it's no longer in the solver.
             ContactConstraint.CleanUp();
 
-
             base.CleanUp();
 
             ContactManifold.CleanUp();
-
-
             //Child cleanup is responsible for cleaning up direct references to the involved collidables.
         }
-
-
 
         ///<summary>
         /// Updates the pair handler.
@@ -132,75 +113,75 @@ namespace BEPUphysics.NarrowPhaseSystems.Pairs
         ///<param name="dt">Timestep duration.</param>
         public override void UpdateCollision(float dt)
         {
-            //Cache some properties.
-            var a = CollidableA;
-            var b = CollidableB;
-            var triggerA = a.EventTriggerer;
-            var triggerB = b.EventTriggerer;
-
-            if (!suppressEvents)
+            try
             {
-                triggerA.OnPairUpdated(b, this);
-                triggerB.OnPairUpdated(a, this);
-            }
+                //Cache some properties.
+                var a = CollidableA;
+                var b = CollidableB;
+                var triggerA = a.EventTriggerer;
+                var triggerB = b.EventTriggerer;
 
-            ContactManifold.Update(dt);
-
-            if (ContactManifold.contacts.Count > 0)
-            {
                 if (!suppressEvents)
                 {
-                    triggerA.OnPairTouching(b, this);
-                    triggerB.OnPairTouching(a, this);
+                    triggerA.OnPairUpdated(b, this);
+                    triggerB.OnPairUpdated(a, this);
                 }
 
-                if (previousContactCount == 0)
+                ContactManifold.Update(dt);
+
+                if (ContactManifold.contacts.Count > 0)
                 {
-                    //New collision.
-
-                    //Add a solver item.
-                    if (Parent != null)
-                        Parent.AddSolverUpdateable(ContactConstraint);
-                    else if (NarrowPhase != null)
-                        NarrowPhase.NotifyUpdateableAdded(ContactConstraint);
-
-                    //And notify the pair members.
                     if (!suppressEvents)
                     {
-                        triggerA.OnInitialCollisionDetected(b, this);
-                        triggerB.OnInitialCollisionDetected(a, this);
+                        triggerA.OnPairTouching(b, this);
+                        triggerB.OnPairTouching(a, this);
+                    }
+
+                    if (previousContactCount == 0)
+                    {
+                        //New collision.
+
+                        //Add a solver item.
+                        if (Parent != null)
+                            Parent.AddSolverUpdateable(ContactConstraint);
+                        else if (NarrowPhase != null)
+                            NarrowPhase.NotifyUpdateableAdded(ContactConstraint);
+
+                        //And notify the pair members.
+                        if (!suppressEvents)
+                        {
+                            triggerA.OnInitialCollisionDetected(b, this);
+                            triggerB.OnInitialCollisionDetected(a, this);
+                        }
                     }
                 }
-            }
-            else if (previousContactCount > 0)
-            {
-                //Just exited collision.
-
-                //Remove the solver item.
-                if (Parent != null)
-                    Parent.RemoveSolverUpdateable(ContactConstraint);
-                else if (NarrowPhase != null)
-                    NarrowPhase.NotifyUpdateableRemoved(ContactConstraint);
-
-                if (!suppressEvents)
+                else if (previousContactCount > 0)
                 {
-                    triggerA.OnCollisionEnded(b, this);
-                    triggerB.OnCollisionEnded(a, this);
+                    //Just exited collision.
+
+                    //Remove the solver item.
+                    if (Parent != null)
+                        Parent.RemoveSolverUpdateable(ContactConstraint);
+                    else if (NarrowPhase != null)
+                        NarrowPhase.NotifyUpdateableRemoved(ContactConstraint);
+
+                    if (!suppressEvents)
+                    {
+                        triggerA.OnCollisionEnded(b, this);
+                        triggerB.OnCollisionEnded(a, this);
+                    }
                 }
+
+                previousContactCount = ContactManifold.contacts.Count;
             }
-
-            previousContactCount = ContactManifold.contacts.Count;
-
+            catch { }
         }
-
 
         /// <summary>
         /// Gets the number of contacts associated with this pair handler.
         /// </summary>
         protected internal override int ContactCount
-        {
-            get { return ContactManifold.contacts.Count; }
-        }
+            => ContactManifold.contacts.Count;
 
         /// <summary>
         /// Clears the contacts associated with this pair handler.
@@ -228,7 +209,5 @@ namespace BEPUphysics.NarrowPhaseSystems.Pairs
             ContactManifold.ClearContacts();
             base.ClearContacts();
         }
-
     }
-
 }

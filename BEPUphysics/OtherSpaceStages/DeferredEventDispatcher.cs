@@ -34,8 +34,8 @@ namespace BEPUphysics.OtherSpaceStages
                 if (creator.IsActive)
                     activeEventCreators.Add(creator);
             }
-            else
-                throw new ArgumentException("The event creator is already managed by a dispatcher; it cannot be added.", "creator");
+            // else
+            //     throw new ArgumentException("The event creator is already managed by a dispatcher; it cannot be added.", "creator");
         }
 
         /// <summary>
@@ -44,14 +44,27 @@ namespace BEPUphysics.OtherSpaceStages
         /// <param name="creator">Creator to remove.</param>
         public void RemoveEventCreator(IDeferredEventCreator creator)
         {
-            if (creator.DeferredEventDispatcher == this)
+            if (creator?.DeferredEventDispatcher == this)
             {
                 creator.DeferredEventDispatcher = null;
-                if (creator.IsActive)
-                    activeEventCreators.Remove(creator);
+                try
+                {
+                    if (creator.IsActive)
+                    {
+                        activeEventCreators.Remove(creator);
+                    }
+                }
+                catch // Don't throw. (WCS edit)
+                {
+#if DEBUG
+                    Console.WriteLine("Creator is could not be removed from active event creators.");
+#endif
+                }
             }
-            else
-                throw new ArgumentException("The event creator is managed by a different dispatcher; it cannot be removed.", "creator");
+            // else // Don't throw. (WCS edit)
+            // {
+            //     throw new ArgumentException("The event creator is managed by a different dispatcher; it cannot be removed.", "creator");
+            // }
         }
 
         ///<summary>
@@ -69,7 +82,7 @@ namespace BEPUphysics.OtherSpaceStages
                     throw new ArgumentException("The event creator was already active in the dispatcher; make sure the CreatorActivityChanged function is only called when the state actually changes.", "creator");
             else
                 if (!activeEventCreators.Remove(creator))
-                    throw new ArgumentException("The event creator not active in the dispatcher; make sure the CreatorActivityChanged function is only called when the state actually changes.", "creator");
+                throw new ArgumentException("The event creator not active in the dispatcher; make sure the CreatorActivityChanged function is only called when the state actually changes.", "creator");
         }
 
 
@@ -79,9 +92,9 @@ namespace BEPUphysics.OtherSpaceStages
             for (int i = activeEventCreators.Count - 1; i >= 0; i--)
             {
                 activeEventCreators[i].DispatchEvents();
-                // Since it can attempt to remove or add any number of creators during the handler, all we can do is make sure 
+                // Since it can attempt to remove or add any number of creators during the handler, all we can do is make sure
                 // that our current index is still valid.  We may re-dispatch some event creators, but assuming they follow the
-                // proper pattern for deferred event creators, it will be okay.  The first execution cleans out all of the 
+                // proper pattern for deferred event creators, it will be okay.  The first execution cleans out all of the
                 // deferred events that have been queued up.  The second execution will try, but the queues will be empty.
                 // This is a fairly acceptable result for a rare case.
                 if (i > activeEventCreators.Count)

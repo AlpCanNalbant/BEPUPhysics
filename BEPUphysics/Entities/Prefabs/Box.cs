@@ -1,6 +1,6 @@
 using BEPUphysics.BroadPhaseEntries.MobileCollidables;
 using BEPUphysics.EntityStateManagement;
- 
+
 using BEPUphysics.CollisionShapes.ConvexShapes;
 using BEPUutilities;
 
@@ -9,18 +9,15 @@ namespace BEPUphysics.Entities.Prefabs
     /// <summary>
     /// Box-shaped object that can collide and move.  After making an entity, add it to a Space so that the engine can manage it.
     /// </summary>
-    public class Box : Entity<ConvexCollidable<BoxShape>>
+    public sealed class Box : Entity<ConvexCollidable<BoxShape>>
     {
-
         private Box(float width, float height, float length)
-            :base(new ConvexCollidable<BoxShape>(new BoxShape(width, height, length)))
-        {
-        }
+            : base(new ConvexCollidable<BoxShape>(new BoxShape(width, height, length)))
+        { }
 
         private Box(float width, float height, float length, float mass)
-            :base(new ConvexCollidable<BoxShape>(new BoxShape(width, height, length)), mass)
-        {
-        }
+            : base(new ConvexCollidable<BoxShape>(new BoxShape(width, height, length)), mass)
+        { }
 
         /// <summary>
         /// Constructs a physically simulated box.
@@ -32,9 +29,7 @@ namespace BEPUphysics.Entities.Prefabs
         /// <param name="mass">Mass of the object.</param>
         public Box(Vector3 pos, float width, float height, float length, float mass)
             : this(width, height, length, mass)
-        {
-            Position = pos;
-        }
+            => Position = pos;
 
         /// <summary>
         /// Constructs a nondynamic box.
@@ -45,9 +40,7 @@ namespace BEPUphysics.Entities.Prefabs
         /// <param name="height">Height of the box.</param>
         public Box(Vector3 pos, float width, float height, float length)
             : this(width, height, length)
-        {
-            Position = pos;
-        }
+            => Position = pos;
 
         /// <summary>
         /// Constructs a physically simulated box.
@@ -59,11 +52,7 @@ namespace BEPUphysics.Entities.Prefabs
         /// <param name="mass">Mass of the object.</param>
         public Box(MotionState motionState, float width, float height, float length, float mass)
             : this(width, height, length, mass)
-        {
-            MotionState = motionState;
-        }
-
-
+            => MotionState = motionState;
 
         /// <summary>
         /// Constructs a nondynamic box.
@@ -74,27 +63,24 @@ namespace BEPUphysics.Entities.Prefabs
         /// <param name="height">Height of the box.</param>
         public Box(MotionState motionState, float width, float height, float length)
             : this(width, height, length)
-        {
-            MotionState = motionState;
-        }
+            => MotionState = motionState;
 
         /// <summary>
         /// Width of the box divided by two.
         /// </summary>
         public float HalfWidth
         {
-            get { return CollisionInformation.Shape.HalfWidth; }
-            set { CollisionInformation.Shape.HalfWidth = value; }
+            get => CollisionInformation.Shape.HalfWidth;
+            set => CollisionInformation.Shape.HalfWidth = value;
         }
-
 
         /// <summary>
         /// Height of the box divided by two.
         /// </summary>
         public float HalfHeight
         {
-            get { return CollisionInformation.Shape.HalfHeight; }
-            set { CollisionInformation.Shape.HalfHeight = value; }
+            get => CollisionInformation.Shape.HalfHeight;
+            set => CollisionInformation.Shape.HalfHeight = value;
         }
 
         /// <summary>
@@ -102,19 +88,17 @@ namespace BEPUphysics.Entities.Prefabs
         /// </summary>
         public float HalfLength
         {
-            get { return CollisionInformation.Shape.HalfLength; }
-            set { CollisionInformation.Shape.HalfLength = value; }
+            get => CollisionInformation.Shape.HalfLength;
+            set => CollisionInformation.Shape.HalfLength = value;
         }
-
-
 
         /// <summary>
         /// Width of the box.
         /// </summary>
         public float Width
         {
-            get { return CollisionInformation.Shape.Width; }
-            set { CollisionInformation.Shape.Width = value; }
+            get => CollisionInformation.Shape.Width;
+            set => CollisionInformation.Shape.Width = value;
         }
 
         /// <summary>
@@ -122,8 +106,8 @@ namespace BEPUphysics.Entities.Prefabs
         /// </summary>
         public float Height
         {
-            get { return CollisionInformation.Shape.Height; }
-            set { CollisionInformation.Shape.Height = value; }
+            get => CollisionInformation.Shape.Height;
+            set => CollisionInformation.Shape.Height = value;
         }
 
         /// <summary>
@@ -131,11 +115,8 @@ namespace BEPUphysics.Entities.Prefabs
         /// </summary>
         public float Length
         {
-            get { return CollisionInformation.Shape.Length; }
-            set { CollisionInformation.Shape.Length = value; }
+            get => CollisionInformation.Shape.Length;
+            set => CollisionInformation.Shape.Length = value;
         }
-
-
-
     }
 }

@@ -4,7 +4,7 @@ using BEPUphysics.Constraints.TwoEntity.Motors;
 using BEPUphysics.Entities;
 using BEPUphysics.UpdateableSystems;
 using BEPUutilities;
- 
+
 
 namespace BEPUphysics.Paths.PathFollowing
 {
@@ -59,7 +59,7 @@ namespace BEPUphysics.Paths.PathFollowing
         /// </summary>
         public Entity Entity
         {
-            get { return entity; }
+            get => entity;
             set
             {
                 entity = value;
@@ -83,14 +83,11 @@ namespace BEPUphysics.Paths.PathFollowing
         public static Vector3 GetAngularVelocity(Quaternion start, Quaternion end, float dt)
         {
             //Compute the relative orientation R' between R and the target relative orientation.
-            Quaternion errorOrientation;
-            Quaternion.Conjugate(ref start, out errorOrientation);
+            Quaternion.Conjugate(ref start, out Quaternion errorOrientation);
             Quaternion.Multiply(ref end, ref errorOrientation, out errorOrientation);
 
-            Vector3 axis;
-            float angle;
             //Turn this into an axis-angle representation.
-            Quaternion.GetAxisAngleFromQuaternion(ref errorOrientation, out axis, out angle);
+            Quaternion.GetAxisAngleFromQuaternion(ref errorOrientation, out Vector3 axis, out float angle);
             Vector3.Multiply(ref axis, angle / dt, out axis);
             return axis;
         }
@@ -99,17 +96,13 @@ namespace BEPUphysics.Paths.PathFollowing
         /// Adds the motors to the solver.  Called automatically.
         /// </summary>
         public override void OnAdditionToSpace(Space newSpace)
-        {
-            newSpace.Add(AngularMotor);
-        }
+            => newSpace.Add(AngularMotor);
 
         /// <summary>
         /// Removes the motors from the solver.  Called automatically.
         /// </summary>
         public override void OnRemovalFromSpace(Space oldSpace)
-        {
-            oldSpace.Remove(AngularMotor);
-        }
+            => oldSpace.Remove(AngularMotor);
 
         /// <summary>
         /// Called automatically by the space.

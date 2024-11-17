@@ -4,7 +4,6 @@ using BEPUphysics.Constraints.TwoEntity.Motors;
 using BEPUphysics.Entities;
 using BEPUphysics.UpdateableSystems;
 using BEPUutilities;
- 
 
 namespace BEPUphysics.Paths.PathFollowing
 {
@@ -14,7 +13,6 @@ namespace BEPUphysics.Paths.PathFollowing
     public class EntityMover : Updateable, IDuringForcesUpdateable
     {
         private Entity entity;
-
 
         /// <summary>
         /// Constructs a new EntityMover.
@@ -52,7 +50,7 @@ namespace BEPUphysics.Paths.PathFollowing
         /// </summary>
         public Entity Entity
         {
-            get { return entity; }
+            get => entity;
             set
             {
                 entity = value;
@@ -73,8 +71,8 @@ namespace BEPUphysics.Paths.PathFollowing
         /// </summary>
         public Vector3 LocalOffset
         {
-            get { return LinearMotor.LocalPoint; }
-            set { LinearMotor.LocalPoint = value; }
+            get => LinearMotor.LocalPoint;
+            set => LinearMotor.LocalPoint = value;
         }
 
         /// <summary>
@@ -82,8 +80,8 @@ namespace BEPUphysics.Paths.PathFollowing
         /// </summary>
         public Vector3 Offset
         {
-            get { return LinearMotor.Point; }
-            set { LinearMotor.Point = value; }
+            get => LinearMotor.Point;
+            set => LinearMotor.Point = value;
         }
 
         /// <summary>
@@ -101,8 +99,7 @@ namespace BEPUphysics.Paths.PathFollowing
         /// <returns>Angular velocity to reach the goal in time.</returns>
         public static Vector3 GetLinearVelocity(Vector3 start, Vector3 end, float dt)
         {
-            Vector3 offset;
-            Vector3.Subtract(ref end, ref start, out offset);
+            Vector3.Subtract(ref end, ref start, out Vector3 offset);
             Vector3.Divide(ref offset, dt, out offset);
             return offset;
         }
@@ -111,17 +108,13 @@ namespace BEPUphysics.Paths.PathFollowing
         /// Adds the motors to the space.  Called automatically.
         /// </summary>
         public override void OnAdditionToSpace(Space newSpace)
-        {
-            newSpace.Add(LinearMotor);
-        }
+            => newSpace.Add(LinearMotor);
 
         /// <summary>
         /// Removes the motors from the space.  Called automatically.
         /// </summary>
         public override void OnRemovalFromSpace(Space oldSpace)
-        {
-            oldSpace.Remove(LinearMotor);
-        }
+            => oldSpace.Remove(LinearMotor);
 
         /// <summary>
         /// Called automatically by the space.

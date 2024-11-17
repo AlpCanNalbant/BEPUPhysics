@@ -10,9 +10,9 @@ namespace BEPUphysics.PositionUpdating
     ///</summary>
     public class ContinuousPositionUpdater : PositionUpdater
     {
-        RawList<IPositionUpdateable> discreteUpdateables = new RawList<IPositionUpdateable>();
-        RawList<ICCDPositionUpdateable> passiveUpdateables = new RawList<ICCDPositionUpdateable>();
-        RawList<ICCDPositionUpdateable> continuousUpdateables = new RawList<ICCDPositionUpdateable>();
+        readonly RawList<IPositionUpdateable> discreteUpdateables = [];
+        readonly RawList<ICCDPositionUpdateable> passiveUpdateables = [];
+        readonly RawList<ICCDPositionUpdateable> continuousUpdateables = [];
 
         ///<summary>
         /// Number of objects in a list required to use multithreading.
@@ -45,7 +45,7 @@ namespace BEPUphysics.PositionUpdating
             updateContinuous = UpdateContinuousItem;
         }
 
-        Action<int> preUpdate;
+        readonly Action<int> preUpdate;
         void PreUpdate(int i)
         {
             if (i >= discreteUpdateables.Count)
@@ -55,25 +55,25 @@ namespace BEPUphysics.PositionUpdating
                 {
                     i -= passiveUpdateables.Count;
                     //It's a continuous updateable.
-                    if (continuousUpdateables.Elements[i].IsActive)
+                    if ((continuousUpdateables.Elements[i] != null) && continuousUpdateables.Elements[i].IsActive)
                         continuousUpdateables.Elements[i].PreUpdatePosition(timeStepSettings.TimeStepDuration);
                 }
                 else
                 {
                     //It's a passive updateable.
-                    if (passiveUpdateables.Elements[i].IsActive)
+                    if ((passiveUpdateables.Elements[i] != null) && passiveUpdateables.Elements[i].IsActive)
                         passiveUpdateables.Elements[i].PreUpdatePosition(timeStepSettings.TimeStepDuration);
                 }
             }
             else
             {
                 //It's a discrete updateable.
-                if (discreteUpdateables.Elements[i].IsActive)
+                if ((discreteUpdateables.Elements[i] != null) && discreteUpdateables.Elements[i].IsActive)
                     discreteUpdateables.Elements[i].PreUpdatePosition(timeStepSettings.TimeStepDuration);
             }
         }
 
-        Action<int> updateTimeOfImpact;
+        readonly Action<int> updateTimeOfImpact;
         void UpdateTimeOfImpact(int i)
         {
             //This should always execute, even if the updateable is not active.  This is because
@@ -82,7 +82,7 @@ namespace BEPUphysics.PositionUpdating
             continuousUpdateables.Elements[i].UpdateTimesOfImpact(timeStepSettings.TimeStepDuration);
         }
 
-        Action<int> updateContinuous;
+        readonly Action<int> updateContinuous;
         void UpdateContinuousItem(int i)
         {
             if (i < passiveUpdateables.Count)
@@ -115,7 +115,7 @@ namespace BEPUphysics.PositionUpdating
                 for (int i = 0; i < continuousUpdateables.Count; i++)
                     UpdateTimeOfImpact(i);
 
-            //The TOI's are now computed, so we can integrate all of the CCD or allow-motionclampers 
+            //The TOI's are now computed, so we can integrate all of the CCD or allow-motionclampers
             //to their new positions.
             count = passiveUpdateables.Count + continuousUpdateables.Count;
             if (count > MultithreadingThreshold)
@@ -124,9 +124,9 @@ namespace BEPUphysics.PositionUpdating
                 for (int i = 0; i < count; i++)
                     UpdateContinuousItem(i);
 
-            //The above process is the same as the UpdateSingleThreaded version, but 
+            //The above process is the same as the UpdateSingleThreaded version, but
             //it doesn't always use multithreading.  Sometimes, a simulation can have
-            //very few continuous objects.  In this case, there's no point in having the 
+            //very few continuous objects.  In this case, there's no point in having the
             //multithreaded overhead.
 
         }
@@ -146,7 +146,7 @@ namespace BEPUphysics.PositionUpdating
             for (int i = 0; i < continuousUpdateables.Count; i++)
                 UpdateTimeOfImpact(i);
 
-            //The TOI's are now computed, so we can integrate all of the CCD or allow-motionclampers 
+            //The TOI's are now computed, so we can integrate all of the CCD or allow-motionclampers
             //to their new positions.
             count = passiveUpdateables.Count + continuousUpdateables.Count;
             for (int i = 0; i < count; i++)
@@ -198,8 +198,7 @@ namespace BEPUphysics.PositionUpdating
             if (updateable.PositionUpdater == null)
             {
                 updateable.PositionUpdater = this;
-                var ccdUpdateable = updateable as ICCDPositionUpdateable;
-                if (ccdUpdateable != null)
+                if (updateable is ICCDPositionUpdateable ccdUpdateable)
                 {
                     switch (ccdUpdateable.PositionUpdateMode)
                     {
@@ -217,10 +216,10 @@ namespace BEPUphysics.PositionUpdating
                 else
                     discreteUpdateables.Add(updateable);
             }
-            else
-            {
-                throw new ArgumentException("Cannot add object to Integrator; it already belongs to one.");
-            }
+            // else
+            // {
+            //     throw new ArgumentException("Cannot add object to Integrator; it already belongs to one.");
+            // }
         }
 
 
@@ -234,8 +233,7 @@ namespace BEPUphysics.PositionUpdating
             if (updateable.PositionUpdater == this)
             {
                 updateable.PositionUpdater = null;
-                var ccdUpdateable = updateable as ICCDPositionUpdateable;
-                if (ccdUpdateable != null)
+                if (updateable is ICCDPositionUpdateable ccdUpdateable)
                 {
                     switch (ccdUpdateable.PositionUpdateMode)
                     {
@@ -253,8 +251,8 @@ namespace BEPUphysics.PositionUpdating
                 else
                     discreteUpdateables.Remove(updateable);
             }
-            else
-                throw new ArgumentException("Cannot remove object from this Integrator.  The object doesn't belong to it.");
+            // else
+                // throw new ArgumentException("Cannot remove object from this Integrator.  The object doesn't belong to it.");
         }
     }
 }

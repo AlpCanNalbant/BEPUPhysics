@@ -45,12 +45,19 @@ namespace BEPUphysicsDrawer.Models
                 int a = indices[i];
                 int b = indices[i + 1];
                 int c = indices[i + 2];
-                Vector3 normal = Vector3.Normalize(Vector3.Cross(
-                    tempVertices[c].Position - tempVertices[a].Position,
-                    tempVertices[b].Position - tempVertices[a].Position));
-                tempVertices[a].Normal += normal;
-                tempVertices[b].Normal += normal;
-                tempVertices[c].Normal += normal;
+                try
+                {
+                    Vector3 normal = Vector3.Normalize(Vector3.Cross(
+                        tempVertices[c].Position - tempVertices[a].Position,
+                        tempVertices[b].Position - tempVertices[a].Position));
+                    tempVertices[a].Normal += normal;
+                    tempVertices[b].Normal += normal;
+                    tempVertices[c].Normal += normal;
+                }
+                catch
+                {
+                    return;
+                }
             }
 
             for (int i = 0; i < tempVertices.Length; i++)

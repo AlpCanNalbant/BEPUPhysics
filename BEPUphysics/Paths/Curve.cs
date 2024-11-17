@@ -33,7 +33,7 @@ namespace BEPUphysics.Paths
         public CurveEndpointBehavior PreLoop { get; set; }
 
         /// <summary>
-        /// Converts an unbounded time to a time within the curve's interval using the 
+        /// Converts an unbounded time to a time within the curve's interval using the
         /// endpoint behavior.
         /// </summary>
         /// <param name="time">Time to convert.</param>
@@ -46,6 +46,7 @@ namespace BEPUphysics.Paths
         {
             if (time < intervalBegin)
             {
+                // Console.WriteLine("FORWARD");
                 switch (preLoop)
                 {
                     case CurveEndpointBehavior.Wrap:
@@ -58,7 +59,7 @@ namespace BEPUphysics.Paths
                     case CurveEndpointBehavior.Mirror:
                         modifiedTime = time - intervalBegin;
                         intervalLength = intervalEnd - intervalBegin;
-                        var numFlips = (int) (modifiedTime / intervalLength);
+                        var numFlips = (int)(modifiedTime / intervalLength);
                         if (numFlips % 2 == 0)
                             return intervalBegin - modifiedTime % intervalLength;
                         return intervalEnd + modifiedTime % intervalLength;
@@ -66,6 +67,7 @@ namespace BEPUphysics.Paths
             }
             else if (time >= intervalEnd)
             {
+                // Console.WriteLine("BACKWARD");
                 switch (postLoop)
                 {
                     case CurveEndpointBehavior.Wrap:
@@ -78,7 +80,7 @@ namespace BEPUphysics.Paths
                     case CurveEndpointBehavior.Mirror:
                         modifiedTime = time - intervalEnd;
                         intervalLength = intervalEnd - intervalBegin;
-                        var numFlips = (int) (modifiedTime / intervalLength);
+                        var numFlips = (int)(modifiedTime / intervalLength);
                         if (numFlips % 2 == 0)
                             return intervalEnd - modifiedTime % intervalLength;
                         return intervalBegin + modifiedTime % intervalLength;
@@ -145,7 +147,7 @@ namespace BEPUphysics.Paths
                 if (denominator < Toolbox.Epsilon)
                     intervalTime = 0;
                 else
-                    intervalTime = (float) ((time - ControlPoints[index].Time) / denominator);
+                    intervalTime = (float)((time - ControlPoints[index].Time) / denominator);
 
 
                 Evaluate(index, intervalTime, out value);

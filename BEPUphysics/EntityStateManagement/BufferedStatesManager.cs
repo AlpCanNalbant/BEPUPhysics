@@ -21,18 +21,13 @@ namespace BEPUphysics.EntityStateManagement
         ///</summary>
         public InterpolatedStatesManager InterpolatedStates { get; private set; }
 
-        internal RawList<Entity> entities = new RawList<Entity>();
+        internal RawList<Entity> entities = [];
 
         ///<summary>
         /// Gets the list of entities in the manager.
         ///</summary>
         public ReadOnlyList<Entity> Entities
-        {
-            get
-            {
-                return new ReadOnlyList<Entity>(entities);
-            }
-        }
+            => new(entities);
 
         bool enabled;
         ///<summary>
@@ -40,10 +35,7 @@ namespace BEPUphysics.EntityStateManagement
         ///</summary>
         public bool Enabled
         {
-            get
-            {
-                return enabled;
-            }
+            get => enabled;
             set
             {
                 if (!enabled && value)
@@ -102,8 +94,8 @@ namespace BEPUphysics.EntityStateManagement
                         if (InterpolatedStates.Enabled)
                             InterpolatedStates.Add(e);
                     }
-                    else
-                        throw new InvalidOperationException("Entity already belongs to a BufferedStatesManager; cannot add.");
+                    // else
+                    //     throw new InvalidOperationException("Entity already belongs to a BufferedStatesManager; cannot add.");
 
                 }
             }
@@ -136,8 +128,8 @@ namespace BEPUphysics.EntityStateManagement
 
                         e.BufferedStates.BufferedStatesManager = null;
                     }
-                    else
-                        throw new InvalidOperationException("Entity does not belong to this BufferedStatesManager; cannot remove.");
+                    // else
+                    //     throw new InvalidOperationException("Entity does not belong to this BufferedStatesManager; cannot remove.");
 
                 }
             }

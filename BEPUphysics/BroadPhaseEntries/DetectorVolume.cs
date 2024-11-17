@@ -56,8 +56,6 @@ namespace BEPUphysics.BroadPhaseEntries
             IsContained = contained;
             StaleState = stale;
         }
-
-
     }
 
     /// <summary>
@@ -65,19 +63,12 @@ namespace BEPUphysics.BroadPhaseEntries
     /// </summary>
     public class DetectorVolume : BroadPhaseEntry, ISpaceObject, IDeferredEventCreator
     {
-
-        internal Dictionary<Entity, DetectorVolumePairHandler> pairs = new Dictionary<Entity, DetectorVolumePairHandler>();
+        internal Dictionary<Entity, DetectorVolumePairHandler> pairs = [];
         /// <summary>
         /// Gets the list of pairs associated with the detector volume.
         /// </summary>
         public ReadOnlyDictionary<Entity, DetectorVolumePairHandler> Pairs
-        {
-            get
-            {
-                return new ReadOnlyDictionary<Entity, DetectorVolumePairHandler>(pairs);
-            }
-        }
-
+            => new(pairs);
 
         TriangleMesh triangleMesh;
         /// <summary>
@@ -85,10 +76,7 @@ namespace BEPUphysics.BroadPhaseEntries
         /// </summary>
         public TriangleMesh TriangleMesh
         {
-            get
-            {
-                return triangleMesh;
-            }
+            get => triangleMesh;
             set
             {
                 triangleMesh = value;
@@ -96,11 +84,6 @@ namespace BEPUphysics.BroadPhaseEntries
                 Reinitialize();
             }
         }
-
-
-
-
-
 
         /// <summary>
         /// Creates a detector volume.
@@ -112,7 +95,28 @@ namespace BEPUphysics.BroadPhaseEntries
             UpdateBoundingBox();
         }
 
-
+        public void SetEventNull()
+            => SetEventNull(DetectorVolumeEventFlag.All);
+        public void SetEventNull(DetectorVolumeEventFlag eventFlags)
+        {
+            int value = (int)eventFlags;
+            if ((value & (int)DetectorVolumeEventFlag.BeganTouching) != 0)
+            {
+                EntityBeganTouching = null;
+            }
+            if ((value & (int)DetectorVolumeEventFlag.StoppedTouching) != 0)
+            {
+                EntityStoppedTouching = null;
+            }
+            if ((value & (int)DetectorVolumeEventFlag.BeganContaining) != 0)
+            {
+                VolumeBeganContainingEntity = null;
+            }
+            if ((value & (int)DetectorVolumeEventFlag.StoppedContaining) != 0)
+            {
+                VolumeStoppedContainingEntity = null;
+            }
+        }
 
         /// <summary>
         /// Fires when an entity comes into contact with the volume.
@@ -134,32 +138,18 @@ namespace BEPUphysics.BroadPhaseEntries
         /// </summary>
         public event VolumeStopsContainingEntityEventHandler VolumeStoppedContainingEntity;
 
-
-
-
         private Space space;
         Space ISpaceObject.Space
         {
-            get
-            {
-                return space;
-            }
-            set
-            {
-                space = value;
-            }
+            get => space;
+            set => space = value;
         }
 
         ///<summary>
         /// Space that owns the detector volume.
         ///</summary>
         public Space Space
-        {
-            get
-            {
-                return space;
-            }
-        }
+            => space;
 
         private bool innerFacingIsClockwise;
 
@@ -178,10 +168,9 @@ namespace BEPUphysics.BroadPhaseEntries
 
         internal bool IsPointContained(ref Vector3 point, RawList<int> triangles)
         {
-            Vector3 rayDirection;
             //Point from the approximate center of the mesh outwards.
             //This is a cheap way to reduce the number of unnecessary checks when objects are external to the mesh.
-            Vector3.Add(ref boundingBox.Max, ref boundingBox.Min, out rayDirection);
+            Vector3.Add(ref boundingBox.Max, ref boundingBox.Min, out Vector3 rayDirection);
             Vector3.Multiply(ref rayDirection, .5f, out rayDirection);
             Vector3.Subtract(ref point, ref rayDirection, out rayDirection);
             //If the point is right in the middle, we'll need a backup.
@@ -196,12 +185,9 @@ namespace BEPUphysics.BroadPhaseEntries
 
             for (int i = 0; i < triangles.Count; i++)
             {
-                Vector3 a, b, c;
-                triangleMesh.Data.GetTriangle(triangles.Elements[i], out a, out b, out c);
+                triangleMesh.Data.GetTriangle(triangles.Elements[i], out Vector3 a, out Vector3 b, out Vector3 c);
 
-                RayHit hit;
-                bool hitClockwise;
-                if (Toolbox.FindRayTriangleIntersection(ref ray, float.MaxValue, ref a, ref b, ref c, out hitClockwise, out hit))
+                if (Toolbox.FindRayTriangleIntersection(ref ray, float.MaxValue, ref a, ref b, ref c, out bool hitClockwise, out RayHit hit))
                 {
                     if (hit.T < minimumT)
                     {
@@ -221,27 +207,21 @@ namespace BEPUphysics.BroadPhaseEntries
         {
             foreach (var pair in pairs.Values)
                 pair.CollisionRule = CollisionRules.CollisionRuleCalculator(pair.BroadPhaseOverlap.entryA, pair.BroadPhaseOverlap.entryB);
-
         }
 
         /// <summary>
         /// Gets whether this collidable is associated with an active entity. True if it is, false if it's not.
         /// </summary>
         public override bool IsActive
-        {
-            get { return false; }
-        }
+            => false;
 
         public override bool RayCast(Ray ray, float maximumLength, out RayHit rayHit)
-        {
-            return triangleMesh.RayCast(ray, maximumLength, TriangleSidedness.DoubleSided, out rayHit);
-        }
+            => triangleMesh.RayCast(ray, maximumLength, TriangleSidedness.DoubleSided, out rayHit);
 
         public override bool ConvexCast(ConvexShape castShape, ref RigidTransform startingTransform, ref Vector3 sweep, out RayHit hit)
         {
             hit = new RayHit();
-            BoundingBox boundingBox;
-            castShape.GetSweptBoundingBox(ref startingTransform, ref sweep, out boundingBox);
+            castShape.GetSweptBoundingBox(ref startingTransform, ref sweep, out BoundingBox boundingBox);
             var tri = PhysicsThreadResources.GetTriangle();
             var hitElements = CommonResources.GetIntList();
             if (triangleMesh.Tree.GetOverlaps(boundingBox, hitElements))
@@ -250,8 +230,7 @@ namespace BEPUphysics.BroadPhaseEntries
                 for (int i = 0; i < hitElements.Count; i++)
                 {
                     triangleMesh.Data.GetTriangle(hitElements[i], out tri.vA, out tri.vB, out tri.vC);
-                    Vector3 center;
-                    Vector3.Add(ref tri.vA, ref tri.vB, out center);
+                    Vector3.Add(ref tri.vA, ref tri.vB, out Vector3 center);
                     Vector3.Add(ref center, ref tri.vC, out center);
                     Vector3.Multiply(ref center, 1f / 3f, out center);
                     Vector3.Subtract(ref tri.vA, ref center, out tri.vA);
@@ -267,8 +246,7 @@ namespace BEPUphysics.BroadPhaseEntries
                     tri.MaximumRadius = (float)Math.Sqrt(tri.MaximumRadius);
                     tri.collisionMargin = 0;
                     var triangleTransform = new RigidTransform { Orientation = Quaternion.Identity, Position = center };
-                    RayHit tempHit;
-                    if (MPRToolbox.Sweep(castShape, tri, ref sweep, ref Toolbox.ZeroVector, ref startingTransform, ref triangleTransform, out tempHit) && tempHit.T < hit.T)
+                    if (MPRToolbox.Sweep(castShape, tri, ref sweep, ref Toolbox.ZeroVector, ref startingTransform, ref triangleTransform, out RayHit tempHit) && tempHit.T < hit.T)
                     {
                         hit = tempHit;
                     }
@@ -287,9 +265,7 @@ namespace BEPUphysics.BroadPhaseEntries
         /// Sets the bounding box of the detector volume to the current hierarchy root bounding box.  This is called automatically if the TriangleMesh property is set.
         /// </summary>
         public override void UpdateBoundingBox()
-        {
-            boundingBox = triangleMesh.Tree.BoundingBox;
-        }
+            => boundingBox = triangleMesh.Tree.BoundingBox;
 
         /// <summary>
         /// Updates the detector volume's interpretation of the mesh.  This should be called when the the TriangleMesh is changed significantly.  This is called automatically if the TriangleMesh property is set.
@@ -300,8 +276,7 @@ namespace BEPUphysics.BroadPhaseEntries
             Vector3 origin = (triangleMesh.Tree.BoundingBox.Max - triangleMesh.Tree.BoundingBox.Min) * 1.5f + triangleMesh.Tree.BoundingBox.Min;
 
             //Pick a direction which will definitely hit the mesh.
-            Vector3 a, b, c;
-            triangleMesh.Data.GetTriangle(0, out a, out b, out c);
+            triangleMesh.Data.GetTriangle(0, out Vector3 a, out Vector3 b, out Vector3 c);
             var direction = (a + b + c) / 3 - origin;
 
             var ray = new Ray(origin, direction);
@@ -314,9 +289,7 @@ namespace BEPUphysics.BroadPhaseEntries
             {
                 triangleMesh.Data.GetTriangle(triangles.Elements[i], out a, out b, out c);
 
-                RayHit hit;
-                bool hitClockwise;
-                if (Toolbox.FindRayTriangleIntersection(ref ray, float.MaxValue, ref a, ref b, ref c, out hitClockwise, out hit))
+                if (Toolbox.FindRayTriangleIntersection(ref ray, float.MaxValue, ref a, ref b, ref c, out bool hitClockwise, out RayHit hit))
                 {
                     if (hit.T < minimumT)
                     {
@@ -328,22 +301,16 @@ namespace BEPUphysics.BroadPhaseEntries
             CommonResources.GiveBack(triangles);
         }
 
-
         void ISpaceObject.OnAdditionToSpace(Space newSpace)
-        {
-
-        }
+        { }
 
         void ISpaceObject.OnRemovalFromSpace(Space oldSpace)
-        {
-
-        }
-
+        { }
 
         /// <summary>
         /// Used to protect against containment changes coming in from multithreaded narrowphase contexts.
         /// </summary>
-        SpinLock locker = new SpinLock();
+        readonly SpinLock locker = new();
         struct ContainmentChange
         {
             public Entity Entity;
@@ -356,7 +323,7 @@ namespace BEPUphysics.BroadPhaseEntries
             BeganContaining,
             StoppedContaining
         }
-        private Queue<ContainmentChange> containmentChanges = new Queue<ContainmentChange>();
+        private readonly Queue<ContainmentChange> containmentChanges = new();
         internal void BeganTouching(DetectorVolumePairHandler pair)
         {
             locker.Enter();
@@ -406,8 +373,8 @@ namespace BEPUphysics.BroadPhaseEntries
 
         bool IDeferredEventCreator.IsActive
         {
-            get { return true; }
-            set { throw new NotSupportedException("Detector volumes are always active deferred event generators."); }
+            get => true;
+            set => throw new NotSupportedException("Detector volumes are always active deferred event generators.");
         }
 
         void IDeferredEventCreator.DispatchEvents()
@@ -418,20 +385,16 @@ namespace BEPUphysics.BroadPhaseEntries
                 switch (change.Change)
                 {
                     case ContainmentChangeType.BeganTouching:
-                        if (EntityBeganTouching != null)
-                            EntityBeganTouching(this, change.Entity);
+                        EntityBeganTouching?.Invoke(this, change.Entity);
                         break;
                     case ContainmentChangeType.StoppedTouching:
-                        if (EntityStoppedTouching != null)
-                            EntityStoppedTouching(this, change.Entity);
+                        EntityStoppedTouching?.Invoke(this, change.Entity);
                         break;
                     case ContainmentChangeType.BeganContaining:
-                        if (VolumeBeganContainingEntity != null)
-                            VolumeBeganContainingEntity(this, change.Entity);
+                        VolumeBeganContainingEntity?.Invoke(this, change.Entity);
                         break;
                     case ContainmentChangeType.StoppedContaining:
-                        if (VolumeStoppedContainingEntity != null)
-                            VolumeStoppedContainingEntity(this, change.Entity);
+                        VolumeStoppedContainingEntity?.Invoke(this, change.Entity);
                         break;
                 }
             }
@@ -439,11 +402,8 @@ namespace BEPUphysics.BroadPhaseEntries
 
         int IDeferredEventCreator.ChildDeferredEventCreators
         {
-            get { return 0; }
-            set
-            {
-                throw new NotSupportedException("The detector volume does not allow child deferred event creators.");
-            }
+            get => 0;
+            set => throw new NotSupportedException("The detector volume does not allow child deferred event creators.");
         }
     }
 
@@ -479,4 +439,14 @@ namespace BEPUphysics.BroadPhaseEntries
     /// <param name="volume">DetectorVolume no longer containing the entry.</param>
     /// <param name="entity">Entity no longer contained by the volume.</param>
     public delegate void VolumeStopsContainingEntityEventHandler(DetectorVolume volume, Entity entity);
+
+    public enum DetectorVolumeEventFlag
+    {
+        None = 0,
+        BeganTouching = 1 << 0,
+        StoppedTouching = 1 << 1,
+        BeganContaining = 1 << 2,
+        StoppedContaining = 1 << 3,
+        All = -1
+    }
 }

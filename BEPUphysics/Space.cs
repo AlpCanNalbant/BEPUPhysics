@@ -30,10 +30,7 @@ namespace BEPUphysics
         ///</summary>
         public TimeStepSettings TimeStepSettings
         {
-            get
-            {
-                return timeStepSettings;
-            }
+            get => timeStepSettings;
             set
             {
                 timeStepSettings = value;
@@ -42,7 +39,6 @@ namespace BEPUphysics
                 BoundingBoxUpdater.TimeStepSettings = value;
                 Solver.TimeStepSettings = value;
                 PositionUpdater.TimeStepSettings = value;
-
             }
         }
 
@@ -52,10 +48,7 @@ namespace BEPUphysics
         ///</summary>
         public IParallelLooper ParallelLooper
         {
-            get
-            {
-                return parallelLooper;
-            }
+            get => parallelLooper;
             set
             {
                 parallelLooper = value;
@@ -109,14 +102,12 @@ namespace BEPUphysics
         /// </summary>
         public BroadPhase BroadPhase
         {
-            get
-            {
-                return broadPhase;
-            }
+            get => broadPhase;
             set
             {
                 broadPhase = value;
                 if (NarrowPhase != null)
+                {
                     if (value != null)
                     {
                         NarrowPhase.BroadPhaseOverlaps = broadPhase.Overlaps;
@@ -125,12 +116,13 @@ namespace BEPUphysics
                     {
                         NarrowPhase.BroadPhaseOverlaps = null;
                     }
+                }
             }
         }
         ///<summary>
         /// Gets or sets the narrow phase used by the space.
         /// The narrow phase uses overlaps found by the broad phase
-        /// to create pair handlers.  Those pair handlers can go on to 
+        /// to create pair handlers.  Those pair handlers can go on to
         /// create things like contacts and constraints.
         ///</summary>
         public NarrowPhase NarrowPhase { get; set; }
@@ -188,9 +180,7 @@ namespace BEPUphysics
         /// Gets the list of entities in the space.
         ///</summary>
         public ReadOnlyList<Entity> Entities
-        {
-            get { return BufferedStates.Entities; }
-        }
+            => BufferedStates.Entities;
 
         ///<summary>
         /// Constructs a new space for things to live in.
@@ -198,8 +188,7 @@ namespace BEPUphysics
         ///</summary>
         public Space()
             : this(null)
-        {
-        }
+        { }
 
         ///<summary>
         /// Constructs a new space for things to live in.
@@ -230,54 +219,57 @@ namespace BEPUphysics
             BeforePositionUpdateUpdateables = new BeforePositionUpdateUpdateableManager(timeStepSettings, ParallelLooper);
             EndOfTimeStepUpdateables = new EndOfTimeStepUpdateableManager(timeStepSettings, ParallelLooper);
             EndOfFrameUpdateables = new EndOfFrameUpdateableManager(timeStepSettings, ParallelLooper);
-
         }
-
 
         ///<summary>
         /// Adds a space object to the simulation.
         ///</summary>
         ///<param name="spaceObject">Space object to add.</param>
-        public void Add(ISpaceObject spaceObject)
+        public bool Add(ISpaceObject spaceObject)
         {
-            if (spaceObject.Space != null)
-                throw new ArgumentException("The object belongs to some Space already; cannot add it again.");
+            if (spaceObject.Space == this)
+            {
+                //
+                // throw new ArgumentException("The object belongs to some Space already; cannot add it again.");
+                // Do not throw WCS edit. Try remove first and then if cannot removed return false.
+                if (!Remove(spaceObject))
+                {
+                    return false;
+                }
+
+                // If it's removed from the space, flow-through/continue to below lines ...
+            }
+
             spaceObject.Space = this;
 
-            SimulationIslandMember simulationIslandMember = spaceObject as SimulationIslandMember;
-            if (simulationIslandMember != null)
+            if (spaceObject is SimulationIslandMember simulationIslandMember)
             {
                 DeactivationManager.Add(simulationIslandMember);
             }
 
-            ISimulationIslandMemberOwner simulationIslandMemberOwner = spaceObject as ISimulationIslandMemberOwner;
-            if (simulationIslandMemberOwner != null)
+            if (spaceObject is ISimulationIslandMemberOwner simulationIslandMemberOwner)
             {
                 DeactivationManager.Add(simulationIslandMemberOwner.ActivityInformation);
             }
 
             //Go through each stage, adding the space object to it if necessary.
-            IForceUpdateable velocityUpdateable = spaceObject as IForceUpdateable;
-            if (velocityUpdateable != null)
+            if (spaceObject is IForceUpdateable velocityUpdateable)
             {
                 ForceUpdater.Add(velocityUpdateable);
             }
 
-            MobileCollidable boundingBoxUpdateable = spaceObject as MobileCollidable;
-            if (boundingBoxUpdateable != null)
+            if (spaceObject is MobileCollidable boundingBoxUpdateable)
             {
                 BoundingBoxUpdater.Add(boundingBoxUpdateable);
             }
 
-            BroadPhaseEntry broadPhaseEntry = spaceObject as BroadPhaseEntry;
-            if (broadPhaseEntry != null)
+            if (spaceObject is BroadPhaseEntry broadPhaseEntry)
             {
                 BroadPhase.Add(broadPhaseEntry);
             }
 
             //Entites own collision proxies, but are not entries themselves.
-            IBroadPhaseEntryOwner broadPhaseEntryOwner = spaceObject as IBroadPhaseEntryOwner;
-            if (broadPhaseEntryOwner != null)
+            if (spaceObject is IBroadPhaseEntryOwner broadPhaseEntryOwner)
             {
                 BroadPhase.Add(broadPhaseEntryOwner.Entry);
                 boundingBoxUpdateable = broadPhaseEntryOwner.Entry as MobileCollidable;
@@ -287,119 +279,330 @@ namespace BEPUphysics
                 }
             }
 
-            SolverUpdateable solverUpdateable = spaceObject as SolverUpdateable;
-            if (solverUpdateable != null)
+            if (spaceObject is SolverUpdateable solverUpdateable)
             {
                 Solver.Add(solverUpdateable);
             }
 
-            IPositionUpdateable integrable = spaceObject as IPositionUpdateable;
-            if (integrable != null)
+            if (spaceObject is IPositionUpdateable integrable)
             {
                 PositionUpdater.Add(integrable);
             }
 
-            Entity entity = spaceObject as Entity;
-            if (entity != null)
+            if (spaceObject is Entity entity)
             {
                 BufferedStates.Add(entity);
             }
 
-            IDeferredEventCreator deferredEventCreator = spaceObject as IDeferredEventCreator;
-            if (deferredEventCreator != null)
+            if (spaceObject is IDeferredEventCreator deferredEventCreator)
             {
                 DeferredEventDispatcher.AddEventCreator(deferredEventCreator);
             }
 
-            IDeferredEventCreatorOwner deferredEventCreatorOwner = spaceObject as IDeferredEventCreatorOwner;
-            if (deferredEventCreatorOwner != null)
+            if (spaceObject is IDeferredEventCreatorOwner deferredEventCreatorOwner)
             {
                 DeferredEventDispatcher.AddEventCreator(deferredEventCreatorOwner.EventCreator);
             }
 
             //Updateable stages.
-            IDuringForcesUpdateable duringForcesUpdateable = spaceObject as IDuringForcesUpdateable;
-            if (duringForcesUpdateable != null)
+            if (spaceObject is IDuringForcesUpdateable duringForcesUpdateable)
             {
                 DuringForcesUpdateables.Add(duringForcesUpdateable);
             }
 
-            IBeforeNarrowPhaseUpdateable beforeNarrowPhaseUpdateable = spaceObject as IBeforeNarrowPhaseUpdateable;
-            if (beforeNarrowPhaseUpdateable != null)
+            if (spaceObject is IBeforeNarrowPhaseUpdateable beforeNarrowPhaseUpdateable)
             {
                 BeforeNarrowPhaseUpdateables.Add(beforeNarrowPhaseUpdateable);
             }
 
-            IBeforeSolverUpdateable beforeSolverUpdateable = spaceObject as IBeforeSolverUpdateable;
-            if (beforeSolverUpdateable != null)
+            if (spaceObject is IBeforeSolverUpdateable beforeSolverUpdateable)
             {
                 BeforeSolverUpdateables.Add(beforeSolverUpdateable);
             }
 
-            IBeforePositionUpdateUpdateable beforePositionUpdateUpdateable = spaceObject as IBeforePositionUpdateUpdateable;
-            if (beforePositionUpdateUpdateable != null)
+            if (spaceObject is IBeforePositionUpdateUpdateable beforePositionUpdateUpdateable)
             {
                 BeforePositionUpdateUpdateables.Add(beforePositionUpdateUpdateable);
             }
 
-            IEndOfTimeStepUpdateable endOfStepUpdateable = spaceObject as IEndOfTimeStepUpdateable;
-            if (endOfStepUpdateable != null)
+            if (spaceObject is IEndOfTimeStepUpdateable endOfStepUpdateable)
             {
                 EndOfTimeStepUpdateables.Add(endOfStepUpdateable);
             }
 
-            IEndOfFrameUpdateable endOfFrameUpdateable = spaceObject as IEndOfFrameUpdateable;
-            if (endOfFrameUpdateable != null)
+            if (spaceObject is IEndOfFrameUpdateable endOfFrameUpdateable)
             {
                 EndOfFrameUpdateables.Add(endOfFrameUpdateable);
             }
 
             spaceObject.OnAdditionToSpace(this);
+            return true;
+
+            /*
+            SimulationIslandMember simulationIslandMember = null;
+            ISimulationIslandMemberOwner simulationIslandMemberOwner = null;
+            IForceUpdateable velocityUpdateable = null;
+            MobileCollidable boundingBoxUpdateable = null;
+            BroadPhaseEntry broadPhaseEntry = null;
+            IBroadPhaseEntryOwner broadPhaseEntryOwner = null;
+            MobileCollidable broadPhaseBoundingBoxUpdateable = null;
+            SolverUpdateable solverUpdateable = null;
+            IPositionUpdateable integrable = null;
+            Entity entity = null;
+            IDeferredEventCreator deferredEventCreator = null;
+            IDeferredEventCreatorOwner deferredEventCreatorOwner = null;
+            IDuringForcesUpdateable duringForcesUpdateable = null;
+            IBeforeNarrowPhaseUpdateable beforeNarrowPhaseUpdateable = null;
+            IBeforeSolverUpdateable beforeSolverUpdateable = null;
+            IBeforePositionUpdateUpdateable beforePositionUpdateUpdateable = null;
+            IEndOfTimeStepUpdateable endOfStepUpdateable = null;
+            IEndOfFrameUpdateable endOfFrameUpdateable = null;
+            try
+            {
+                if ((simulationIslandMember = (SimulationIslandMember)spaceObject) != null)
+                {
+                    DeactivationManager.Add(simulationIslandMember);
+                }
+
+                if ((simulationIslandMemberOwner = (ISimulationIslandMemberOwner)spaceObject) != null)
+                {
+                    DeactivationManager.Add(simulationIslandMemberOwner.ActivityInformation);
+                }
+
+                //Go through each stage, adding the space object to it if necessary.
+                if ((velocityUpdateable = (IForceUpdateable)spaceObject) != null)
+                {
+                    ForceUpdater.Add(velocityUpdateable);
+                }
+
+                if ((boundingBoxUpdateable = (MobileCollidable)spaceObject) != null)
+                {
+                    BoundingBoxUpdater.Add(boundingBoxUpdateable);
+                }
+
+                if ((broadPhaseEntry = (BroadPhaseEntry)spaceObject) != null)
+                {
+                    BroadPhase.Add(broadPhaseEntry);
+                }
+
+                //Entites own collision proxies, but are not entries themselves.
+                if ((broadPhaseEntryOwner = (IBroadPhaseEntryOwner)spaceObject) != null)
+                {
+                    BroadPhase.Add(broadPhaseEntryOwner.Entry);
+                    broadPhaseBoundingBoxUpdateable = broadPhaseEntryOwner.Entry as MobileCollidable;
+                    if (broadPhaseBoundingBoxUpdateable != null)
+                    {
+                        BoundingBoxUpdater.Add(broadPhaseBoundingBoxUpdateable);
+                    }
+                }
+
+                if ((solverUpdateable = (SolverUpdateable)spaceObject) != null)
+                {
+                    Solver.Add(solverUpdateable);
+                }
+
+                if ((integrable = (IPositionUpdateable)spaceObject) != null)
+                {
+                    PositionUpdater.Add(integrable);
+                }
+
+                if ((entity = (Entity)spaceObject) != null)
+                {
+                    BufferedStates.Add(entity);
+                }
+
+                if ((deferredEventCreator = (IDeferredEventCreator)spaceObject) != null)
+                {
+                    DeferredEventDispatcher.AddEventCreator(deferredEventCreator);
+                }
+
+                if ((deferredEventCreatorOwner = (IDeferredEventCreatorOwner)spaceObject) != null)
+                {
+                    DeferredEventDispatcher.AddEventCreator(deferredEventCreatorOwner.EventCreator);
+                }
+
+                //Updateable stages.
+                if ((duringForcesUpdateable = (IDuringForcesUpdateable)spaceObject) != null)
+                {
+                    DuringForcesUpdateables.Add(duringForcesUpdateable);
+                }
+
+                if ((beforeNarrowPhaseUpdateable = (IBeforeNarrowPhaseUpdateable)spaceObject) != null)
+                {
+                    BeforeNarrowPhaseUpdateables.Add(beforeNarrowPhaseUpdateable);
+                }
+
+                if ((beforeSolverUpdateable = (IBeforeSolverUpdateable)spaceObject) != null)
+                {
+                    BeforeSolverUpdateables.Add(beforeSolverUpdateable);
+                }
+
+                if ((beforePositionUpdateUpdateable = (IBeforePositionUpdateUpdateable)spaceObject) != null)
+                {
+                    BeforePositionUpdateUpdateables.Add(beforePositionUpdateUpdateable);
+                }
+
+                if ((endOfStepUpdateable = (IEndOfTimeStepUpdateable)spaceObject) != null)
+                {
+                    EndOfTimeStepUpdateables.Add(endOfStepUpdateable);
+                }
+
+                if ((endOfFrameUpdateable = (IEndOfFrameUpdateable)spaceObject) != null)
+                {
+                    EndOfFrameUpdateables.Add(endOfFrameUpdateable);
+                }
+
+                spaceObject.OnAdditionToSpace(this);
+            }
+            catch
+            {
+                try
+                {
+                    if (simulationIslandMember != null)
+                    {
+                        DeactivationManager.Remove(simulationIslandMember);
+                    }
+
+                    if (simulationIslandMemberOwner != null)
+                    {
+                        DeactivationManager.Remove(simulationIslandMemberOwner.ActivityInformation);
+                    }
+
+                    //Go through each stage, adding the space object to it if necessary.
+                    if (velocityUpdateable != null)
+                    {
+                        ForceUpdater.Remove(velocityUpdateable);
+                    }
+
+                    if (boundingBoxUpdateable != null)
+                    {
+                        BoundingBoxUpdater.Remove(boundingBoxUpdateable);
+                    }
+
+                    if (broadPhaseEntry != null)
+                    {
+                        BroadPhase.Remove(broadPhaseEntry);
+                    }
+
+                    //Entites own collision proxies, but are not entries themselves.
+                    if (broadPhaseEntryOwner != null)
+                    {
+                        BroadPhase.Remove(broadPhaseEntryOwner.Entry);
+                        if (broadPhaseBoundingBoxUpdateable != null)
+                        {
+                            BoundingBoxUpdater.Remove(broadPhaseBoundingBoxUpdateable);
+                        }
+                    }
+
+                    if (solverUpdateable != null)
+                    {
+                        Solver.Remove(solverUpdateable);
+                    }
+
+                    if (integrable != null)
+                    {
+                        PositionUpdater.Remove(integrable);
+                    }
+
+                    if (entity != null)
+                    {
+                        BufferedStates.Remove(entity);
+                    }
+
+                    if (deferredEventCreator != null)
+                    {
+                        DeferredEventDispatcher.RemoveEventCreator(deferredEventCreator);
+                    }
+
+                    if (deferredEventCreatorOwner != null)
+                    {
+                        DeferredEventDispatcher.RemoveEventCreator(deferredEventCreatorOwner.EventCreator);
+                    }
+
+                    //Updateable stages.
+                    if (duringForcesUpdateable != null)
+                    {
+                        DuringForcesUpdateables.Remove(duringForcesUpdateable);
+                    }
+
+                    if (beforeNarrowPhaseUpdateable != null)
+                    {
+                        BeforeNarrowPhaseUpdateables.Remove(beforeNarrowPhaseUpdateable);
+                    }
+
+                    if (beforeSolverUpdateable != null)
+                    {
+                        BeforeSolverUpdateables.Remove(beforeSolverUpdateable);
+                    }
+
+                    if (beforePositionUpdateUpdateable != null)
+                    {
+                        BeforePositionUpdateUpdateables.Remove(beforePositionUpdateUpdateable);
+                    }
+
+                    if (endOfStepUpdateable != null)
+                    {
+                        EndOfTimeStepUpdateables.Remove(endOfStepUpdateable);
+                    }
+
+                    if (endOfFrameUpdateable != null)
+                    {
+                        EndOfFrameUpdateables.Remove(endOfFrameUpdateable);
+                    }
+                }
+                catch
+                {
+                    spaceObject.Space = null;
+                    spaceObject.OnRemovalFromSpace(this);
+                    return false;
+                }
+
+                spaceObject.Space = null;
+                spaceObject.OnRemovalFromSpace(this);
+                return false;
+            }
+
+            return true;
+            */
         }
 
         ///<summary>
         /// Removes a space object from the simulation.
         ///</summary>
         ///<param name="spaceObject">Space object to remove.</param>
-        public void Remove(ISpaceObject spaceObject)
+        public bool Remove(ISpaceObject spaceObject)
         {
             if (spaceObject.Space != this)
-                throw new ArgumentException("The object does not belong to this space; cannot remove it.");
+                return false; // throw new ArgumentException("The object does not belong to this space; cannot remove it.");
 
-            SimulationIslandMember simulationIslandMember = spaceObject as SimulationIslandMember;
-            if (simulationIslandMember != null)
+            if (spaceObject is SimulationIslandMember simulationIslandMember)
             {
                 DeactivationManager.Remove(simulationIslandMember);
             }
 
-            ISimulationIslandMemberOwner simulationIslandMemberOwner = spaceObject as ISimulationIslandMemberOwner;
-            if (simulationIslandMemberOwner != null)
+            if (spaceObject is ISimulationIslandMemberOwner simulationIslandMemberOwner)
             {
                 DeactivationManager.Remove(simulationIslandMemberOwner.ActivityInformation);
             }
 
             //Go through each stage, removing the space object from it if necessary.
-            IForceUpdateable velocityUpdateable = spaceObject as IForceUpdateable;
-            if (velocityUpdateable != null)
+            if (spaceObject is IForceUpdateable velocityUpdateable)
             {
                 ForceUpdater.Remove(velocityUpdateable);
             }
 
-            MobileCollidable boundingBoxUpdateable = spaceObject as MobileCollidable;
-            if (boundingBoxUpdateable != null)
+            if (spaceObject is MobileCollidable boundingBoxUpdateable)
             {
                 BoundingBoxUpdater.Remove(boundingBoxUpdateable);
             }
 
-            BroadPhaseEntry broadPhaseEntry = spaceObject as BroadPhaseEntry;
-            if (broadPhaseEntry != null)
+            if (spaceObject is BroadPhaseEntry broadPhaseEntry)
             {
                 BroadPhase.Remove(broadPhaseEntry);
             }
 
             //Entites own collision proxies, but are not entries themselves.
-            IBroadPhaseEntryOwner broadPhaseEntryOwner = spaceObject as IBroadPhaseEntryOwner;
-            if (broadPhaseEntryOwner != null)
+            if (spaceObject is IBroadPhaseEntryOwner broadPhaseEntryOwner)
             {
                 BroadPhase.Remove(broadPhaseEntryOwner.Entry);
                 boundingBoxUpdateable = broadPhaseEntryOwner.Entry as MobileCollidable;
@@ -409,76 +612,66 @@ namespace BEPUphysics
                 }
             }
 
-            SolverUpdateable solverUpdateable = spaceObject as SolverUpdateable;
-            if (solverUpdateable != null)
+            if (spaceObject is SolverUpdateable solverUpdateable)
             {
                 Solver.Remove(solverUpdateable);
             }
 
-            IPositionUpdateable integrable = spaceObject as IPositionUpdateable;
-            if (integrable != null)
+            if (spaceObject is IPositionUpdateable integrable)
             {
                 PositionUpdater.Remove(integrable);
             }
 
-            Entity entity = spaceObject as Entity;
-            if (entity != null)
+            if (spaceObject is Entity entity)
             {
                 BufferedStates.Remove(entity);
             }
 
-            IDeferredEventCreator deferredEventCreator = spaceObject as IDeferredEventCreator;
-            if (deferredEventCreator != null)
+            if (spaceObject is IDeferredEventCreator deferredEventCreator)
             {
                 DeferredEventDispatcher.RemoveEventCreator(deferredEventCreator);
             }
 
-            IDeferredEventCreatorOwner deferredEventCreatorOwner = spaceObject as IDeferredEventCreatorOwner;
-            if (deferredEventCreatorOwner != null)
+            if (spaceObject is IDeferredEventCreatorOwner deferredEventCreatorOwner)
             {
                 DeferredEventDispatcher.RemoveEventCreator(deferredEventCreatorOwner.EventCreator);
             }
 
             //Updateable stages.
-            IDuringForcesUpdateable duringForcesUpdateable = spaceObject as IDuringForcesUpdateable;
-            if (duringForcesUpdateable != null)
+            if (spaceObject is IDuringForcesUpdateable duringForcesUpdateable)
             {
                 DuringForcesUpdateables.Remove(duringForcesUpdateable);
             }
 
-            IBeforeNarrowPhaseUpdateable beforeNarrowPhaseUpdateable = spaceObject as IBeforeNarrowPhaseUpdateable;
-            if (beforeNarrowPhaseUpdateable != null)
+            if (spaceObject is IBeforeNarrowPhaseUpdateable beforeNarrowPhaseUpdateable)
             {
                 BeforeNarrowPhaseUpdateables.Remove(beforeNarrowPhaseUpdateable);
             }
 
-            IBeforeSolverUpdateable beforeSolverUpdateable = spaceObject as IBeforeSolverUpdateable;
-            if (beforeSolverUpdateable != null)
+            if (spaceObject is IBeforeSolverUpdateable beforeSolverUpdateable)
             {
                 BeforeSolverUpdateables.Remove(beforeSolverUpdateable);
             }
 
 
-            IBeforePositionUpdateUpdateable beforePositionUpdateUpdateable = spaceObject as IBeforePositionUpdateUpdateable;
-            if (beforePositionUpdateUpdateable != null)
+            if (spaceObject is IBeforePositionUpdateUpdateable beforePositionUpdateUpdateable)
             {
                 BeforePositionUpdateUpdateables.Remove(beforePositionUpdateUpdateable);
             }
 
-            IEndOfTimeStepUpdateable endOfStepUpdateable = spaceObject as IEndOfTimeStepUpdateable;
-            if (endOfStepUpdateable != null)
+            if (spaceObject is IEndOfTimeStepUpdateable endOfStepUpdateable)
             {
                 EndOfTimeStepUpdateables.Remove(endOfStepUpdateable);
             }
 
-            IEndOfFrameUpdateable endOfFrameUpdateable = spaceObject as IEndOfFrameUpdateable;
-            if (endOfFrameUpdateable != null)
+            if (spaceObject is IEndOfFrameUpdateable endOfFrameUpdateable)
             {
                 EndOfFrameUpdateables.Remove(endOfFrameUpdateable);
             }
 
             spaceObject.Space = null;
             spaceObject.OnRemovalFromSpace(this);
+            return true;
         }
 
 #if PROFILE
@@ -486,9 +679,7 @@ namespace BEPUphysics
         /// Gets the time it took to perform the previous time step.
         /// </summary>
         public double Time
-        {
-            get { return (end - start) / (double)Stopwatch.Frequency; }
-        }
+            => (end - start) / (double)Stopwatch.Frequency;
 
         private long start, end;
 #endif
@@ -517,8 +708,6 @@ namespace BEPUphysics
 #if PROFILE
             end = Stopwatch.GetTimestamp();
 #endif
-
-
         }
 
         ///<summary>
@@ -562,9 +751,7 @@ namespace BEPUphysics
         /// <param name="result">Hit data of the ray, if any.</param>
         /// <returns>Whether or not the ray hit anything.</returns>
         public bool RayCast(Ray ray, out RayCastResult result)
-        {
-            return RayCast(ray, float.MaxValue, out result);
-        }
+            => RayCast(ray, float.MaxValue, out result);
 
         /// <summary>
         /// Tests a ray against the space.
@@ -574,9 +761,7 @@ namespace BEPUphysics
         /// <param name="result">Hit data of the ray, if any.</param>
         /// <returns>Whether or not the ray hit anything.</returns>
         public bool RayCast(Ray ray, Func<BroadPhaseEntry, bool> filter, out RayCastResult result)
-        {
-            return RayCast(ray, float.MaxValue, filter, out result);
-        }
+            => RayCast(ray, float.MaxValue, filter, out result);
 
         /// <summary>
         /// Tests a ray against the space.
@@ -640,9 +825,8 @@ namespace BEPUphysics
 
                 for (int i = 0; i < outputIntersections.Count; i++)
                 {
-                    RayHit rayHit;
                     BroadPhaseEntry candidate = outputIntersections.Elements[i];
-                    if (candidate.RayCast(ray, maximumLength, out rayHit))
+                    if (candidate.RayCast(ray, maximumLength, out RayHit rayHit))
                     {
                         outputRayCastResults.Add(new RayCastResult(rayHit, candidate));
                     }
@@ -668,9 +852,8 @@ namespace BEPUphysics
 
                 for (int i = 0; i < outputIntersections.Count; i++)
                 {
-                    RayHit rayHit;
                     BroadPhaseEntry candidate = outputIntersections.Elements[i];
-                    if (candidate.RayCast(ray, maximumLength, filter, out rayHit))
+                    if (candidate.RayCast(ray, maximumLength, filter, out RayHit rayHit))
                     {
                         outputRayCastResults.Add(new RayCastResult(rayHit, candidate));
                     }
@@ -741,14 +924,12 @@ namespace BEPUphysics
         public bool ConvexCast(ConvexShape castShape, ref RigidTransform startingTransform, ref Vector3 sweep, IList<RayCastResult> outputCastResults)
         {
             var overlappedElements = PhysicsResources.GetBroadPhaseEntryList();
-            BoundingBox boundingBox;
-            castShape.GetSweptBoundingBox(ref startingTransform, ref sweep, out boundingBox);
+            castShape.GetSweptBoundingBox(ref startingTransform, ref sweep, out BoundingBox boundingBox);
 
             BroadPhase.QueryAccelerator.GetEntries(boundingBox, overlappedElements);
             for (int i = 0; i < overlappedElements.Count; ++i)
             {
-                RayHit hit;
-                if (overlappedElements.Elements[i].ConvexCast(castShape, ref startingTransform, ref sweep, out hit))
+                if (overlappedElements.Elements[i].ConvexCast(castShape, ref startingTransform, ref sweep, out RayHit hit))
                 {
                     outputCastResults.Add(new RayCastResult { HitData = hit, HitObject = overlappedElements.Elements[i] });
                 }
@@ -770,14 +951,12 @@ namespace BEPUphysics
         public bool ConvexCast(ConvexShape castShape, ref RigidTransform startingTransform, ref Vector3 sweep, Func<BroadPhaseEntry, bool> filter, IList<RayCastResult> outputCastResults)
         {
             var overlappedElements = PhysicsResources.GetBroadPhaseEntryList();
-            BoundingBox boundingBox;
-            castShape.GetSweptBoundingBox(ref startingTransform, ref sweep, out boundingBox);
+            castShape.GetSweptBoundingBox(ref startingTransform, ref sweep, out BoundingBox boundingBox);
 
             BroadPhase.QueryAccelerator.GetEntries(boundingBox, overlappedElements);
             for (int i = 0; i < overlappedElements.Count; ++i)
             {
-                RayHit hit;
-                if (overlappedElements.Elements[i].ConvexCast(castShape, ref startingTransform, ref sweep, filter, out hit))
+                if (overlappedElements.Elements[i].ConvexCast(castShape, ref startingTransform, ref sweep, filter, out RayHit hit))
                 {
                     outputCastResults.Add(new RayCastResult { HitData = hit, HitObject = overlappedElements.Elements[i] });
                 }
@@ -785,9 +964,5 @@ namespace BEPUphysics
             PhysicsResources.GiveBack(overlappedElements);
             return outputCastResults.Count > 0;
         }
-
-
     }
-
-
 }

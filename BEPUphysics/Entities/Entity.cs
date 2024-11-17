@@ -16,24 +16,17 @@ namespace BEPUphysics.Entities
         /// Gets the collidable used by the entity.
         ///</summary>
         public new T CollisionInformation
-        {
-            get { return (T)collisionInformation; }
-        }
+            => (T)collisionInformation;
 
         protected internal Entity()
-        {
-
-        }
+        { }
 
         ///<summary>
         /// Constructs a kinematic Entity.
         ///</summary>
         ///<param name="collisionInformation">Collidable for the entity.</param>
         public Entity(T collisionInformation)
-        {
-            Initialize(collisionInformation);
-        }
-
+            => Initialize(collisionInformation);
 
         ///<summary>
         /// Constructs a dynamic Entity.
@@ -41,9 +34,8 @@ namespace BEPUphysics.Entities
         ///<param name="collisionInformation">Collidable for the entity.</param>
         /// <param name="mass">Mass of the entity.</param>
         public Entity(T collisionInformation, float mass)
-        {
-            Initialize(collisionInformation, mass);
-        }
+            => Initialize(collisionInformation, mass);
+
         ///<summary>
         /// Constructs a dynamic Entity.
         ///</summary>
@@ -51,10 +43,6 @@ namespace BEPUphysics.Entities
         /// <param name="mass">Mass of the entity.</param>
         /// <param name="inertiaTensor">Inertia of the entity.</param>
         public Entity(T collisionInformation, float mass, Matrix3x3 inertiaTensor)
-        {
-            Initialize(collisionInformation, mass, inertiaTensor);
-        }
-
-
+            => Initialize(collisionInformation, mass, inertiaTensor);
     }
 }

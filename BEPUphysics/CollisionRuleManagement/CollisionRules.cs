@@ -9,12 +9,10 @@ namespace BEPUphysics.CollisionRuleManagement
     /// </summary>
     public class CollisionRules
     {
-
         ///<summary>
         /// Fires when the contained collision rules are altered.
         ///</summary>
         public event Action CollisionRulesChanged;
-
 
         ///<summary>
         /// Constructs a new CollisionRules instance.
@@ -25,27 +23,21 @@ namespace BEPUphysics.CollisionRuleManagement
             OnChangedDelegate = OnChanged;
         }
 
-        int hashCode;
+        readonly int hashCode;
 
         /// <summary>
-        /// Serves as a hash function for a particular type. 
+        /// Serves as a hash function for a particular type.
         /// </summary>
         /// <returns>
         /// A hash code for the current <see cref="T:System.Object"/>.
         /// </returns>
         /// <filterpriority>2</filterpriority>
         public override int GetHashCode()
-        {
-            return hashCode;
-        }
+            => hashCode;
 
-        private Action OnChangedDelegate;
+        private readonly Action OnChangedDelegate;
         protected void OnChanged()
-        {
-            if (CollisionRulesChanged != null)
-                CollisionRulesChanged();
-        }
-
+            => CollisionRulesChanged?.Invoke();
 
         internal CollisionGroup group;
         /// <summary>
@@ -56,14 +48,13 @@ namespace BEPUphysics.CollisionRuleManagement
         /// </summary>
         public CollisionGroup Group
         {
-            get { return group; }
+            get => group;
             set
             {
                 group = value;
                 OnChanged();
             }
         }
-
 
         internal CollisionRule personal = CollisionRule.Defer;
         /// <summary>
@@ -73,7 +64,7 @@ namespace BEPUphysics.CollisionRuleManagement
         /// </summary>
         public CollisionRule Personal
         {
-            get { return personal; }
+            get => personal;
             set
             {
                 personal = value;
@@ -83,7 +74,7 @@ namespace BEPUphysics.CollisionRuleManagement
 
 
 
-        internal ObservableDictionary<CollisionRules, CollisionRule> specific = new ObservableDictionary<CollisionRules, CollisionRule>();
+        internal ObservableDictionary<CollisionRules, CollisionRule> specific = new();
         /// <summary>
         /// Specifies how the object owning this instance should react to other individual objects.
         /// Any rules defined in this collection will take priority over the Personal collision rule and the collision group's collision rules.
@@ -91,7 +82,7 @@ namespace BEPUphysics.CollisionRuleManagement
         /// </summary>
         public ObservableDictionary<CollisionRules, CollisionRule> Specific
         {
-            get { return specific; }
+            get => specific;
             set
             {
                 if (value != specific)
@@ -115,9 +106,7 @@ namespace BEPUphysics.CollisionRuleManagement
         ///<param name="ownerB">Owner of the collision rules that will be added to ownerA's Specific relationships.</param>
         ///<param name="rule">Rule assigned to the pair.</param>
         public static void AddRule(ICollisionRulesOwner ownerA, ICollisionRulesOwner ownerB, CollisionRule rule)
-        {
-            ownerA.CollisionRules.specific.Add(ownerB.CollisionRules, rule);
-        }
+            => ownerA.CollisionRules.specific.Add(ownerB.CollisionRules, rule);
         ///<summary>
         /// Adds an entry in rulesA's Specific relationships list about ownerB.
         ///</summary>
@@ -125,9 +114,7 @@ namespace BEPUphysics.CollisionRuleManagement
         ///<param name="ownerB">Owner of the collision rules that will be added to ownerA's Specific relationships.</param>
         ///<param name="rule">Rule assigned to the pair.</param>
         public static void AddRule(CollisionRules rulesA, ICollisionRulesOwner ownerB, CollisionRule rule)
-        {
-            rulesA.specific.Add(ownerB.CollisionRules, rule);
-        }
+            => rulesA.specific.Add(ownerB.CollisionRules, rule);
 
         ///<summary>
         /// Adds an entry in rulesA's Specific relationships list about ownerB.
@@ -136,29 +123,33 @@ namespace BEPUphysics.CollisionRuleManagement
         ///<param name="rulesB">Collision rules that will be added to ownerA's Specific relationships.</param>
         ///<param name="rule">Rule assigned to the pair.</param>
         public static void AddRule(ICollisionRulesOwner ownerA, CollisionRules rulesB, CollisionRule rule)
-        {
-            ownerA.CollisionRules.specific.Add(rulesB, rule);
-        }
+            => ownerA.CollisionRules.specific.Add(rulesB, rule);
 
         ///<summary>
         /// Tries to remove a relationship about ownerB from ownerA's Specific list.
         ///</summary>
         ///<param name="ownerA">Owner of the collision rules that will lose an entry in its Specific relationships.</param>
         ///<param name="ownerB">Owner of the collision rules that will be removed from ownerA's Specific relationships.</param>
-        public static void RemoveRule(ICollisionRulesOwner ownerA, ICollisionRulesOwner ownerB)
+        public static bool RemoveRule(ICollisionRulesOwner ownerA, ICollisionRulesOwner ownerB)
         {
             if (!ownerA.CollisionRules.specific.Remove(ownerB.CollisionRules))
-                ownerB.CollisionRules.specific.Remove(ownerA.CollisionRules);
+            {
+                return ownerB.CollisionRules.specific.Remove(ownerA.CollisionRules);
+            }
+            return true;
         }
         ///<summary>
         /// Tries to remove a relationship about ownerB from rulesA's Specific list.
         ///</summary>
         ///<param name="rulesA">Collision rules that will lose an entry in its Specific relationships.</param>
         ///<param name="ownerB">Owner of the collision rules that will be removed from ownerA's Specific relationships.</param>
-        public static void RemoveRule(CollisionRules rulesA, ICollisionRulesOwner ownerB)
+        public static bool RemoveRule(CollisionRules rulesA, ICollisionRulesOwner ownerB)
         {
             if (!rulesA.specific.Remove(ownerB.CollisionRules))
-                ownerB.CollisionRules.specific.Remove(rulesA);
+            {
+                return ownerB.CollisionRules.specific.Remove(rulesA);
+            }
+            return true;
         }
 
         ///<summary>
@@ -166,16 +157,17 @@ namespace BEPUphysics.CollisionRuleManagement
         ///</summary>
         ///<param name="ownerA">Owner of the collision rules that will lose an entry in its Specific relationships.</param>
         ///<param name="rulesB">Collision rules that will be removed from ownerA's Specific relationships.</param>
-        public static void RemoveRule(ICollisionRulesOwner ownerA, CollisionRules rulesB)
+        public static bool RemoveRule(ICollisionRulesOwner ownerA, CollisionRules rulesB)
         {
             if (!ownerA.CollisionRules.specific.Remove(rulesB))
-                rulesB.specific.Remove(ownerA.CollisionRules);
+            {
+                return rulesB.specific.Remove(ownerA.CollisionRules);
+            }
+            return true;
         }
 
         static CollisionRules()
-        {
-            CollisionGroupRules.Add(new CollisionGroupPair(DefaultKinematicCollisionGroup, DefaultKinematicCollisionGroup), CollisionRule.NoBroadPhase);
-        }
+            => CollisionGroupRules.Add(new CollisionGroupPair(DefaultKinematicCollisionGroup, DefaultKinematicCollisionGroup), CollisionRule.NoBroadPhase);
 
         internal static Func<ICollisionRulesOwner, ICollisionRulesOwner, CollisionRule> collisionRuleCalculator = GetCollisionRuleDefault;
         ///<summary>
@@ -184,14 +176,8 @@ namespace BEPUphysics.CollisionRuleManagement
         ///</summary>
         public static Func<ICollisionRulesOwner, ICollisionRulesOwner, CollisionRule> CollisionRuleCalculator
         {
-            get
-            {
-                return collisionRuleCalculator;
-            }
-            set
-            {
-                collisionRuleCalculator = value;
-            }
+            get => collisionRuleCalculator;
+            set => collisionRuleCalculator = value;
         }
 
         /// <summary>
@@ -201,15 +187,12 @@ namespace BEPUphysics.CollisionRuleManagement
         /// <param name="ownerB">Second owner of the pair.</param>
         /// <returns>CollisionRule between the pair, according to the CollisionRuleCalculator.</returns>
         public static CollisionRule GetCollisionRule(ICollisionRulesOwner ownerA, ICollisionRulesOwner ownerB)
-        {
-            return collisionRuleCalculator(ownerA, ownerB);
-        }
-
+            => collisionRuleCalculator(ownerA, ownerB);
 
         /// <summary>
         /// Defines any special collision rules between collision groups.
         /// </summary>
-        public static Dictionary<CollisionGroupPair, CollisionRule> CollisionGroupRules = new Dictionary<CollisionGroupPair, CollisionRule>();
+        public static Dictionary<CollisionGroupPair, CollisionRule> CollisionGroupRules = [];
 
         /// <summary>
         /// If a CollisionRule calculation between two colliding objects results in no defined CollisionRule, this value will be used.
@@ -221,16 +204,16 @@ namespace BEPUphysics.CollisionRuleManagement
         /// There are no special rules associated with this group by default; entities within this group have normal, full interaction with all other entities.
         /// Collision group interaction rules can be overriden by entity personal collision rules or entity-to-entity specific collision rules.
         /// </summary>
-        public static CollisionGroup DefaultDynamicCollisionGroup = new CollisionGroup();
+        public static CollisionGroup DefaultDynamicCollisionGroup = new();
 
         /// <summary>
         /// When a kinematic entity is created and added to a space without having a specific collision group set beforehand, it inherits this collision group.
         /// Entities in this collision group will not create collision pairs with other entities of this collision group by default.  All other interactions are normal.
         /// Collision group interaction rules can be overriden by entity personal collision rules or entity-to-entity specific collision rules.
-        /// 
+        ///
         /// Non-entity collidable objects like static triangle meshes also use this collision group by default.
         /// </summary>
-        public static CollisionGroup DefaultKinematicCollisionGroup = new CollisionGroup();
+        public static CollisionGroup DefaultKinematicCollisionGroup = new();
 
         /// <summary>
         /// Determines what collision rule governs the interaction between the two objects.
@@ -264,10 +247,8 @@ namespace BEPUphysics.CollisionRuleManagement
         ///<returns>Collision rule governing the interaction between the pair.</returns>
         public static CollisionRule GetSpecificCollisionRuleDefault(CollisionRules a, CollisionRules b)
         {
-            CollisionRule aToB;
-            a.specific.WrappedDictionary.TryGetValue(b, out aToB);
-            CollisionRule bToA;
-            b.specific.WrappedDictionary.TryGetValue(a, out bToA);
+            a.specific.WrappedDictionary.TryGetValue(b, out CollisionRule aToB);
+            b.specific.WrappedDictionary.TryGetValue(a, out CollisionRule bToA);
             return aToB > bToA ? aToB : bToA;
 
         }
@@ -282,8 +263,7 @@ namespace BEPUphysics.CollisionRuleManagement
         {
             if (a.group == null || b.group == null)
                 return CollisionRule.Defer; //This can happen occasionally when objects aren't in a space or are being handled uniquely (like in compound bodies).
-            CollisionRule pairRule;
-            CollisionGroupRules.TryGetValue(new CollisionGroupPair(a.group, b.group), out pairRule);
+            CollisionGroupRules.TryGetValue(new CollisionGroupPair(a.group, b.group), out CollisionRule pairRule);
             return pairRule;
         }
         ///<summary>
@@ -293,10 +273,6 @@ namespace BEPUphysics.CollisionRuleManagement
         ///<param name="b">Second ruleset in the pair.</param>
         ///<returns>Collision rule governing the interaction between the pair.</returns>
         public static CollisionRule GetPersonalCollisionRuleDefault(CollisionRules a, CollisionRules b)
-        {
-            return a.personal > b.personal ? a.personal : b.personal;
-        }
-
-
+            => a.personal > b.personal ? a.personal : b.personal;
     }
 }

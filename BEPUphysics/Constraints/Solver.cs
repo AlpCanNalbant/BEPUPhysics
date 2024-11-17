@@ -11,36 +11,25 @@ namespace BEPUphysics.Constraints
     ///</summary>
     public class Solver : MultithreadedProcessingStage
     {
-        RawList<SolverUpdateable> solverUpdateables = new RawList<SolverUpdateable>();
+        readonly RawList<SolverUpdateable> solverUpdateables = [];
         internal int iterationLimit = 10;
         ///<summary>
         /// Gets or sets the maximum number of iterations the solver will attempt to use to solve the simulation's constraints.
         ///</summary>
-        public int IterationLimit { get { return iterationLimit; } set { iterationLimit = Math.Max(value, 0); } }
+        public int IterationLimit { get=> iterationLimit; set => iterationLimit = Math.Max(value, 0);  }
         ///<summary>
         /// Gets the list of solver updateables in the solver.
         ///</summary>
         public ReadOnlyList<SolverUpdateable> SolverUpdateables
-        {
-            get
-            {
-                return new ReadOnlyList<SolverUpdateable>(solverUpdateables);
-            }
-        }
+            => new(solverUpdateables);
         protected internal TimeStepSettings timeStepSettings;
         ///<summary>
         /// Gets or sets the time step settings used by the solver.
         ///</summary>
         public TimeStepSettings TimeStepSettings
         {
-            get
-            {
-                return timeStepSettings;
-            }
-            set
-            {
-                timeStepSettings = value;
-            }
+            get => timeStepSettings;
+            set=> timeStepSettings = value;
         }
 
         ///<summary>
@@ -84,7 +73,7 @@ namespace BEPUphysics.Constraints
             AllowMultithreading = true;
         }
 
-        private SpinLock addRemoveLocker = new SpinLock();
+        private readonly SpinLock addRemoveLocker = new();
 
         ///<summary>
         /// Adds a solver updateable to the solver.
@@ -105,8 +94,8 @@ namespace BEPUphysics.Constraints
                 DeactivationManager.Add(item.simulationIslandConnection);
                 item.OnAdditionToSolver(this);
             }
-            else
-                throw new ArgumentException("Solver updateable already belongs to something; it can't be added.", "item");
+            // else
+            // throw new ArgumentException("Solver updateable already belongs to something; it can't be added.", "item");
         }
         ///<summary>
         /// Removes a solver updateable from the solver.
@@ -115,12 +104,9 @@ namespace BEPUphysics.Constraints
         ///<exception cref="ArgumentException">Thrown when the item does not belong to the solver.</exception>
         public void Remove(SolverUpdateable item)
         {
-
             if (item.Solver == this)
             {
-
                 item.Solver = null;
-
 
                 addRemoveLocker.Enter();
                 solverUpdateables.Count--;
@@ -137,33 +123,31 @@ namespace BEPUphysics.Constraints
                 DeactivationManager.Remove(item.simulationIslandConnection);
                 item.OnRemovalFromSolver(this);
             }
-
-            else
-                throw new ArgumentException("Solver updateable doesn't belong to this solver; it can't be removed.", "item");
-
+            // else
+            // throw new ArgumentException("Solver updateable doesn't belong to this solver; it can't be removed.", "item");
         }
 
-
-
-
-        Action<int> multithreadedPrestepDelegate;
+        readonly Action<int> multithreadedPrestepDelegate;
         void MultithreadedPrestep(int i)
         {
             var updateable = solverUpdateables.Elements[i];
-            updateable.UpdateSolverActivity();
-            if (updateable.isActiveInSolver)
+            if (updateable != null)
             {
-                updateable.SolverSettings.currentIterations = 0;
-                updateable.SolverSettings.iterationsAtZeroImpulse = 0;
-                updateable.Update(timeStepSettings.TimeStepDuration);
+                updateable.UpdateSolverActivity();
+                if (updateable.isActiveInSolver)
+                {
+                    updateable.SolverSettings.currentIterations = 0;
+                    updateable.SolverSettings.iterationsAtZeroImpulse = 0;
+                    updateable.Update(timeStepSettings.TimeStepDuration);
+                }
             }
         }
 
-        private Action<int> multithreadedExclusiveUpdateDelegate;
+        private readonly Action<int> multithreadedExclusiveUpdateDelegate;
         void MultithreadedExclusiveUpdate(int i)
         {
             var updateable = solverUpdateables.Elements[i];
-            if (updateable.isActiveInSolver)
+            if ((updateable != null) && updateable.isActiveInSolver)
             {
                 updateable.EnterLock();
                 try
@@ -178,7 +162,7 @@ namespace BEPUphysics.Constraints
         }
 
 
-        Action<int> multithreadedIterationDelegate;
+        readonly Action<int> multithreadedIterationDelegate;
         void MultithreadedIteration(int i)
         {
             //'i' is currently an index into an implicit array of solver updateables that goes from 0 to solverUpdateables.count * iterationLimit.

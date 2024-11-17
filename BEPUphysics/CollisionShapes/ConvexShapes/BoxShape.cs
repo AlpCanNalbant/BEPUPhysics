@@ -180,12 +180,10 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         ///<param name="direction">Direction to find the extreme point in.</param>
         ///<param name="extremePoint">Extreme point on the shape.</param>
         public override void GetLocalExtremePointWithoutMargin(ref Vector3 direction, out Vector3 extremePoint)
-        {
-            extremePoint = new Vector3(Math.Sign(direction.X) * (halfWidth - collisionMargin), Math.Sign(direction.Y) * (halfHeight - collisionMargin), Math.Sign(direction.Z) * (halfLength - collisionMargin));
-        }
-
-
-
+            => extremePoint =
+                new Vector3(Math.Sign((!float.IsNaN(direction.X)) ? direction.X : 0f) * (halfWidth - collisionMargin),
+                            Math.Sign((!float.IsNaN(direction.Y)) ? direction.Y : 0f) * (halfHeight - collisionMargin),
+                            Math.Sign((!float.IsNaN(direction.Z)) ? direction.Z : 0f) * (halfLength - collisionMargin));
 
         /// <summary>
         /// Gets the intersection between the box and the ray.

@@ -15,10 +15,8 @@ namespace BEPUphysics.CollisionShapes
         public event Action<CollisionShape> ShapeChanged;
 
         protected virtual void OnShapeChanged()
-        {
-            if (ShapeChanged != null)
-                ShapeChanged(this);
-        }
+            => ShapeChanged?.Invoke(this);
+
 
 
 

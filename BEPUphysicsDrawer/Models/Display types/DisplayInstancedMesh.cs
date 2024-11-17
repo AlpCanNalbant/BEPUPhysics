@@ -33,7 +33,7 @@ namespace BEPUphysicsDrawer.Models
             {
                 tempVertices[i] = new VertexPositionNormalTexture(
                     MathConverter.Convert(BEPUutilities.AffineTransform.Transform(DisplayedObject.Shape.TriangleMesh.Data.Vertices[i], DisplayedObject.WorldTransform)),
-                    Vector3.Zero, 
+                    Vector3.Zero,
                     Vector2.Zero);
             }
 
@@ -62,8 +62,8 @@ namespace BEPUphysicsDrawer.Models
         }
 
         public override void Update()
-        {
-            WorldTransform = Matrix.Identity; //The graphical mesh bakes in the transform.
-        }
+            => WorldTransform = MathConverter.Convert(DisplayedObject.WorldTransform.Matrix);
+        // => WorldTransform = Matrix.Identity; //The graphical mesh bakes in the transform.
+
     }
 }

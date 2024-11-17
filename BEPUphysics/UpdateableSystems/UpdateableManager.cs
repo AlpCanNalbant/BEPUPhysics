@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using BEPUutilities.Threading;
 
 namespace BEPUphysics.UpdateableSystems
@@ -54,6 +55,8 @@ namespace BEPUphysics.UpdateableSystems
     ///<typeparam name="T">Type of Updateable being managed.</typeparam>
     public abstract class UpdateableManager<T> : UpdateableManager where T : class, ISpaceUpdateable
     {
+        readonly object managersLock = new();
+
         protected List<T> sequentiallyUpdatedUpdateables = new List<T>();
         protected List<T> simultaneouslyUpdatedUpdateables = new List<T>();
 
@@ -69,32 +72,32 @@ namespace BEPUphysics.UpdateableSystems
             multithreadedUpdateDelegate = MultithreadedUpdate;
         }
 
-
-
-
         protected abstract void MultithreadedUpdate(int i);
         protected abstract void SequentialUpdate(int i);
 
         public override void SequentialUpdatingStateChanged(ISpaceUpdateable updateable)
         {
-            if (updateable.Managers.Contains(this))
+            lock (managersLock)
             {
-                T u = updateable as T;
-                if (updateable.IsUpdatedSequentially)
+                if (updateable.Managers.Contains(this))
                 {
-                    if (simultaneouslyUpdatedUpdateables.Remove(u))
-                        sequentiallyUpdatedUpdateables.Add(u);
-                }
-                else
-                {
-                    if (sequentiallyUpdatedUpdateables.Remove(u))
-                        simultaneouslyUpdatedUpdateables.Add(u);
+                    T u = updateable as T;
+                    if (updateable.IsUpdatedSequentially)
+                    {
+                        if (simultaneouslyUpdatedUpdateables.Remove(u))
+                            sequentiallyUpdatedUpdateables.Add(u);
+                    }
+                    else
+                    {
+                        if (sequentiallyUpdatedUpdateables.Remove(u))
+                            simultaneouslyUpdatedUpdateables.Add(u);
+                    }
                 }
             }
-            else
-            {
-                throw new ArgumentException("Updateable does not belong to this manager.");
-            }
+            // else
+            // {
+            //     throw new ArgumentException("Updateable does not belong to this manager.");
+            // }
         }
 
         ///<summary>
@@ -104,18 +107,21 @@ namespace BEPUphysics.UpdateableSystems
         ///<exception cref="ArgumentException">Thrown if the manager already contains the updateable.</exception>
         public void Add(T updateable)
         {
-            if (!updateable.Managers.Contains(this))
+            lock (managersLock)
             {
-                if (updateable.IsUpdatedSequentially)
-                    sequentiallyUpdatedUpdateables.Add(updateable);
-                else
-                    simultaneouslyUpdatedUpdateables.Add(updateable);
-                updateable.Managers.Add(this);
+                if (!updateable.Managers.Contains(this))
+                {
+                    if (updateable.IsUpdatedSequentially)
+                        sequentiallyUpdatedUpdateables.Add(updateable);
+                    else
+                        simultaneouslyUpdatedUpdateables.Add(updateable);
+                    updateable.Managers.Add(this);
+                }
             }
-            else
-            {
-                throw new ArgumentException("Updateable already belongs to the manager, cannot re-add.");
-            }
+            // else
+            // {
+            //     throw new ArgumentException("Updateable already belongs to the manager, cannot re-add.");
+            // }
         }
 
         ///<summary>
@@ -125,19 +131,21 @@ namespace BEPUphysics.UpdateableSystems
         ///<exception cref="ArgumentException">Thrown if the manager does not contain the updateable.</exception>
         public void Remove(T updateable)
         {
-            if (updateable.Managers.Contains(this))
+            lock (managersLock)
             {
-                if (updateable.IsUpdatedSequentially)
-                    sequentiallyUpdatedUpdateables.Remove(updateable);
-                else
-                    simultaneouslyUpdatedUpdateables.Remove(updateable);
-                updateable.Managers.Remove(this);
+                if (updateable.Managers.Contains(this))
+                {
+                    if (updateable.IsUpdatedSequentially)
+                        sequentiallyUpdatedUpdateables.Remove(updateable);
+                    else
+                        simultaneouslyUpdatedUpdateables.Remove(updateable);
+                    updateable.Managers.Remove(this/*updateable.Managers.FirstOrDefault(p => p == this)*/);
+                }
             }
-            else
-            {
-                throw new ArgumentException("Updateable does not belong to this manager; cannot remove.");
-            }
-
+            // else
+            // {
+            //     throw new ArgumentException("Updateable does not belong to this manager; cannot remove.");
+            // }
         }
 
         protected override void UpdateMultithreaded()
@@ -160,7 +168,7 @@ namespace BEPUphysics.UpdateableSystems
                 MultithreadedUpdate(i);
             }
         }
-   
+
 
     }
 

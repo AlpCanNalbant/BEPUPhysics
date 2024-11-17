@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using EndGame.Utility;
 
 namespace BEPUphysicsDrawer.Models
 {
@@ -23,8 +24,8 @@ namespace BEPUphysicsDrawer.Models
         public const int MaximumIndexCount = MaximumPrimitiveCountPerBatch * 3;
 
         private readonly GraphicsDevice graphicsDevice;
-        private readonly List<ushort> indexList = new List<ushort>();
-        private readonly List<ModelDisplayObject> displayObjects = new List<ModelDisplayObject>();
+        private readonly List<ushort> indexList = [];
+        private readonly List<ModelDisplayObject> displayObjects = [];
         private readonly ReadOnlyCollection<ModelDisplayObject> myDisplayObjectsReadOnly;
 
         /// <summary>
@@ -33,27 +34,27 @@ namespace BEPUphysicsDrawer.Models
         private readonly float[] textureIndices = new float[MaximumObjectsPerBatch];
 
         //These lists are used to collect temporary data from display objects.
-        private readonly List<VertexPositionNormalTexture> vertexList = new List<VertexPositionNormalTexture>();
+        private readonly List<VertexPositionNormalTexture> vertexList = [];
 
         /// <summary>
         /// List of all world transforms associated with display objects in the batch.
         /// </summary>
         private readonly Matrix[] worldTransforms = new Matrix[MaximumObjectsPerBatch];
 
-        private IndexBuffer indexBuffer;
+        private readonly IndexBuffer indexBuffer;
         int indexCount;
-        private ushort[] indices;
+        private readonly ushort[] indices;
 
         /// <summary>
         /// Contains instancing data to be fed into the second stream.
         /// </summary>
-        private VertexBuffer instancedBuffer;
+        private readonly VertexBuffer instancedBuffer;
 
         int vertexCount;
-        private InstancedVertex[] instancedVertices;
-        private VertexBuffer vertexBuffer;
-        private VertexPositionNormalTexture[] vertices;
-        private VertexBufferBinding[] bindings;
+        private readonly InstancedVertex[] instancedVertices;
+        private readonly VertexBuffer vertexBuffer;
+        private readonly VertexPositionNormalTexture[] vertices;
+        private readonly VertexBufferBinding[] bindings;
 
         //Has VertexBuffer, IndexBuffer, second stream for indices.
         //Why second stream?  Creating it will be easier since can addRange on lists gotten from ModelDisplayObject, then toss in
@@ -74,17 +75,14 @@ namespace BEPUphysicsDrawer.Models
             vertexBuffer = new VertexBuffer(graphicsDevice, VertexPositionNormalTexture.VertexDeclaration, MaximumIndexCount, BufferUsage.WriteOnly);
             instancedBuffer = new VertexBuffer(graphicsDevice, InstancedVertex.VertexDeclaration, MaximumIndexCount, BufferUsage.WriteOnly);
             indexBuffer = new IndexBuffer(graphicsDevice, IndexElementSize.SixteenBits, MaximumIndexCount, BufferUsage.WriteOnly);
-            bindings = new[] { new VertexBufferBinding(vertexBuffer), new VertexBufferBinding(instancedBuffer) };
+            bindings = [new VertexBufferBinding(vertexBuffer), new VertexBufferBinding(instancedBuffer)];
         }
 
         /// <summary>
         /// Gets the display objects in this batch.
         /// </summary>
         public ReadOnlyCollection<ModelDisplayObject> DisplayObjects
-        {
-            get { return myDisplayObjectsReadOnly; }
-        }
-
+            => myDisplayObjectsReadOnly;
 
 
         /// <summary>
@@ -94,34 +92,41 @@ namespace BEPUphysicsDrawer.Models
         /// <param name="drawer">Drawer of the batch.</param>
         public unsafe bool Add(ModelDisplayObject displayObject, InstancedModelDrawer drawer)
         {
-            //In theory, don't need to test for duplicate entries since batch.Add
-            //should only be called through a InstancedModelDrawer's add (which checks beforehand).
-            if (displayObjects.Count == MaximumObjectsPerBatch ||
-                ((indexCount / 3 + displayObject.GetTriangleCountEstimate()) > MaximumPrimitiveCountPerBatch &&
-                 displayObjects.Count > 0))
+            try
+            {
+                //In theory, don't need to test for duplicate entries since batch.Add
+                //should only be called through a InstancedModelDrawer's add (which checks beforehand).
+                if (displayObjects.Count == MaximumObjectsPerBatch ||
+                    ((indexCount / 3 + displayObject.GetTriangleCountEstimate()) > MaximumPrimitiveCountPerBatch &&
+                     displayObjects.Count > 0))
+                    return false;
+                displayObjects.Add(displayObject);
+                int instanceIndex = displayObjects.Count - 1;
+                var textureIndex = displayObject.TextureIndex;
+                //OUegheogh, this could just directly write into the batch's vertex/index cache rather than going through a list and recopy.
+                displayObject.GetVertexData(vertexList, indexList, this, (ushort)vertexCount, indexCount, instanceIndex);
+                vertexList.CopyTo(vertices, vertexCount);
+                indexList.CopyTo(indices, indexCount);
+
+                var newIndexCount = indexCount + indexList.Count;
+                var newVertexCount = vertexCount + vertexList.Count;
+                for (int i = vertexCount; i < newVertexCount; i++)
+                    instancedVertices[i] = new InstancedVertex { InstanceIndex = instanceIndex, TextureIndex = textureIndex };
+
+                vertexBuffer.SetData(sizeof(VertexPositionNormalTexture) * vertexCount, vertices, vertexCount, vertexList.Count, sizeof(VertexPositionNormalTexture));
+                instancedBuffer.SetData(sizeof(InstancedVertex) * vertexCount, instancedVertices, vertexCount, vertexList.Count, sizeof(InstancedVertex));
+                indexBuffer.SetData(sizeof(ushort) * indexCount, indices, indexCount, indexList.Count);
+
+                vertexCount = newVertexCount;
+                indexCount = newIndexCount;
+
+                vertexList.Clear();
+                indexList.Clear();
+            }
+            catch
+            {
                 return false;
-            displayObjects.Add(displayObject);
-            int instanceIndex = displayObjects.Count - 1;
-            var textureIndex = displayObject.TextureIndex;
-            //OUegheogh, this could just directly write into the batch's vertex/index cache rather than going through a list and recopy.
-            displayObject.GetVertexData(vertexList, indexList, this, (ushort)vertexCount, indexCount, instanceIndex);
-            vertexList.CopyTo(vertices, vertexCount);
-            indexList.CopyTo(indices, indexCount);
-
-            var newIndexCount = indexCount + indexList.Count;
-            var newVertexCount = vertexCount + vertexList.Count;
-            for (int i = vertexCount; i < newVertexCount; i++)
-                instancedVertices[i] = new InstancedVertex { InstanceIndex = instanceIndex, TextureIndex = textureIndex };
-
-            vertexBuffer.SetData(sizeof(VertexPositionNormalTexture) * vertexCount, vertices, vertexCount, vertexList.Count, sizeof(VertexPositionNormalTexture));
-            instancedBuffer.SetData(sizeof(InstancedVertex) * vertexCount, instancedVertices, vertexCount, vertexList.Count, sizeof(InstancedVertex));
-            indexBuffer.SetData(sizeof(ushort) * indexCount, indices, indexCount, indexList.Count);
-
-            vertexCount = newVertexCount;
-            indexCount = newIndexCount;
-
-            vertexList.Clear();
-            indexList.Clear();
+            }
             return true;
         }
 
@@ -132,48 +137,65 @@ namespace BEPUphysicsDrawer.Models
         /// <param name="drawer">Instanced model drawer doing the removal.</param>
         public unsafe void Remove(ModelDisplayObject displayObject, InstancedModelDrawer drawer)
         {
-            //Copy the end of the list over the top of the  part back (after the display object)
-            var vertexCopySource = displayObject.BatchInformation.BaseVertexBufferIndex + displayObject.BatchInformation.VertexCount;
-            var vertexCopyTarget = displayObject.BatchInformation.BaseVertexBufferIndex;
-            var vertexCopyLength = vertexCount - vertexCopySource;
-            Array.Copy(vertices, vertexCopySource, vertices, vertexCopyTarget, vertexCopyLength);
-            Array.Copy(instancedVertices, vertexCopySource, instancedVertices, vertexCopyTarget, vertexCopyLength);
-            vertexCount -= displayObject.BatchInformation.VertexCount;
-
-            //Copy the first part back (before the display object)     
-            var indexCopySource = displayObject.BatchInformation.BaseIndexBufferIndex + displayObject.BatchInformation.IndexCount;
-            var indexCopyTarget = displayObject.BatchInformation.BaseIndexBufferIndex;
-            var indexCopyLength = indexCount - indexCopySource;
-            Array.Copy(indices, indexCopySource, indices, indexCopyTarget, indexCopyLength);
-            indexCount -= displayObject.BatchInformation.IndexCount;
-
-            //The index buffer's data is now wrong. We deleted a bunch of vertices.
-            //So go through the index buffer starting at the point of deletion and decrease the values appropriately.
-            for (int i = displayObject.BatchInformation.BaseIndexBufferIndex; i < indexCount; i++)
-                indices[i] -= (ushort)displayObject.BatchInformation.VertexCount;
-
-            //Like with the index buffer, go through the buffer starting at the point of deletion and decrease the instance index values.
-            for (int i = displayObject.BatchInformation.BaseVertexBufferIndex; i < vertexCount; i++)
-                instancedVertices[i].InstanceIndex--;
-
-            displayObjects.Remove(displayObject);
-            //Move the subsequent display objects list indices and base vertices/indices.
-            for (int i = displayObject.BatchInformation.BatchListIndex; i < DisplayObjects.Count; i++)
+            try
             {
-                DisplayObjects[i].BatchInformation.BatchListIndex--;
-                DisplayObjects[i].BatchInformation.BaseVertexBufferIndex -= displayObject.BatchInformation.VertexCount;
-                DisplayObjects[i].BatchInformation.BaseIndexBufferIndex -= displayObject.BatchInformation.IndexCount;
-            }
-            // Tell ModelDisplayObject that it got removed (batch, indices).
-            var batchListIndex = displayObject.BatchInformation.BatchListIndex;
-            displayObject.ClearBatchReferences();
+                //Copy the end of the list over the top of the  part back (after the display object)
+                var vertexCopySource = displayObject.BatchInformation.BaseVertexBufferIndex + displayObject.BatchInformation.VertexCount;
+                var vertexCopyTarget = displayObject.BatchInformation.BaseVertexBufferIndex;
+                if (vertexCopyTarget < 0)
+                {
+                    return;
+                }
+                var vertexCopyLength = vertexCount - vertexCopySource;
+                if (vertexCopyLength < 0)
+                {
+                    return;
+                }
+                Array.Copy(vertices, vertexCopySource, vertices, vertexCopyTarget, vertexCopyLength);
+                Array.Copy(instancedVertices, vertexCopySource, instancedVertices, vertexCopyTarget, vertexCopyLength);
+                vertexCount -= displayObject.BatchInformation.VertexCount;
 
-            if (displayObjects.Count > 0 && batchListIndex < displayObjects.Count)
-            {
-                vertexBuffer.SetData(sizeof(VertexPositionNormalTexture) * vertexCopyTarget, vertices, vertexCopyTarget, vertexCopyLength, sizeof(VertexPositionNormalTexture));
-                instancedBuffer.SetData(sizeof(InstancedVertex) * vertexCopyTarget, instancedVertices, vertexCopyTarget, vertexCopyLength, sizeof(InstancedVertex));
-                indexBuffer.SetData(sizeof(ushort) * indexCopyTarget, indices, indexCopyTarget, indexCopyLength);
+                //Copy the first part back (before the display object)
+                var indexCopySource = displayObject.BatchInformation.BaseIndexBufferIndex + displayObject.BatchInformation.IndexCount;
+                var indexCopyTarget = displayObject.BatchInformation.BaseIndexBufferIndex;
+                var indexCopyLength = indexCount - indexCopySource;
+                Array.Copy(indices, indexCopySource, indices, indexCopyTarget, indexCopyLength);
+                indexCount -= displayObject.BatchInformation.IndexCount;
+
+                //The index buffer's data is now wrong. We deleted a bunch of vertices.
+                //So go through the index buffer starting at the point of deletion and decrease the values appropriately.
+                for (int i = displayObject.BatchInformation.BaseIndexBufferIndex; i < indexCount; i++)
+                    indices[i] -= (ushort)displayObject.BatchInformation.VertexCount;
+
+                //Like with the index buffer, go through the buffer starting at the point of deletion and decrease the instance index values.
+                for (int i = displayObject.BatchInformation.BaseVertexBufferIndex; i < vertexCount; i++)
+                    instancedVertices[i].InstanceIndex--;
+
+                displayObjects.Remove(displayObject);
+                //Move the subsequent display objects list indices and base vertices/indices.
+                for (int i = displayObject.BatchInformation.BatchListIndex; i < DisplayObjects.Count; i++)
+                {
+                    if (i < 0)
+                    {
+                        return;
+                    }
+                    DisplayObjects[i].BatchInformation.BatchListIndex--;
+                    DisplayObjects[i].BatchInformation.BaseVertexBufferIndex -= displayObject.BatchInformation.VertexCount;
+                    DisplayObjects[i].BatchInformation.BaseIndexBufferIndex -= displayObject.BatchInformation.IndexCount;
+                }
+                // Tell ModelDisplayObject that it got removed (batch, indices).
+                var batchListIndex = displayObject.BatchInformation.BatchListIndex;
+                displayObject.ClearBatchReferences();
+
+                if (displayObjects.Count > 0 && batchListIndex < displayObjects.Count)
+                {
+                    vertexBuffer.SetData(sizeof(VertexPositionNormalTexture) * vertexCopyTarget, vertices, vertexCopyTarget, vertexCopyLength, sizeof(VertexPositionNormalTexture));
+                    instancedBuffer.SetData(sizeof(InstancedVertex) * vertexCopyTarget, instancedVertices, vertexCopyTarget, vertexCopyLength, sizeof(InstancedVertex));
+                    indexBuffer.SetData(sizeof(ushort) * indexCopyTarget, indices, indexCopyTarget, indexCopyLength);
+                }
             }
+            catch
+            { }
         }
 
         /// <summary>
@@ -195,9 +217,16 @@ namespace BEPUphysicsDrawer.Models
         {
             for (int i = 0; i < displayObjects.Count; i++)
             {
-                displayObjects[i].Update();
-                worldTransforms[i] = displayObjects[i].WorldTransform;
-                textureIndices[i] = displayObjects[i].TextureIndex;
+                try
+                {
+                    displayObjects[i].Update();
+                    worldTransforms[i] = displayObjects[i].WorldTransform;
+                    textureIndices[i] = displayObjects[i].TextureIndex;
+                }
+                catch
+                {
+                    break;
+                }
             }
         }
 
@@ -213,9 +242,7 @@ namespace BEPUphysicsDrawer.Models
                 worldTransformsParameter.SetValue(worldTransforms);
                 textureIndicesParameter.SetValue(textureIndices);
                 pass.Apply();
-
-                graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList,
-                                                     0, 0, indexCount / 3);
+                effect.DrawIndexedTriangle(0, 0, indexCount / 3);
             }
         }
 
@@ -230,17 +257,17 @@ namespace BEPUphysicsDrawer.Models
             /// </summary>
             public float TextureIndex;
 
-            public static readonly VertexDeclaration VertexDeclaration = new VertexDeclaration(new[]
-            {
+            public static readonly VertexDeclaration VertexDeclaration = new(
+            [
                 new VertexElement(0, VertexElementFormat.Single, VertexElementUsage.TextureCoordinate, 1),
                 new VertexElement(4, VertexElementFormat.Single, VertexElementUsage.TextureCoordinate, 2)
-            });
+            ]);
         }
 
         bool disposed;
         public void Dispose()
         {
-            if(!disposed)
+            if (!disposed)
             {
                 disposed = true;
                 vertexBuffer.Dispose();
@@ -248,6 +275,6 @@ namespace BEPUphysicsDrawer.Models
                 instancedBuffer.Dispose();
             }
         }
-        
+
     }
 }
