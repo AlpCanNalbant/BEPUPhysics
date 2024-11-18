@@ -21,18 +21,11 @@ namespace BEPUphysics.BroadPhaseEntries.MobileCollidables
         /// Gets the shape of the collidable.
         ///</summary>
         public new ConvexShape Shape
-        {
-            get
-            {
-                return (ConvexShape)shape;
-            }
-        }
+                => (ConvexShape)shape;
 
 
         public override bool ConvexCast(ConvexShape castShape, ref RigidTransform startingTransform, ref Vector3 sweep, out RayHit hit)
-        {
-            return MPRToolbox.Sweep(castShape, Shape, ref sweep, ref Toolbox.ZeroVector, ref startingTransform, ref worldTransform, out hit);
-        }
+            => MPRToolbox.Sweep(castShape, Shape, ref sweep, ref Toolbox.ZeroVector, ref startingTransform, ref worldTransform, out hit);
 
     }
 
@@ -40,28 +33,17 @@ namespace BEPUphysics.BroadPhaseEntries.MobileCollidables
     /// Collidable with a convex shape of a particular type.
     ///</summary>
     ///<typeparam name="T">ConvexShape type.</typeparam>
-    public class ConvexCollidable<T> : ConvexCollidable where T : ConvexShape
+    ///<remarks>
+    /// Constructs a new convex collidable.
+    ///</remarks>
+    ///<param name="shape">Shape to use in the collidable.</param>
+    public class ConvexCollidable<T>(T shape) : ConvexCollidable(shape) where T : ConvexShape
     {
         ///<summary>
         /// Gets the shape of the collidable.
         ///</summary>
         public new T Shape
-        {
-            get
-            {
-                return (T)shape;
-            }
-        }
-
-        ///<summary>
-        /// Constructs a new convex collidable.
-        ///</summary>
-        ///<param name="shape">Shape to use in the collidable.</param>
-        public ConvexCollidable(T shape)
-            : base(shape)
-        {
-
-        }
+                => (T)shape;
 
 
         /// <summary>
@@ -72,9 +54,7 @@ namespace BEPUphysics.BroadPhaseEntries.MobileCollidables
         /// <param name="rayHit">Hit location of the ray on the entry, if any.</param>
         /// <returns>Whether or not the ray hit the entry.</returns>
         public override bool RayCast(Ray ray, float maximumLength, out RayHit rayHit)
-        {
-            return Shape.RayTest(ref ray, ref worldTransform, maximumLength, out rayHit);
-        }
+            => Shape.RayTest(ref ray, ref worldTransform, maximumLength, out rayHit);
 
 
 
@@ -85,7 +65,9 @@ namespace BEPUphysics.BroadPhaseEntries.MobileCollidables
             ExpandBoundingBox(ref boundingBox, dt);
         }
 
-
+        // (WCS Edit) New method added.
+        public float CalculateBoundingBoxLength()
+            => Shape.GetBoundingBox(ref worldTransform).CalculateLength();
 
 
 

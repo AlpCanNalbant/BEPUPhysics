@@ -1,6 +1,6 @@
 using BEPUphysics.BroadPhaseEntries.MobileCollidables;
 using BEPUphysics.EntityStateManagement;
- 
+
 using BEPUphysics.CollisionShapes.ConvexShapes;
 using BEPUutilities;
 
@@ -16,27 +16,24 @@ namespace BEPUphysics.Entities.Prefabs
         /// </summary>
         public float Radius
         {
-            get
-            {
-                return CollisionInformation.Shape.Radius;
-            }
-            set
-            {
-                CollisionInformation.Shape.Radius = value;
-            }
+            get => CollisionInformation.Shape.Radius;
+            set => CollisionInformation.Shape.Radius = value;
         }
+
+        // (WCS Edit) diameter....
+        public float Diameter
+            => CollisionInformation.Shape.Radius * 2f;
+        // (WCS Edit) more readable diameter....
+        public float Length
+            => Diameter;
 
         private Sphere(float radius)
-            :base(new ConvexCollidable<SphereShape>(new SphereShape(radius)))
-        {
-        }
+            : base(new ConvexCollidable<SphereShape>(new SphereShape(radius)))
+        { }
 
         private Sphere(float radius, float mass)
-            :base(new ConvexCollidable<SphereShape>(new SphereShape(radius)), mass)
-        {
-        }
-
-
+            : base(new ConvexCollidable<SphereShape>(new SphereShape(radius)), mass)
+        { }
 
         /// <summary>
         /// Constructs a physically simulated sphere.
@@ -46,9 +43,7 @@ namespace BEPUphysics.Entities.Prefabs
         /// <param name="mass">Mass of the object.</param>
         public Sphere(Vector3 position, float radius, float mass)
             : this(radius, mass)
-        {
-            Position = position;
-        }
+            => Position = position;
 
         /// <summary>
         /// Constructs a nondynamic sphere.
@@ -57,9 +52,7 @@ namespace BEPUphysics.Entities.Prefabs
         /// <param name="radius">Radius of the sphere.</param>
         public Sphere(Vector3 position, float radius)
             : this(radius)
-        {
-            Position = position;
-        }
+            => Position = position;
 
         /// <summary>
         /// Constructs a physically simulated sphere.
@@ -69,9 +62,7 @@ namespace BEPUphysics.Entities.Prefabs
         /// <param name="mass">Mass of the object.</param>
         public Sphere(MotionState motionState, float radius, float mass)
             : this(radius, mass)
-        {
-            MotionState = motionState;
-        }
+            => MotionState = motionState;
 
         /// <summary>
         /// Constructs a nondynamic sphere.
@@ -80,11 +71,6 @@ namespace BEPUphysics.Entities.Prefabs
         /// <param name="radius">Radius of the sphere.</param>
         public Sphere(MotionState motionState, float radius)
             : this(radius)
-        {
-            MotionState = motionState;
-        }
-
-
-
+            => MotionState = motionState;
     }
 }

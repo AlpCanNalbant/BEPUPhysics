@@ -8,34 +8,28 @@ namespace BEPUutilities
     /// <summary>
     /// Provides XNA-like axis-aligned bounding box functionality.
     /// </summary>
-    public struct BoundingBox
+    /// <remarks>
+    /// Constructs a bounding box from the specified minimum and maximum.
+    /// </remarks>
+    /// <param name="min">Location with the lowest X, Y, and Z coordinates contained by the axis-aligned bounding box.</param>
+    /// <param name="max">Location with the highest X, Y, and Z coordinates contained by the axis-aligned bounding box.</param>
+    public struct BoundingBox(Vector3 min, Vector3 max)
     {
         /// <summary>
         /// Location with the lowest X, Y, and Z coordinates in the axis-aligned bounding box.
         /// </summary>
-        public Vector3 Min;
+        public Vector3 Min = min;
 
         /// <summary>
         /// Location with the highest X, Y, and Z coordinates in the axis-aligned bounding box.
         /// </summary>
-        public Vector3 Max;
-
-        /// <summary>
-        /// Constructs a bounding box from the specified minimum and maximum.
-        /// </summary>
-        /// <param name="min">Location with the lowest X, Y, and Z coordinates contained by the axis-aligned bounding box.</param>
-        /// <param name="max">Location with the highest X, Y, and Z coordinates contained by the axis-aligned bounding box.</param>
-        public BoundingBox(Vector3 min, Vector3 max)
-        {
-            this.Min = min;
-            this.Max = max;
-        }
+        public Vector3 Max = max;
 
         /// <summary>
         /// Gets an array of locations corresponding to the 8 corners of the bounding box.
         /// </summary>
         /// <returns>Corners of the bounding box.</returns>
-        public Vector3[] GetCorners()
+        public readonly Vector3[] GetCorners()
         {
             var toReturn = new Vector3[8];
             toReturn[0] = new Vector3(Min.X, Max.Y, Max.Z);
@@ -55,7 +49,7 @@ namespace BEPUutilities
         /// </summary>
         /// <param name="boundingBox">Bounding box to test against.</param>
         /// <returns>Whether the bounding boxes intersected.</returns>
-        public bool Intersects(BoundingBox boundingBox)
+        public readonly bool Intersects(BoundingBox boundingBox)
         {
             if (boundingBox.Min.X > Max.X || boundingBox.Min.Y > Max.Y || boundingBox.Min.Z > Max.Z)
                 return false;
@@ -70,7 +64,7 @@ namespace BEPUutilities
         /// </summary>
         /// <param name="boundingBox">Bounding box to test against.</param>
         /// <param name="intersects">Whether the bounding boxes intersect.</param>
-        public void Intersects(ref BoundingBox boundingBox, out bool intersects)
+        public readonly void Intersects(ref BoundingBox boundingBox, out bool intersects)
         {
             if (boundingBox.Min.X > Max.X || boundingBox.Min.Y > Max.Y || boundingBox.Min.Z > Max.Z)
             {
@@ -90,7 +84,7 @@ namespace BEPUutilities
         /// </summary>
         /// <param name="boundingSphere">Sphere to test for intersection.</param>
         /// <param name="intersects">Whether the bounding shapes intersect.</param>
-        public void Intersects(ref BoundingSphere boundingSphere, out bool intersects)
+        public readonly void Intersects(ref BoundingSphere boundingSphere, out bool intersects)
         {
             Vector3 clampedLocation;
             if (boundingSphere.Center.X > Max.X)
@@ -114,8 +108,7 @@ namespace BEPUutilities
             else
                 clampedLocation.Z = boundingSphere.Center.Z;
 
-            float distanceSquared;
-            Vector3.DistanceSquared(ref clampedLocation, ref boundingSphere.Center, out distanceSquared);
+            Vector3.DistanceSquared(ref clampedLocation, ref boundingSphere.Center, out float distanceSquared);
             intersects = distanceSquared <= boundingSphere.Radius * boundingSphere.Radius;
 
         }
@@ -127,7 +120,7 @@ namespace BEPUutilities
         //    return intersects;
         //}
 
-        public ContainmentType Contains(ref BoundingBox boundingBox)
+        public readonly ContainmentType Contains(ref BoundingBox boundingBox)
         {
             if (Max.X < boundingBox.Min.X || Min.X > boundingBox.Max.X ||
                 Max.Y < boundingBox.Min.Y || Min.Y > boundingBox.Max.Y ||
@@ -230,5 +223,9 @@ namespace BEPUutilities
             boundingBox.Max.Z = boundingSphere.Center.Z + boundingSphere.Radius;
         }
 
+        /// <summary>
+        /// (WCS Edit) We need a length calculation helper.
+        /// </summary>
+        public readonly float CalculateLength() => Vector3.Distance(Min, Max);
     }
 }

@@ -37,50 +37,33 @@ namespace BEPUphysics.CollisionShapes
                 OnShapeChanged();
             }
         }
-        TriangleMesh triangleMesh;
+        readonly TriangleMesh triangleMesh;
         ///<summary>
         /// Gets or sets the TriangleMesh data structure used by this shape.
         ///</summary>
         public TriangleMesh TriangleMesh
-        {
-            get
-            {
-                return triangleMesh;
-            }
-        }
+            => triangleMesh;
 
         /// <summary>
         /// Gets the transform used by the local mesh shape.
         /// </summary>
         public AffineTransform Transform
-        {
-            get
-            {
-                return ((TransformableMeshData)triangleMesh.Data).worldTransform;
-            }
-        }
+            => ((TransformableMeshData)triangleMesh.Data).worldTransform;
 
-        RawList<Vector3> hullVertices = new RawList<Vector3>();
+        readonly RawList<Vector3> hullVertices = [];
 
         /// <summary>
         /// Gets the list of vertices on the convex hull of the mesh used to compute the bounding box.
         /// </summary>
         public ReadOnlyList<Vector3> HullVertices
-        {
-            get { return new ReadOnlyList<Vector3>(hullVertices); }
-        }
+            => new(hullVertices);
 
         internal MobileMeshSolidity solidity = MobileMeshSolidity.DoubleSided;
         ///<summary>
         /// Gets the solidity of the mesh.
         ///</summary>
         public MobileMeshSolidity Solidity
-        {
-            get
-            {
-                return solidity;
-            }
-        }
+            => solidity;
 
         /// <summary>
         /// Gets or sets the sidedness of the shape.  This is a convenience property based on the Solidity property.
@@ -90,21 +73,14 @@ namespace BEPUphysics.CollisionShapes
         public TriangleSidedness Sidedness
         {
             get
+            => solidity switch
             {
-                switch (solidity)
-                {
-                    case MobileMeshSolidity.Clockwise:
-                        return TriangleSidedness.Clockwise;
-                    case MobileMeshSolidity.Counterclockwise:
-                        return TriangleSidedness.Counterclockwise;
-                    case MobileMeshSolidity.DoubleSided:
-                        return TriangleSidedness.DoubleSided;
-                    case MobileMeshSolidity.Solid:
-                        return SidednessWhenSolid;
-
-                }
-                return TriangleSidedness.DoubleSided;
-            }
+                MobileMeshSolidity.Clockwise => TriangleSidedness.Clockwise,
+                MobileMeshSolidity.Counterclockwise => TriangleSidedness.Counterclockwise,
+                MobileMeshSolidity.DoubleSided => TriangleSidedness.DoubleSided,
+                MobileMeshSolidity.Solid => SidednessWhenSolid,
+                _ => TriangleSidedness.DoubleSided,
+            };
             set
             {
                 if (solidity == MobileMeshSolidity.Solid)
@@ -126,6 +102,9 @@ namespace BEPUphysics.CollisionShapes
                 }
             }
         }
+
+        // (WCS Edit) Get the length of bouinding box.
+
 
         ///<summary>
         /// Constructs a new mobile mesh shape.
@@ -219,18 +198,17 @@ namespace BEPUphysics.CollisionShapes
         public bool IsLocalRayOriginInMesh(ref Ray ray, out RayHit hit)
         {
             var overlapList = CommonResources.GetIntList();
-            hit = new RayHit();
-            hit.T = float.MaxValue;
+            hit = new RayHit
+            {
+                T = float.MaxValue
+            };
             if (triangleMesh.Tree.GetOverlaps(ray, overlapList))
             {
                 bool minimumClockwise = false;
                 for (int i = 0; i < overlapList.Count; i++)
                 {
-                    Vector3 vA, vB, vC;
-                    triangleMesh.Data.GetTriangle(overlapList[i], out vA, out vB, out vC);
-                    bool hitClockwise;
-                    RayHit tempHit;
-                    if (Toolbox.FindRayTriangleIntersection(ref ray, float.MaxValue, ref vA, ref vB, ref vC, out hitClockwise, out tempHit) &&
+                    triangleMesh.Data.GetTriangle(overlapList[i], out Vector3 vA, out Vector3 vB, out Vector3 vC);
+                    if (Toolbox.FindRayTriangleIntersection(ref ray, float.MaxValue, ref vA, ref vB, ref vC, out bool hitClockwise, out RayHit tempHit) &&
                         tempHit.T < hit.T)
                     {
                         hit = tempHit;
@@ -250,7 +228,7 @@ namespace BEPUphysics.CollisionShapes
         /// <summary>
         /// The difference in t parameters in a ray cast under which two hits are considered to be redundant.
         /// </summary>
-        public static float MeshHitUniquenessThreshold = .0001f;
+        public const float MeshHitUniquenessThreshold = .0001f;
 
         internal bool IsHitUnique(RawList<RayHit> hits, ref RayHit hit)
         {
@@ -276,11 +254,10 @@ namespace BEPUphysics.CollisionShapes
             //If those assumptions are not correct, then the raycast cannot determine inclusion or exclusion,
             //or there exists no calibration that will work across the entire surface.
 
-            //Pick a ray direction that goes to a random location on the mesh.  
+            //Pick a ray direction that goes to a random location on the mesh.
             //A vertex would work, but targeting the middle of a triangle avoids some edge cases.
             var ray = new Ray();
-            Vector3 vA, vB, vC;
-            triangleMesh.Data.GetTriangle(((triangleMesh.Data.indices.Length / 3) / 2) * 3, out vA, out vB, out vC);
+            triangleMesh.Data.GetTriangle(((triangleMesh.Data.indices.Length / 3) / 2) * 3, out Vector3 vA, out Vector3 vB, out Vector3 vC);
             ray.Direction = (vA + vB + vC) / 3;
             ray.Direction.Normalize();
 
@@ -306,8 +283,7 @@ namespace BEPUphysics.CollisionShapes
                 for (int i = 0; i < hitList.Count; i++)
                 {
                     triangleMesh.Data.GetTriangle(hitList[i], out vA, out vB, out vC);
-                    RayHit hit;
-                    if (Toolbox.FindRayTriangleIntersection(ref ray, float.MaxValue, TriangleSidedness.DoubleSided, ref vA, ref vB, ref vC, out hit) &&
+                    if (Toolbox.FindRayTriangleIntersection(ref ray, float.MaxValue, TriangleSidedness.DoubleSided, ref vA, ref vB, ref vC, out RayHit hit) &&
                         IsHitUnique(hits, ref hit))
                     {
                         if (hit.T < minimumT)
@@ -363,8 +339,7 @@ namespace BEPUphysics.CollisionShapes
             if (Volume > 0)
             {
                 ConvexHullHelper.GetConvexHull(triangleMesh.Data.vertices, hullVertices);
-                var transformableData = triangleMesh.Data as TransformableMeshData;
-                if (transformableData != null)
+                if (triangleMesh.Data is TransformableMeshData transformableData)
                 {
                     var transform = transformableData.worldTransform;
                     for (int i = 0; i < hullVertices.Count; i++)
@@ -378,11 +353,10 @@ namespace BEPUphysics.CollisionShapes
                 hullVertices.Clear();
                 //A mobile mesh is allowed to have zero volume, so long as it isn't solid.
                 //In this case, compute the bounding box of all points.
-                BoundingBox box = new BoundingBox();
+                BoundingBox box = new();
                 for (int i = 0; i < triangleMesh.Data.vertices.Length; i++)
                 {
-                    Vector3 v;
-                    triangleMesh.Data.GetVertexPosition(i, out v);
+                    triangleMesh.Data.GetVertexPosition(i, out Vector3 v);
                     if (v.X > box.Max.X)
                         box.Max.X = v.X;
                     if (v.X < box.Min.X)
@@ -441,14 +415,10 @@ namespace BEPUphysics.CollisionShapes
             for (int i = 0; i < data.indices.Length; i += 3)
             {
                 //Compute the center contribution.
-                Vector3 vA, vB, vC;
-                data.GetTriangle(i, out vA, out vB, out vC);
-                Vector3 vAvB;
-                Vector3 vAvC;
-                Vector3.Subtract(ref vB, ref vA, out vAvB);
-                Vector3.Subtract(ref vC, ref vA, out vAvC);
-                Vector3 cross;
-                Vector3.Cross(ref vAvB, ref vAvC, out cross);
+                data.GetTriangle(i, out Vector3 vA, out Vector3 vB, out Vector3 vC);
+                Vector3.Subtract(ref vB, ref vA, out Vector3 vAvB);
+                Vector3.Subtract(ref vC, ref vA, out Vector3 vAvC);
+                Vector3.Cross(ref vAvB, ref vAvC, out Vector3 cross);
                 float weight = cross.Length();
                 totalWeight += weight;
 
@@ -458,10 +428,9 @@ namespace BEPUphysics.CollisionShapes
                 //Compute the inertia contribution of this triangle.
                 //Approximate it using pointmasses positioned at the triangle vertices.
                 //(There exists a direct solution, but this approximation will do plenty fine.)
-                Matrix3x3 aContribution, bContribution, cContribution;
-                InertiaHelper.GetPointContribution(perVertexWeight, ref Toolbox.ZeroVector, ref vA, out aContribution);
-                InertiaHelper.GetPointContribution(perVertexWeight, ref Toolbox.ZeroVector, ref vB, out bContribution);
-                InertiaHelper.GetPointContribution(perVertexWeight, ref Toolbox.ZeroVector, ref vC, out cContribution);
+                InertiaHelper.GetPointContribution(perVertexWeight, ref Toolbox.ZeroVector, ref vA, out Matrix3x3 aContribution);
+                InertiaHelper.GetPointContribution(perVertexWeight, ref Toolbox.ZeroVector, ref vB, out Matrix3x3 bContribution);
+                InertiaHelper.GetPointContribution(perVertexWeight, ref Toolbox.ZeroVector, ref vC, out Matrix3x3 cContribution);
                 Matrix3x3.Add(ref aContribution, ref shapeInformation.VolumeDistribution, out shapeInformation.VolumeDistribution);
                 Matrix3x3.Add(ref bContribution, ref shapeInformation.VolumeDistribution, out shapeInformation.VolumeDistribution);
                 Matrix3x3.Add(ref cContribution, ref shapeInformation.VolumeDistribution, out shapeInformation.VolumeDistribution);
@@ -474,8 +443,7 @@ namespace BEPUphysics.CollisionShapes
             Matrix3x3.Multiply(ref shapeInformation.VolumeDistribution, 1 / (2 * totalWeight), out shapeInformation.VolumeDistribution);
 
             //Move the inertia tensor into position according to the center.
-            Matrix3x3 additionalInertia;
-            InertiaHelper.GetPointContribution(0.5f, ref Toolbox.ZeroVector, ref shapeInformation.Center, out additionalInertia);
+            InertiaHelper.GetPointContribution(0.5f, ref Toolbox.ZeroVector, ref shapeInformation.Center, out Matrix3x3 additionalInertia);
             Matrix3x3.Subtract(ref shapeInformation.VolumeDistribution, ref additionalInertia, out shapeInformation.VolumeDistribution);
 
             shapeInformation.Volume = 0;
@@ -500,10 +468,9 @@ namespace BEPUphysics.CollisionShapes
 
             for (int i = 0; i < hullVertices.Count; i++)
             {
-                float dotX, dotY, dotZ;
-                Vector3.Dot(ref rightDirection, ref hullVertices.Elements[i], out dotX);
-                Vector3.Dot(ref upDirection, ref hullVertices.Elements[i], out dotY);
-                Vector3.Dot(ref backDirection, ref hullVertices.Elements[i], out dotZ);
+                Vector3.Dot(ref rightDirection, ref hullVertices.Elements[i], out float dotX);
+                Vector3.Dot(ref upDirection, ref hullVertices.Elements[i], out float dotY);
+                Vector3.Dot(ref backDirection, ref hullVertices.Elements[i], out float dotZ);
                 if (dotX < minX)
                 {
                     minX = dotX;
@@ -570,13 +537,17 @@ namespace BEPUphysics.CollisionShapes
         public override void GetBoundingBox(ref RigidTransform shapeTransform, out BoundingBox boundingBox)
         {
             //TODO: Could use an approximate bounding volume.  Would be cheaper at runtime and use less memory, though the box would be bigger.
-            Matrix3x3 o;
-            Matrix3x3.CreateFromQuaternion(ref shapeTransform.Orientation, out o);
+            Matrix3x3.CreateFromQuaternion(ref shapeTransform.Orientation, out Matrix3x3 o);
             GetBoundingBox(ref o, out boundingBox);
 
             Vector3.Add(ref boundingBox.Max, ref shapeTransform.Position, out boundingBox.Max);
             Vector3.Add(ref boundingBox.Min, ref shapeTransform.Position, out boundingBox.Min);
-
+        }
+        // (WCS Edit) We need this method for this and also for the convex shape.
+        public BoundingBox GetBoundingBox(ref RigidTransform shapeTransform)
+        {
+            GetBoundingBox(ref shapeTransform, out var boundingBox);
+            return boundingBox;
         }
 
 
@@ -598,8 +569,7 @@ namespace BEPUphysics.CollisionShapes
             //slightly overestimate the size of a margin expanded shape at the corners, which is fine (and actually important for the box-box special case).
 
             //Move forward into convex's space, backwards into the new space's local space.
-            AffineTransform transform;
-            AffineTransform.Invert(ref spaceTransform, out transform);
+            AffineTransform.Invert(ref spaceTransform, out AffineTransform transform);
             AffineTransform.Multiply(ref shapeTransform, ref transform, out transform);
 
             GetBoundingBox(ref transform.LinearTransform, out boundingBox);
@@ -624,17 +594,14 @@ namespace BEPUphysics.CollisionShapes
         public void GetSweptLocalBoundingBox(ref RigidTransform shapeTransform, ref AffineTransform spaceTransform, ref Vector3 sweep, out BoundingBox boundingBox)
         {
             GetLocalBoundingBox(ref shapeTransform, ref spaceTransform, out boundingBox);
-            Vector3 expansion;
-            Matrix3x3.TransformTranspose(ref sweep, ref spaceTransform.LinearTransform, out expansion);
+            Matrix3x3.TransformTranspose(ref sweep, ref spaceTransform.LinearTransform, out Vector3 expansion);
             Toolbox.ExpandBoundingBox(ref boundingBox, ref expansion);
         }
 
 
 
         public override EntityCollidable GetCollidableInstance()
-        {
-            return new MobileMeshCollidable(this);
-        }
+            => new MobileMeshCollidable(this);
 
 
 

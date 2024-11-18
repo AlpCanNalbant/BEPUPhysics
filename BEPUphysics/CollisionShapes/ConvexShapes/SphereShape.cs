@@ -15,7 +15,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         ///<summary>
         /// Gets or sets the radius of the sphere.
         ///</summary>
-        public float Radius { get { return collisionMargin; } set { CollisionMargin = value; } }
+        public float Radius { get => collisionMargin; set => CollisionMargin = value; }
 
         ///<summary>
         /// Constructs a new sphere shape.
@@ -34,9 +34,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         ///</summary>
         /// <param name="description">Cached information about the shape. Assumed to be correct; no extra processing or validation is performed.</param>
         public SphereShape(ConvexShapeDescription description)
-        {
-            UpdateConvexShapeInfo(description);
-        }
+            => UpdateConvexShapeInfo(description);
 
         protected override void OnShapeChanged()
         {
@@ -93,9 +91,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         ///<param name="direction">Direction to find the extreme point in.</param>
         ///<param name="extremePoint">Extreme point on the shape.</param>
         public override void GetLocalExtremePointWithoutMargin(ref Vector3 direction, out Vector3 extremePoint)
-        {
-            extremePoint = Toolbox.ZeroVector;
-        }
+            => extremePoint = Toolbox.ZeroVector;
 
 
         /// <summary>
@@ -107,9 +103,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         /// <param name="hit">Ray hit data, if any.</param>
         /// <returns>Whether or not the ray hit the target.</returns>
         public override bool RayTest(ref Ray ray, ref RigidTransform transform, float maximumLength, out RayHit hit)
-        {
-            return Toolbox.RayCastSphere(ref ray, ref transform.Position, collisionMargin, maximumLength, out hit);
-        }
+            => Toolbox.RayCastSphere(ref ray, ref transform.Position, collisionMargin, maximumLength, out hit);
 
 
         /// <summary>
@@ -117,9 +111,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         /// </summary>
         /// <returns>EntityCollidable that uses this shape.</returns>
         public override EntityCollidable GetCollidableInstance()
-        {
-            return new ConvexCollidable<SphereShape>(this);
-        }
+            => new ConvexCollidable<SphereShape>(this);
 
     }
 }

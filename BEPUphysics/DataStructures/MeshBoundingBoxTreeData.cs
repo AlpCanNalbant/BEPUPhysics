@@ -15,13 +15,9 @@ namespace BEPUphysics.DataStructures
         public int[] Indices
         {
             get
-            {
-                return indices;
-            }
+                => indices;
             set
-            {
-                indices = value;
-            }
+                => indices = value;
         }
 
         internal Vector3[] vertices;
@@ -31,13 +27,9 @@ namespace BEPUphysics.DataStructures
         public Vector3[] Vertices
         {
             get
-            {
-                return vertices;
-            }
+                => vertices;
             set
-            {
-                vertices = value;
-            }
+                => vertices = value;
         }
 
         /// <summary>
@@ -47,8 +39,7 @@ namespace BEPUphysics.DataStructures
         /// <param name="boundingBox">Bounding box of the triangle.</param>
         public void GetBoundingBox(int triangleIndex, out BoundingBox boundingBox)
         {
-            Vector3 v1, v2, v3;
-            GetTriangle(triangleIndex, out v1, out v2, out v3);
+            GetTriangle(triangleIndex, out Vector3 v1, out Vector3 v2, out Vector3 v3);
             Vector3.Min(ref v1, ref v2, out boundingBox.Min);
             Vector3.Min(ref boundingBox.Min, ref v3, out boundingBox.Min);
             Vector3.Max(ref v1, ref v2, out boundingBox.Max);

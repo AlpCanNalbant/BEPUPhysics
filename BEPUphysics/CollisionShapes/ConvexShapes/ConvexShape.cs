@@ -29,10 +29,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         ///</summary>
         public float CollisionMargin
         {
-            get
-            {
-                return collisionMargin;
-            }
+            get => collisionMargin;
             set
             {
                 if (value < 0)
@@ -70,8 +67,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         ///<param name="extremePoint">Extreme point on the shape.</param>
         public void GetExtremePointWithoutMargin(Vector3 direction, ref RigidTransform shapeTransform, out Vector3 extremePoint)
         {
-            Quaternion conjugate;
-            Quaternion.Conjugate(ref shapeTransform.Orientation, out conjugate);
+            Quaternion.Conjugate(ref shapeTransform.Orientation, out Quaternion conjugate);
             Quaternion.Transform(ref direction, ref conjugate, out direction);
             GetLocalExtremePointWithoutMargin(ref direction, out extremePoint);
 
@@ -127,39 +123,31 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
 #if !WINDOWS
             boundingBox = new BoundingBox();
 #endif
-            Matrix3x3 o;
-            Matrix3x3.CreateFromQuaternion(ref shapeTransform.Orientation, out o);
+            Matrix3x3.CreateFromQuaternion(ref shapeTransform.Orientation, out Matrix3x3 o);
             //Sample the local directions from the orientation matrix, implicitly transposed.
 
-            Vector3 right;
             var direction = new Vector3(o.M11, o.M21, o.M31);
-            GetLocalExtremePointWithoutMargin(ref direction, out right);
+            GetLocalExtremePointWithoutMargin(ref direction, out Vector3 right);
 
-            Vector3 left;
             direction = new Vector3(-o.M11, -o.M21, -o.M31);
-            GetLocalExtremePointWithoutMargin(ref direction, out left);
+            GetLocalExtremePointWithoutMargin(ref direction, out Vector3 left);
 
-            Vector3 up;
             direction = new Vector3(o.M12, o.M22, o.M32);
-            GetLocalExtremePointWithoutMargin(ref direction, out up);
+            GetLocalExtremePointWithoutMargin(ref direction, out Vector3 up);
 
-            Vector3 down;
             direction = new Vector3(-o.M12, -o.M22, -o.M32);
-            GetLocalExtremePointWithoutMargin(ref direction, out down);
+            GetLocalExtremePointWithoutMargin(ref direction, out Vector3 down);
 
-            Vector3 backward;
             direction = new Vector3(o.M13, o.M23, o.M33);
-            GetLocalExtremePointWithoutMargin(ref direction, out backward);
+            GetLocalExtremePointWithoutMargin(ref direction, out Vector3 backward);
 
-            Vector3 forward;
             direction = new Vector3(-o.M13, -o.M23, -o.M33);
-            GetLocalExtremePointWithoutMargin(ref direction, out forward);
+            GetLocalExtremePointWithoutMargin(ref direction, out Vector3 forward);
 
 
             //Rather than transforming each axis independently (and doing three times as many operations as required), just get the 6 required values directly.
-            Vector3 positive, negative;
-            TransformLocalExtremePoints(ref right, ref up, ref backward, ref o, out positive);
-            TransformLocalExtremePoints(ref left, ref down, ref forward, ref o, out negative);
+            TransformLocalExtremePoints(ref right, ref up, ref backward, ref o, out Vector3 positive);
+            TransformLocalExtremePoints(ref left, ref down, ref forward, ref o, out Vector3 negative);
 
             //The positive and negative vectors represent the X, Y and Z coordinates of the extreme points in world space along the world space axes.
             boundingBox.Max.X = shapeTransform.Position.X + positive.X + collisionMargin;
@@ -169,7 +157,13 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
             boundingBox.Min.X = shapeTransform.Position.X + negative.X - collisionMargin;
             boundingBox.Min.Y = shapeTransform.Position.Y + negative.Y - collisionMargin;
             boundingBox.Min.Z = shapeTransform.Position.Z + negative.Z - collisionMargin;
+        }
 
+        // (WCS Edit) New method is added.
+        public BoundingBox GetBoundingBox(ref RigidTransform shapeTransform)
+        {
+            GetBoundingBox(ref shapeTransform, out var boundingBox);
+            return boundingBox;
         }
 
         /// <summary>
@@ -181,9 +175,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         /// <param name="hit">Ray hit data, if any.</param>
         /// <returns>Whether or not the ray hit the target.</returns>
         public virtual bool RayTest(ref Ray ray, ref RigidTransform transform, float maximumLength, out RayHit hit)
-        {
-            return MPRToolbox.RayCast(ray, maximumLength, this, ref transform, out hit);
-        }
+            => MPRToolbox.RayCast(ray, maximumLength, this, ref transform, out hit);
 
         /// <summary>
         /// Computes a bounding box for the shape and expands it.
@@ -195,7 +187,6 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         {
             GetBoundingBox(ref transform, out boundingBox);
             Toolbox.ExpandBoundingBox(ref boundingBox, ref sweep);
-
         }
 
         /// <summary>
@@ -209,8 +200,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         public void GetSweptLocalBoundingBox(ref RigidTransform shapeTransform, ref AffineTransform spaceTransform, ref Vector3 sweep, out BoundingBox boundingBox)
         {
             GetLocalBoundingBox(ref shapeTransform, ref spaceTransform, out boundingBox);
-            Vector3 expansion;
-            Matrix3x3.TransformTranspose(ref sweep, ref spaceTransform.LinearTransform, out expansion);
+            Matrix3x3.TransformTranspose(ref sweep, ref spaceTransform.LinearTransform, out Vector3 expansion);
             Toolbox.ExpandBoundingBox(ref boundingBox, ref expansion);
         }
 
@@ -234,40 +224,32 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
             //does the local space fiddling.
 
             //Move forward into convex's space, backwards into the new space's local space.
-            AffineTransform transform;
-            AffineTransform.Invert(ref spaceTransform, out transform);
+            AffineTransform.Invert(ref spaceTransform, out AffineTransform transform);
             AffineTransform.Multiply(ref shapeTransform, ref transform, out transform);
 
             //Sample the local directions from the orientation matrix, implicitly transposed.
 
-            Vector3 right;
             var direction = new Vector3(transform.LinearTransform.M11, transform.LinearTransform.M21, transform.LinearTransform.M31);
-            GetLocalExtremePoint(direction, out right);
+            GetLocalExtremePoint(direction, out Vector3 right);
 
-            Vector3 left;
             direction = new Vector3(-transform.LinearTransform.M11, -transform.LinearTransform.M21, -transform.LinearTransform.M31);
-            GetLocalExtremePoint(direction, out left);
+            GetLocalExtremePoint(direction, out Vector3 left);
 
-            Vector3 up;
             direction = new Vector3(transform.LinearTransform.M12, transform.LinearTransform.M22, transform.LinearTransform.M32);
-            GetLocalExtremePoint(direction, out up);
+            GetLocalExtremePoint(direction, out Vector3 up);
 
-            Vector3 down;
             direction = new Vector3(-transform.LinearTransform.M12, -transform.LinearTransform.M22, -transform.LinearTransform.M32);
-            GetLocalExtremePoint(direction, out down);
+            GetLocalExtremePoint(direction, out Vector3 down);
 
-            Vector3 backward;
             direction = new Vector3(transform.LinearTransform.M13, transform.LinearTransform.M23, transform.LinearTransform.M33);
-            GetLocalExtremePoint(direction, out backward);
+            GetLocalExtremePoint(direction, out Vector3 backward);
 
-            Vector3 forward;
             direction = new Vector3(-transform.LinearTransform.M13, -transform.LinearTransform.M23, -transform.LinearTransform.M33);
-            GetLocalExtremePoint(direction, out forward);
+            GetLocalExtremePoint(direction, out Vector3 forward);
 
             //Rather than transforming each axis independently (and doing three times as many operations as required), just get the 6 required values directly.
-            Vector3 positive, negative;
-            TransformLocalExtremePoints(ref right, ref up, ref backward, ref transform.LinearTransform, out positive);
-            TransformLocalExtremePoints(ref left, ref down, ref forward, ref transform.LinearTransform, out negative);
+            TransformLocalExtremePoints(ref right, ref up, ref backward, ref transform.LinearTransform, out Vector3 positive);
+            TransformLocalExtremePoints(ref left, ref down, ref forward, ref transform.LinearTransform, out Vector3 negative);
 
             //The positive and negative vectors represent the X, Y and Z coordinates of the extreme points in world space along the world space axes.
             boundingBox.Max.X = transform.Translation.X + positive.X;
