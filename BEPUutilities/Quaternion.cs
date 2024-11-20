@@ -104,7 +104,7 @@ namespace BEPUutilities
         public static void CreateFromRotationMatrix(ref Matrix3x3 r, out Quaternion q)
         {
             float trace = r.M11 + r.M22 + r.M33;
-            if (trace >= 0)
+            if (trace >= 0f)
             {
                 float S = MathF.Sqrt(trace + 1.0f) * 2f; // S=4*qw
                 float inverseS = 1f / S;
