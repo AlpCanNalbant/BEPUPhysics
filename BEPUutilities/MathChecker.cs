@@ -14,9 +14,7 @@ namespace BEPUutilities
         /// <param name="f">Value to validate.</param>
         /// <returns>True if the value is invalid, false if it is valid.</returns>
         private static bool IsInvalid(float f)
-        {
-            return float.IsNaN(f) || float.IsInfinity(f);
-        }
+            => float.IsNaN(f) || float.IsInfinity(f);
 
         /// <summary>
         /// Checks the value to see if it is a NaN or infinite.  If it is, an exception is thrown.

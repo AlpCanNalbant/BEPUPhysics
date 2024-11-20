@@ -16,9 +16,9 @@ namespace BEPUutilities.ResourceManagement
         /// Defines the maximum buffer size. Maximum length is 2^MaximumPoolIndex.
         /// </summary>
         private const int MaximumPoolIndex = 30;
-        private Stack<T[]>[] pools = new Stack<T[]>[MaximumPoolIndex + 1];
+        private readonly Stack<T[]>[] pools = new Stack<T[]>[MaximumPoolIndex + 1];
 #if DEBUG
-        private HashSet<T[]> outstandingResources = new HashSet<T[]>();
+        private readonly HashSet<T[]> outstandingResources = [];
 #endif
 
         /// <summary>
@@ -98,9 +98,7 @@ namespace BEPUutilities.ResourceManagement
         /// <param name="minimumSize">Number of elements that must be able to fit in the buffer.</param>
         /// <returns>Buffer of sufficient size to hold the given number of elements.</returns>
         public T[] Take(int minimumSize)
-        {
-            return TakeFromPoolIndex(GetPoolIndex(minimumSize));
-        }
+            => TakeFromPoolIndex(GetPoolIndex(minimumSize));
 
 
         /// <summary>
@@ -109,8 +107,8 @@ namespace BEPUutilities.ResourceManagement
         /// <param name="buffer">Buffer to return to the pool.</param>
         /// <param name="poolIndex">Pool index associated with the buffer.</param>
         public virtual void GiveBack(T[] buffer, int poolIndex)
-        {
 #if DEBUG
+        {
             Debug.Assert(outstandingResources.Remove(buffer), "The buffer being returned must come from this pool, and buffers should only be returned once.");
             if (CheckIfReturnedBuffersAreClean)
             {
@@ -119,18 +117,19 @@ namespace BEPUutilities.ResourceManagement
                     Debug.Assert(EqualityComparer<T>.Default.Equals(buffer[i], default(T)), "Buffers being returned to the pool should be clean. Every index should hold default(T).");
                 }
             }
-#endif
+
             pools[poolIndex].Push(buffer);
         }
+#else
+        => pools[poolIndex].Push(buffer);
+#endif
 
         /// <summary>
         /// Gives a buffer back to the pool without clearing it out.
         /// </summary>
         /// <param name="buffer">Buffer to return to the pool.</param>
         public void GiveBack(T[] buffer)
-        {
-            GiveBack(buffer, GetPoolIndex(buffer.Length));
-        }
+            => GiveBack(buffer, GetPoolIndex(buffer.Length));
 
         /// <summary>
         /// Ensures that there are at least the specified number of buffers allocated for the given batch index.

@@ -72,9 +72,7 @@ namespace BEPUutilities
         /// <param name="b">Second value.</param>
         /// <returns>Higher value of the two parameters.</returns>
         public static float Max(float a, float b)
-        {
-            return a > b ? a : b;
-        }
+            => a > b ? a : b;
 
         /// <summary>
         /// Returns the lower value of the two parameters.
@@ -83,9 +81,7 @@ namespace BEPUutilities
         /// <param name="b">Second value.</param>
         /// <returns>Lower value of the two parameters.</returns>
         public static float Min(float a, float b)
-        {
-            return a < b ? a : b;
-        }
+            => a < b ? a : b;
 
         /// <summary>
         /// Converts degrees to radians.
@@ -93,9 +89,7 @@ namespace BEPUutilities
         /// <param name="degrees">Degrees to convert.</param>
         /// <returns>Radians equivalent to the input degrees.</returns>
         public static float ToRadians(float degrees)
-        {
-            return degrees * (Pi / 180f);
-        }
+            => degrees * (Pi / 180f);
 
         /// <summary>
         /// Converts radians to degrees.
@@ -103,8 +97,6 @@ namespace BEPUutilities
         /// <param name="radians">Radians to convert.</param>
         /// <returns>Degrees equivalent to the input radians.</returns>
         public static float ToDegrees(float radians)
-        {
-            return radians * (180f / Pi);
-        }
+            => radians * (180f / Pi);
     }
 }

@@ -22,8 +22,7 @@
         /// <param name="normal">The normal of the plane.</param>
         public Plane(ref Vector3 position, ref Vector3 normal)
         {
-            float d;
-            Vector3.Dot(ref position, ref normal, out d);
+            Vector3.Dot(ref position, ref normal, out float d);
             D = -d;
             Normal = normal;
         }
@@ -67,9 +66,7 @@
         /// </summary>
         /// <param name="v">Position to compute the dot product of.</param>
         /// <param name="dot">Dot product.</param>
-        public void DotCoordinate(ref Vector3 v, out float dot)
-        {
-            dot = Normal.X * v.X + Normal.Y * v.Y + Normal.Z * v.Z + D;
-        }
+        public readonly void DotCoordinate(ref Vector3 v, out float dot)
+            => dot = Normal.X * v.X + Normal.Y * v.Y + Normal.Z * v.Z + D;
     }
 }

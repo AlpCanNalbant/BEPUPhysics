@@ -17,17 +17,17 @@ namespace BEPUutilities
         /// <summary>
         /// Large tolerance value. Defaults to 1e-5f.
         /// </summary>
-        public static float BigEpsilon = 1E-5f;
+        public const float BigEpsilon = 1E-5f;
 
         /// <summary>
         /// Tolerance value. Defaults to 1e-7f.
         /// </summary>
-        public static float Epsilon = 1E-7f;
+        public const float Epsilon = 1E-7f;
 
         /// <summary>
         /// Represents an invalid Vector3.
         /// </summary>
-        public static readonly Vector3 NoVector = new Vector3(-float.MaxValue, -float.MaxValue, -float.MaxValue);
+        public static readonly Vector3 NoVector = new(-float.MaxValue, -float.MaxValue, -float.MaxValue);
 
         /// <summary>
         /// Reference for a vector with dimensions (0,0,1).
@@ -67,7 +67,7 @@ namespace BEPUutilities
         /// <summary>
         /// Matrix containing zeroes for every element.
         /// </summary>
-        public static Matrix ZeroMatrix = new Matrix(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        public static Matrix ZeroMatrix = new(0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f);
 
         /// <summary>
         /// Reference for a vector with dimensions (0,0,0).
@@ -96,22 +96,19 @@ namespace BEPUutilities
         {
             hitClockwise = false;
             hit = new RayHit();
-            Vector3 ab, ac;
-            Vector3.Subtract(ref b, ref a, out ab);
-            Vector3.Subtract(ref c, ref a, out ac);
+            Vector3.Subtract(ref b, ref a, out Vector3 ab);
+            Vector3.Subtract(ref c, ref a, out Vector3 ac);
 
             Vector3.Cross(ref ab, ref ac, out hit.Normal);
             if (hit.Normal.LengthSquared() < Epsilon)
                 return false; //Degenerate triangle!
 
-            float d;
-            Vector3.Dot(ref ray.Direction, ref hit.Normal, out d);
+            Vector3.Dot(ref ray.Direction, ref hit.Normal, out float d);
             d = -d;
 
             hitClockwise = d >= 0;
 
-            Vector3 ap;
-            Vector3.Subtract(ref ray.Position, ref a, out ap);
+            Vector3.Subtract(ref ray.Position, ref a, out Vector3 ap);
 
             Vector3.Dot(ref ap, ref hit.Normal, out hit.T);
             hit.T /= d;
@@ -123,20 +120,17 @@ namespace BEPUutilities
 
             // Compute barycentric coordinates
             Vector3.Subtract(ref hit.Location, ref a, out ap);
-            float ABdotAB, ABdotAC, ABdotAP;
-            float ACdotAC, ACdotAP;
-            Vector3.Dot(ref ab, ref ab, out ABdotAB);
-            Vector3.Dot(ref ab, ref ac, out ABdotAC);
-            Vector3.Dot(ref ab, ref ap, out ABdotAP);
-            Vector3.Dot(ref ac, ref ac, out ACdotAC);
-            Vector3.Dot(ref ac, ref ap, out ACdotAP);
+            Vector3.Dot(ref ab, ref ab, out float ABdotAB);
+            Vector3.Dot(ref ab, ref ac, out float ABdotAC);
+            Vector3.Dot(ref ab, ref ap, out float ABdotAP);
+            Vector3.Dot(ref ac, ref ac, out float ACdotAC);
+            Vector3.Dot(ref ac, ref ap, out float ACdotAP);
 
             float denom = 1 / (ABdotAB * ACdotAC - ABdotAC * ABdotAC);
             float u = (ACdotAC * ABdotAP - ABdotAC * ACdotAP) * denom;
             float v = (ABdotAB * ACdotAP - ABdotAC * ABdotAP) * denom;
 
             return (u >= -Toolbox.BigEpsilon) && (v >= -Toolbox.BigEpsilon) && (u + v <= 1 + Toolbox.BigEpsilon);
-
         }
 
         /// <summary>
@@ -153,16 +147,14 @@ namespace BEPUutilities
         public static bool FindRayTriangleIntersection(ref Ray ray, float maximumLength, TriangleSidedness sidedness, ref Vector3 a, ref Vector3 b, ref Vector3 c, out RayHit hit)
         {
             hit = new RayHit();
-            Vector3 ab, ac;
-            Vector3.Subtract(ref b, ref a, out ab);
-            Vector3.Subtract(ref c, ref a, out ac);
+            Vector3.Subtract(ref b, ref a, out Vector3 ab);
+            Vector3.Subtract(ref c, ref a, out Vector3 ac);
 
             Vector3.Cross(ref ab, ref ac, out hit.Normal);
             if (hit.Normal.LengthSquared() < Epsilon)
                 return false; //Degenerate triangle!
 
-            float d;
-            Vector3.Dot(ref ray.Direction, ref hit.Normal, out d);
+            Vector3.Dot(ref ray.Direction, ref hit.Normal, out float d);
             d = -d;
             switch (sidedness)
             {
@@ -187,8 +179,7 @@ namespace BEPUutilities
                     break;
             }
 
-            Vector3 ap;
-            Vector3.Subtract(ref ray.Position, ref a, out ap);
+            Vector3.Subtract(ref ray.Position, ref a, out Vector3 ap);
 
             Vector3.Dot(ref ap, ref hit.Normal, out hit.T);
             hit.T /= d;
@@ -200,20 +191,17 @@ namespace BEPUutilities
 
             // Compute barycentric coordinates
             Vector3.Subtract(ref hit.Location, ref a, out ap);
-            float ABdotAB, ABdotAC, ABdotAP;
-            float ACdotAC, ACdotAP;
-            Vector3.Dot(ref ab, ref ab, out ABdotAB);
-            Vector3.Dot(ref ab, ref ac, out ABdotAC);
-            Vector3.Dot(ref ab, ref ap, out ABdotAP);
-            Vector3.Dot(ref ac, ref ac, out ACdotAC);
-            Vector3.Dot(ref ac, ref ap, out ACdotAP);
+            Vector3.Dot(ref ab, ref ab, out float ABdotAB);
+            Vector3.Dot(ref ab, ref ac, out float ABdotAC);
+            Vector3.Dot(ref ab, ref ap, out float ABdotAP);
+            Vector3.Dot(ref ac, ref ac, out float ACdotAC);
+            Vector3.Dot(ref ac, ref ap, out float ACdotAP);
 
             float denom = 1 / (ABdotAB * ACdotAC - ABdotAC * ABdotAC);
             float u = (ACdotAC * ABdotAP - ABdotAC * ACdotAP) * denom;
             float v = (ABdotAB * ACdotAP - ABdotAC * ABdotAP) * denom;
 
             return (u >= -Toolbox.BigEpsilon) && (v >= -Toolbox.BigEpsilon) && (u + v <= 1 + Toolbox.BigEpsilon);
-
         }
 
         /// <summary>
@@ -231,8 +219,7 @@ namespace BEPUutilities
             Plane p;
             p.Normal = Vector3.Cross(e - d, f - d);
             p.D = Vector3.Dot(p.Normal, d);
-            float t;
-            return GetSegmentPlaneIntersection(a, b, p, out t, out q);
+            return GetSegmentPlaneIntersection(a, b, p, out _, out q);
         }
 
         /// <summary>
@@ -244,10 +231,7 @@ namespace BEPUutilities
         /// <param name="q">Intersection point.</param>
         /// <returns>Whether or not the segment intersects the plane.</returns>
         public static bool GetSegmentPlaneIntersection(Vector3 a, Vector3 b, Plane p, out Vector3 q)
-        {
-            float t;
-            return GetLinePlaneIntersection(ref a, ref b, ref p, out t, out q) && t >= 0 && t <= 1;
-        }
+            => GetLinePlaneIntersection(ref a, ref b, ref p, out float t, out q) && t >= 0 && t <= 1;
 
         /// <summary>
         /// Finds the intersection between the given segment and the given plane.
@@ -259,9 +243,7 @@ namespace BEPUutilities
         /// <param name="q">Intersection point.</param>
         /// <returns>Whether or not the segment intersects the plane.</returns>
         public static bool GetSegmentPlaneIntersection(Vector3 a, Vector3 b, Plane p, out float t, out Vector3 q)
-        {
-            return GetLinePlaneIntersection(ref a, ref b, ref p, out t, out q) && t >= 0 && t <= 1;
-        }
+            => GetLinePlaneIntersection(ref a, ref b, ref p, out t, out q) && t >= 0 && t <= 1;
 
         /// <summary>
         /// Finds the intersection between the given line and the given plane.
@@ -274,10 +256,8 @@ namespace BEPUutilities
         /// <returns>Whether or not the line intersects the plane.  If false, the line is parallel to the plane's surface.</returns>
         public static bool GetLinePlaneIntersection(ref Vector3 a, ref Vector3 b, ref Plane p, out float t, out Vector3 q)
         {
-            Vector3 ab;
-            Vector3.Subtract(ref b, ref a, out ab);
-            float denominator;
-            Vector3.Dot(ref p.Normal, ref ab, out denominator);
+            Vector3.Subtract(ref b, ref a, out Vector3 ab);
+            Vector3.Dot(ref p.Normal, ref ab, out float denominator);
             if (denominator < Epsilon && denominator > -Epsilon)
             {
                 //Surface of plane and line are parallel (or very close to it).
@@ -285,8 +265,7 @@ namespace BEPUutilities
                 t = float.MaxValue;
                 return false;
             }
-            float numerator;
-            Vector3.Dot(ref p.Normal, ref a, out numerator);
+            Vector3.Dot(ref p.Normal, ref a, out float numerator);
             t = (p.D - numerator) / denominator;
             //Compute the intersection position.
             Vector3.Multiply(ref ab, t, out q);
@@ -304,8 +283,7 @@ namespace BEPUutilities
         /// <returns>Whether or not the line intersects the plane.  If false, the line is parallel to the plane's surface.</returns>
         public static bool GetRayPlaneIntersection(ref Ray ray, ref Plane p, out float t, out Vector3 q)
         {
-            float denominator;
-            Vector3.Dot(ref p.Normal, ref ray.Direction, out denominator);
+            Vector3.Dot(ref p.Normal, ref ray.Direction, out float denominator);
             if (denominator < Epsilon && denominator > -Epsilon)
             {
                 //Surface of plane and line are parallel (or very close to it).
@@ -313,8 +291,7 @@ namespace BEPUutilities
                 t = float.MaxValue;
                 return false;
             }
-            float numerator;
-            Vector3.Dot(ref p.Normal, ref ray.Position, out numerator);
+            Vector3.Dot(ref p.Normal, ref ray.Position, out float numerator);
             t = (p.D - numerator) / denominator;
             //Compute the intersection position.
             Vector3.Multiply(ref ray.Direction, t, out q);
@@ -338,29 +315,21 @@ namespace BEPUutilities
         public static VoronoiRegion GetClosestPointOnTriangleToPoint(ref Vector3 a, ref Vector3 b, ref Vector3 c, ref Vector3 p, out Vector3 closestPoint)
         {
             float v, w;
-            Vector3 ab;
-            Vector3.Subtract(ref b, ref a, out ab);
-            Vector3 ac;
-            Vector3.Subtract(ref c, ref a, out ac);
+            Vector3.Subtract(ref b, ref a, out Vector3 ab);
+            Vector3.Subtract(ref c, ref a, out Vector3 ac);
             //Vertex region A?
-            Vector3 ap;
-            Vector3.Subtract(ref p, ref a, out ap);
-            float d1;
-            Vector3.Dot(ref ab, ref ap, out d1);
-            float d2;
-            Vector3.Dot(ref ac, ref ap, out d2);
+            Vector3.Subtract(ref p, ref a, out Vector3 ap);
+            Vector3.Dot(ref ab, ref ap, out float d1);
+            Vector3.Dot(ref ac, ref ap, out float d2);
             if (d1 <= 0 && d2 < 0)
             {
                 closestPoint = a;
                 return VoronoiRegion.A;
             }
             //Vertex region B?
-            Vector3 bp;
-            Vector3.Subtract(ref p, ref b, out bp);
-            float d3;
-            Vector3.Dot(ref ab, ref bp, out d3);
-            float d4;
-            Vector3.Dot(ref ac, ref bp, out d4);
+            Vector3.Subtract(ref p, ref b, out Vector3 bp);
+            Vector3.Dot(ref ab, ref bp, out float d3);
+            Vector3.Dot(ref ac, ref bp, out float d4);
             if (d3 >= 0 && d4 <= d3)
             {
                 closestPoint = b;
@@ -376,12 +345,9 @@ namespace BEPUutilities
                 return VoronoiRegion.AB;
             }
             //Vertex region C?
-            Vector3 cp;
-            Vector3.Subtract(ref p, ref c, out cp);
-            float d5;
-            Vector3.Dot(ref ab, ref cp, out d5);
-            float d6;
-            Vector3.Dot(ref ac, ref cp, out d6);
+            Vector3.Subtract(ref p, ref c, out Vector3 cp);
+            Vector3.Dot(ref ab, ref cp, out float d5);
+            Vector3.Dot(ref ac, ref cp, out float d6);
             if (d6 >= 0 && d5 <= d6)
             {
                 closestPoint = c;
@@ -410,10 +376,8 @@ namespace BEPUutilities
             float denom = 1 / (va + vb + vc);
             v = vb * denom;
             w = vc * denom;
-            Vector3 abv;
-            Vector3.Multiply(ref ab, v, out abv);
-            Vector3 acw;
-            Vector3.Multiply(ref ac, w, out acw);
+            Vector3.Multiply(ref ab, v, out Vector3 abv);
+            Vector3.Multiply(ref ac, w, out Vector3 acw);
             Vector3.Add(ref a, ref abv, out closestPoint);
             Vector3.Add(ref closestPoint, ref acw, out closestPoint);
             return VoronoiRegion.ABC;
@@ -433,17 +397,12 @@ namespace BEPUutilities
         {
             subsimplex.Clear();
             float v, w;
-            Vector3 ab;
-            Vector3.Subtract(ref b, ref a, out ab);
-            Vector3 ac;
-            Vector3.Subtract(ref c, ref a, out ac);
+            Vector3.Subtract(ref b, ref a, out Vector3 ab);
+            Vector3.Subtract(ref c, ref a, out Vector3 ac);
             //Vertex region A?
-            Vector3 ap;
-            Vector3.Subtract(ref p, ref a, out ap);
-            float d1;
-            Vector3.Dot(ref ab, ref ap, out d1);
-            float d2;
-            Vector3.Dot(ref ac, ref ap, out d2);
+            Vector3.Subtract(ref p, ref a, out Vector3 ap);
+            Vector3.Dot(ref ab, ref ap, out float d1);
+            Vector3.Dot(ref ac, ref ap, out float d2);
             if (d1 <= 0 && d2 < 0)
             {
                 subsimplex.Add(a);
@@ -451,12 +410,9 @@ namespace BEPUutilities
                 return;
             }
             //Vertex region B?
-            Vector3 bp;
-            Vector3.Subtract(ref p, ref b, out bp);
-            float d3;
-            Vector3.Dot(ref ab, ref bp, out d3);
-            float d4;
-            Vector3.Dot(ref ac, ref bp, out d4);
+            Vector3.Subtract(ref p, ref b, out Vector3 bp);
+            Vector3.Dot(ref ab, ref bp, out float d3);
+            Vector3.Dot(ref ac, ref bp, out float d4);
             if (d3 >= 0 && d4 <= d3)
             {
                 subsimplex.Add(b);
@@ -475,12 +431,9 @@ namespace BEPUutilities
                 return;
             }
             //Vertex region C?
-            Vector3 cp;
-            Vector3.Subtract(ref p, ref c, out cp);
-            float d5;
-            Vector3.Dot(ref ab, ref cp, out d5);
-            float d6;
-            Vector3.Dot(ref ac, ref cp, out d6);
+            Vector3.Subtract(ref p, ref c, out Vector3 cp);
+            Vector3.Dot(ref ab, ref cp, out float d5);
+            Vector3.Dot(ref ac, ref cp, out float d6);
             if (d6 >= 0 && d5 <= d6)
             {
                 subsimplex.Add(c);
@@ -517,10 +470,8 @@ namespace BEPUutilities
             float denom = 1 / (va + vb + vc);
             v = vb * denom;
             w = vc * denom;
-            Vector3 abv;
-            Vector3.Multiply(ref ab, v, out abv);
-            Vector3 acw;
-            Vector3.Multiply(ref ac, w, out acw);
+            Vector3.Multiply(ref ab, v, out Vector3 abv);
+            Vector3.Multiply(ref ac, w, out Vector3 acw);
             Vector3.Add(ref a, ref abv, out closestPoint);
             Vector3.Add(ref closestPoint, ref acw, out closestPoint);
         }
@@ -545,17 +496,12 @@ namespace BEPUutilities
             Vector3 a = q[i];
             Vector3 b = q[j];
             Vector3 c = q[k];
-            Vector3 ab;
-            Vector3.Subtract(ref b, ref a, out ab);
-            Vector3 ac;
-            Vector3.Subtract(ref c, ref a, out ac);
+            Vector3.Subtract(ref b, ref a, out Vector3 ab);
+            Vector3.Subtract(ref c, ref a, out Vector3 ac);
             //Vertex region A?
-            Vector3 ap;
-            Vector3.Subtract(ref p, ref a, out ap);
-            float d1;
-            Vector3.Dot(ref ab, ref ap, out d1);
-            float d2;
-            Vector3.Dot(ref ac, ref ap, out d2);
+            Vector3.Subtract(ref p, ref a, out Vector3 ap);
+            Vector3.Dot(ref ab, ref ap, out float d1);
+            Vector3.Dot(ref ac, ref ap, out float d2);
             if (d1 <= 0 && d2 < 0)
             {
                 subsimplex.Add(i);
@@ -564,12 +510,9 @@ namespace BEPUutilities
                 return; //barycentric coordinates (1,0,0)
             }
             //Vertex region B?
-            Vector3 bp;
-            Vector3.Subtract(ref p, ref b, out bp);
-            float d3;
-            Vector3.Dot(ref ab, ref bp, out d3);
-            float d4;
-            Vector3.Dot(ref ac, ref bp, out d4);
+            Vector3.Subtract(ref p, ref b, out Vector3 bp);
+            Vector3.Dot(ref ab, ref bp, out float d3);
+            Vector3.Dot(ref ac, ref bp, out float d4);
             if (d3 >= 0 && d4 <= d3)
             {
                 subsimplex.Add(j);
@@ -591,12 +534,9 @@ namespace BEPUutilities
                 return; //barycentric coordinates (1-v, v, 0)
             }
             //Vertex region C?
-            Vector3 cp;
-            Vector3.Subtract(ref p, ref c, out cp);
-            float d5;
-            Vector3.Dot(ref ab, ref cp, out d5);
-            float d6;
-            Vector3.Dot(ref ac, ref cp, out d6);
+            Vector3.Subtract(ref p, ref c, out Vector3 cp);
+            Vector3.Dot(ref ab, ref cp, out float d5);
+            Vector3.Dot(ref ac, ref cp, out float d6);
             if (d6 >= 0 && d5 <= d6)
             {
                 subsimplex.Add(k);
@@ -641,10 +581,8 @@ namespace BEPUutilities
             baryCoords.Add(1 - v - w);
             baryCoords.Add(v);
             baryCoords.Add(w);
-            Vector3 abv;
-            Vector3.Multiply(ref ab, v, out abv);
-            Vector3 acw;
-            Vector3.Multiply(ref ac, w, out acw);
+            Vector3.Multiply(ref ab, v, out Vector3 abv);
+            Vector3.Multiply(ref ac, w, out Vector3 acw);
             Vector3.Add(ref a, ref abv, out closestPoint);
             Vector3.Add(ref closestPoint, ref acw, out closestPoint);
             //return a + ab * v + ac * w; //barycentric coordinates (1 - v - w, v, w)
@@ -660,8 +598,7 @@ namespace BEPUutilities
         /// <returns>Whether or not the point is within the triangle.</returns>
         public static bool IsPointInsideTriangle(ref Vector3 vA, ref Vector3 vB, ref Vector3 vC, ref Vector3 p)
         {
-            float u, v, w;
-            GetBarycentricCoordinates(ref p, ref vA, ref vB, ref vC, out u, out v, out w);
+            GetBarycentricCoordinates(ref p, ref vA, ref vB, ref vC, out float u, out float v, out float w);
             //Are the barycoords valid?
             return (u > -Epsilon) && (v > -Epsilon) && (w > -Epsilon);
         }
@@ -677,8 +614,7 @@ namespace BEPUutilities
         /// <returns>Whether or not the point is within the triangle.</returns>
         public static bool IsPointInsideTriangle(ref Vector3 vA, ref Vector3 vB, ref Vector3 vC, ref Vector3 p, float margin)
         {
-            float u, v, w;
-            GetBarycentricCoordinates(ref p, ref vA, ref vB, ref vC, out u, out v, out w);
+            GetBarycentricCoordinates(ref p, ref vA, ref vB, ref vC, out float u, out float v, out float w);
             //Are the barycoords valid?
             return (u > -margin) && (v > -margin) && (w > -margin);
         }
@@ -696,12 +632,9 @@ namespace BEPUutilities
         /// <param name="closestPoint">Closest point on the edge to p.</param>
         public static void GetClosestPointOnSegmentToPoint(ref Vector3 a, ref Vector3 b, ref Vector3 p, out Vector3 closestPoint)
         {
-            Vector3 ab;
-            Vector3.Subtract(ref b, ref a, out ab);
-            Vector3 ap;
-            Vector3.Subtract(ref p, ref a, out ap);
-            float t;
-            Vector3.Dot(ref ap, ref ab, out t);
+            Vector3.Subtract(ref b, ref a, out Vector3 ab);
+            Vector3.Subtract(ref p, ref a, out Vector3 ap);
+            Vector3.Dot(ref ap, ref ab, out float t);
             if (t <= 0)
             {
                 closestPoint = a;
@@ -715,9 +648,8 @@ namespace BEPUutilities
                 }
                 else
                 {
-                    t = t / denom;
-                    Vector3 tab;
-                    Vector3.Multiply(ref ab, t, out tab);
+                    t /= denom;
+                    Vector3.Multiply(ref ab, t, out Vector3 tab);
                     Vector3.Add(ref a, ref tab, out closestPoint);
                 }
             }
@@ -735,12 +667,9 @@ namespace BEPUutilities
         public static void GetClosestPointOnSegmentToPoint(ref Vector3 a, ref Vector3 b, ref Vector3 p, List<Vector3> subsimplex, out Vector3 closestPoint)
         {
             subsimplex.Clear();
-            Vector3 ab;
-            Vector3.Subtract(ref b, ref a, out ab);
-            Vector3 ap;
-            Vector3.Subtract(ref p, ref a, out ap);
-            float t;
-            Vector3.Dot(ref ap, ref ab, out t);
+            Vector3.Subtract(ref b, ref a, out Vector3 ab);
+            Vector3.Subtract(ref p, ref a, out Vector3 ap);
+            Vector3.Dot(ref ap, ref ab, out float t);
             if (t <= 0)
             {
                 //t = 0;//Don't need this for returning purposes.
@@ -761,8 +690,7 @@ namespace BEPUutilities
                     t = t / denom;
                     subsimplex.Add(a);
                     subsimplex.Add(b);
-                    Vector3 tab;
-                    Vector3.Multiply(ref ab, t, out tab);
+                    Vector3.Multiply(ref ab, t, out Vector3 tab);
                     Vector3.Add(ref a, ref tab, out closestPoint);
                 }
             }
@@ -785,12 +713,9 @@ namespace BEPUutilities
             Vector3 b = q[j];
             subsimplex.Clear();
             baryCoords.Clear();
-            Vector3 ab;
-            Vector3.Subtract(ref b, ref a, out ab);
-            Vector3 ap;
-            Vector3.Subtract(ref p, ref a, out ap);
-            float t;
-            Vector3.Dot(ref ap, ref ab, out t);
+            Vector3.Subtract(ref b, ref a, out Vector3 ab);
+            Vector3.Subtract(ref p, ref a, out Vector3 ap);
+            Vector3.Dot(ref ap, ref ab, out float t);
             if (t <= 0)
             {
                 subsimplex.Add(i);
@@ -808,13 +733,12 @@ namespace BEPUutilities
                 }
                 else
                 {
-                    t = t / denom;
+                    t /= denom;
                     subsimplex.Add(i);
                     subsimplex.Add(j);
                     baryCoords.Add(1 - t);
                     baryCoords.Add(t);
-                    Vector3 tab;
-                    Vector3.Multiply(ref ab, t, out tab);
+                    Vector3.Multiply(ref ab, t, out Vector3 tab);
                     Vector3.Add(ref a, ref tab, out closestPoint);
                 }
             }
@@ -830,11 +754,9 @@ namespace BEPUutilities
         /// <returns>Shortest squared distance from the point to the line.</returns>
         public static float GetSquaredDistanceFromPointToLine(ref Vector3 p, ref Vector3 a, ref Vector3 b)
         {
-            Vector3 ap, ab;
-            Vector3.Subtract(ref p, ref a, out ap);
-            Vector3.Subtract(ref b, ref a, out ab);
-            float e;
-            Vector3.Dot(ref ap, ref ab, out e);
+            Vector3.Subtract(ref p, ref a, out Vector3 ap);
+            Vector3.Subtract(ref b, ref a, out Vector3 ab);
+            Vector3.Dot(ref ap, ref ab, out float e);
             return ap.LengthSquared() - e * e / ab.LengthSquared();
         }
 
@@ -852,10 +774,7 @@ namespace BEPUutilities
         /// <param name="c1">Closest point on first segment.</param>
         /// <param name="c2">Closest point on second segment.</param>
         public static void GetClosestPointsBetweenSegments(Vector3 p1, Vector3 q1, Vector3 p2, Vector3 q2, out Vector3 c1, out Vector3 c2)
-        {
-            float s, t;
-            GetClosestPointsBetweenSegments(ref p1, ref q1, ref p2, ref q2, out s, out t, out c1, out c2);
-        }
+            => GetClosestPointsBetweenSegments(ref p1, ref q1, ref p2, ref q2, out float s, out float t, out c1, out c2);
 
         /// <summary>
         /// Computes closest points c1 and c2 betwen segments p1q1 and p2q2.
@@ -872,17 +791,13 @@ namespace BEPUutilities
                                                            out float s, out float t, out Vector3 c1, out Vector3 c2)
         {
             //Segment direction vectors
-            Vector3 d1;
-            Vector3.Subtract(ref q1, ref p1, out d1);
-            Vector3 d2;
-            Vector3.Subtract(ref q2, ref p2, out d2);
-            Vector3 r;
-            Vector3.Subtract(ref p1, ref p2, out r);
+            Vector3.Subtract(ref q1, ref p1, out Vector3 d1);
+            Vector3.Subtract(ref q2, ref p2, out Vector3 d2);
+            Vector3.Subtract(ref p1, ref p2, out Vector3 r);
             //distance
             float a = d1.LengthSquared();
             float e = d2.LengthSquared();
-            float f;
-            Vector3.Dot(ref d2, ref r, out f);
+            Vector3.Dot(ref d2, ref r, out float f);
 
             if (a <= Epsilon && e <= Epsilon)
             {
@@ -959,17 +874,13 @@ namespace BEPUutilities
                                                            out float s, out float t, out Vector3 c1, out Vector3 c2)
         {
             //Segment direction vectors
-            Vector3 d1;
-            Vector3.Subtract(ref q1, ref p1, out d1);
-            Vector3 d2;
-            Vector3.Subtract(ref q2, ref p2, out d2);
-            Vector3 r;
-            Vector3.Subtract(ref p1, ref p2, out r);
+            Vector3.Subtract(ref q1, ref p1, out Vector3 d1);
+            Vector3.Subtract(ref q2, ref p2, out Vector3 d2);
+            Vector3.Subtract(ref p1, ref p2, out Vector3 r);
             //distance
             float a = d1.LengthSquared();
             float e = d2.LengthSquared();
-            float f;
-            Vector3.Dot(ref d2, ref r, out f);
+            Vector3.Dot(ref d2, ref r, out float f);
 
             if (a <= Epsilon && e <= Epsilon)
             {
@@ -1035,17 +946,13 @@ namespace BEPUutilities
         /// <returns>Whether or not vectors o and p reside on opposite sides of the plane.</returns>
         public static bool ArePointsOnOppositeSidesOfPlane(ref Vector3 o, ref Vector3 p, ref Vector3 a, ref Vector3 b, ref Vector3 c)
         {
-            Vector3 ab, ac, ap, ao;
-            Vector3.Subtract(ref b, ref a, out ab);
-            Vector3.Subtract(ref c, ref a, out ac);
-            Vector3.Subtract(ref p, ref a, out ap);
-            Vector3.Subtract(ref o, ref a, out ao);
-            Vector3 q;
-            Vector3.Cross(ref ab, ref ac, out q);
-            float signp;
-            Vector3.Dot(ref ap, ref q, out signp);
-            float signo;
-            Vector3.Dot(ref ao, ref q, out signo);
+            Vector3.Subtract(ref b, ref a, out Vector3 ab);
+            Vector3.Subtract(ref c, ref a, out Vector3 ac);
+            Vector3.Subtract(ref p, ref a, out Vector3 ap);
+            Vector3.Subtract(ref o, ref a, out Vector3 ao);
+            Vector3.Cross(ref ab, ref ac, out Vector3 q);
+            Vector3.Dot(ref ap, ref q, out float signp);
+            Vector3.Dot(ref ao, ref q, out float signo);
             if (signp * signo <= 0)
                 return true;
             return false;
@@ -1060,10 +967,8 @@ namespace BEPUutilities
         /// <returns>Distance from the point to the plane.</returns>
         public static float GetDistancePointToPlane(ref Vector3 point, ref Vector3 normal, ref Vector3 pointOnPlane)
         {
-            Vector3 offset;
-            Vector3.Subtract(ref point, ref pointOnPlane, out offset);
-            float dot;
-            Vector3.Dot(ref normal, ref offset, out dot);
+            Vector3.Subtract(ref point, ref pointOnPlane, out Vector3 offset);
+            Vector3.Dot(ref normal, ref offset, out float dot);
             return dot / normal.LengthSquared();
         }
 
@@ -1076,13 +981,10 @@ namespace BEPUutilities
         /// <param name="projectedPoint">Projected location of point onto plane.</param>
         public static void GetPointProjectedOnPlane(ref Vector3 point, ref Vector3 normal, ref Vector3 pointOnPlane, out Vector3 projectedPoint)
         {
-            float dot;
-            Vector3.Dot(ref normal, ref point, out dot);
-            float dot2;
-            Vector3.Dot(ref pointOnPlane, ref normal, out dot2);
+            Vector3.Dot(ref normal, ref point, out float dot);
+            Vector3.Dot(ref pointOnPlane, ref normal, out float dot2);
             float t = (dot - dot2) / normal.LengthSquared();
-            Vector3 multiply;
-            Vector3.Multiply(ref normal, t, out multiply);
+            Vector3.Multiply(ref normal, t, out Vector3 multiply);
             Vector3.Subtract(ref point, ref multiply, out projectedPoint);
         }
 
@@ -1097,10 +999,8 @@ namespace BEPUutilities
         {
             foreach (Plane plane in planes)
             {
-                float centroidPlaneDot;
-                plane.DotCoordinate(ref centroid, out centroidPlaneDot);
-                float pointPlaneDot;
-                plane.DotCoordinate(ref point, out pointPlaneDot);
+                plane.DotCoordinate(ref centroid, out float centroidPlaneDot);
+                plane.DotCoordinate(ref point, out float pointPlaneDot);
                 if (!((centroidPlaneDot <= Epsilon && pointPlaneDot <= Epsilon) || (centroidPlaneDot >= -Epsilon && pointPlaneDot >= -Epsilon)))
                 {
                     //Point's NOT the same side of the centroid, so it's 'outside.'
@@ -1422,13 +1322,11 @@ namespace BEPUutilities
         ///<returns>Whether or not the ray hits the sphere.</returns>
         public static bool RayCastSphere(ref Ray ray, ref Vector3 spherePosition, float radius, float maximumLength, out RayHit hit)
         {
-            Vector3 normalizedDirection;
             float length = ray.Direction.Length();
-            Vector3.Divide(ref ray.Direction, length, out normalizedDirection);
+            Vector3.Divide(ref ray.Direction, length, out Vector3 normalizedDirection);
             maximumLength *= length;
             hit = new RayHit();
-            Vector3 m;
-            Vector3.Subtract(ref ray.Position, ref spherePosition, out m);
+            Vector3.Subtract(ref ray.Position, ref spherePosition, out Vector3 m);
             float b = Vector3.Dot(m, normalizedDirection);
             float c = m.LengthSquared() - radius * radius;
 
@@ -1462,8 +1360,7 @@ namespace BEPUutilities
         /// <param name="velocity">Velocity of the point.</param>
         public static void GetVelocityOfPoint(ref Vector3 point, ref Vector3 center, ref Vector3 linearVelocity, ref Vector3 angularVelocity, out Vector3 velocity)
         {
-            Vector3 offset;
-            Vector3.Subtract(ref point, ref center, out offset);
+            Vector3.Subtract(ref point, ref center, out Vector3 offset);
             Vector3.Cross(ref angularVelocity, ref offset, out velocity);
             Vector3.Add(ref velocity, ref linearVelocity, out velocity);
         }
@@ -1478,8 +1375,7 @@ namespace BEPUutilities
         /// <returns>Velocity of the point.</returns>
         public static Vector3 GetVelocityOfPoint(Vector3 point, Vector3 center, Vector3 linearVelocity, Vector3 angularVelocity)
         {
-            Vector3 toReturn;
-            GetVelocityOfPoint(ref point, ref center, ref linearVelocity, ref angularVelocity, out toReturn);
+            GetVelocityOfPoint(ref point, ref center, ref linearVelocity, ref angularVelocity, out Vector3 toReturn);
             return toReturn;
         }
 
@@ -1594,33 +1490,25 @@ namespace BEPUutilities
         {
             //TODO: This is a little goofy
             //Quaternion diff = differentiateQuaternion(ref q, ref localInertiaTensorInverse, ref angularMomentum);
-            Quaternion d1;
-            DifferentiateQuaternion(ref q, ref localInertiaTensorInverse, ref angularMomentum, out d1);
-            Quaternion s2;
-            Quaternion.Multiply(ref d1, dt * .5f, out s2);
+            DifferentiateQuaternion(ref q, ref localInertiaTensorInverse, ref angularMomentum, out Quaternion d1);
+            Quaternion.Multiply(ref d1, dt * .5f, out Quaternion s2);
             Quaternion.Add(ref q, ref s2, out s2);
 
-            Quaternion d2;
-            DifferentiateQuaternion(ref s2, ref localInertiaTensorInverse, ref angularMomentum, out d2);
-            Quaternion s3;
-            Quaternion.Multiply(ref d2, dt * .5f, out s3);
+            DifferentiateQuaternion(ref s2, ref localInertiaTensorInverse, ref angularMomentum, out Quaternion d2);
+            Quaternion.Multiply(ref d2, dt * .5f, out Quaternion s3);
             Quaternion.Add(ref q, ref s3, out s3);
 
-            Quaternion d3;
-            DifferentiateQuaternion(ref s3, ref localInertiaTensorInverse, ref angularMomentum, out d3);
-            Quaternion s4;
-            Quaternion.Multiply(ref d3, dt, out s4);
+            DifferentiateQuaternion(ref s3, ref localInertiaTensorInverse, ref angularMomentum, out Quaternion d3);
+            Quaternion.Multiply(ref d3, dt, out Quaternion s4);
             Quaternion.Add(ref q, ref s4, out s4);
 
-            Quaternion d4;
-            DifferentiateQuaternion(ref s4, ref localInertiaTensorInverse, ref angularMomentum, out d4);
+            DifferentiateQuaternion(ref s4, ref localInertiaTensorInverse, ref angularMomentum, out Quaternion d4);
 
             Quaternion.Multiply(ref d1, dt / 6, out d1);
             Quaternion.Multiply(ref d2, dt / 3, out d2);
             Quaternion.Multiply(ref d3, dt / 3, out d3);
             Quaternion.Multiply(ref d4, dt / 6, out d4);
-            Quaternion added;
-            Quaternion.Add(ref q, ref d1, out added);
+            Quaternion.Add(ref q, ref d1, out Quaternion added);
             Quaternion.Add(ref added, ref d2, out added);
             Quaternion.Add(ref added, ref d3, out added);
             Quaternion.Add(ref added, ref d4, out added);
@@ -1637,15 +1525,11 @@ namespace BEPUutilities
         ///  <param name="orientationChange">Change in quaternion.</param>
         public static void DifferentiateQuaternion(ref Quaternion orientation, ref Matrix3x3 localInertiaTensorInverse, ref Vector3 angularMomentum, out Quaternion orientationChange)
         {
-            Quaternion normalizedOrientation;
-            Quaternion.Normalize(ref orientation, out normalizedOrientation);
-            Matrix3x3 tempRotMat;
-            Matrix3x3.CreateFromQuaternion(ref normalizedOrientation, out tempRotMat);
-            Matrix3x3 tempInertiaTensorInverse;
-            Matrix3x3.MultiplyTransposed(ref tempRotMat, ref localInertiaTensorInverse, out tempInertiaTensorInverse);
+            Quaternion.Normalize(ref orientation, out Quaternion normalizedOrientation);
+            Matrix3x3.CreateFromQuaternion(ref normalizedOrientation, out Matrix3x3 tempRotMat);
+            Matrix3x3.MultiplyTransposed(ref tempRotMat, ref localInertiaTensorInverse, out Matrix3x3 tempInertiaTensorInverse);
             Matrix3x3.Multiply(ref tempInertiaTensorInverse, ref tempRotMat, out tempInertiaTensorInverse);
-            Vector3 halfspin;
-            Matrix3x3.Transform(ref angularMomentum, ref tempInertiaTensorInverse, out halfspin);
+            Matrix3x3.Transform(ref angularMomentum, ref tempInertiaTensorInverse, out Vector3 halfspin);
             Vector3.Multiply(ref halfspin, .5f, out halfspin);
             var halfspinQuaternion = new Quaternion(halfspin.X, halfspin.Y, halfspin.Z, 0);
             Quaternion.Multiply(ref halfspinQuaternion, ref normalizedOrientation, out orientationChange);
@@ -1664,11 +1548,9 @@ namespace BEPUutilities
         /// <param name="cWeight">Weight of the third vertex.</param>
         public static void GetBarycentricCoordinates(ref Vector3 p, ref Vector3 a, ref Vector3 b, ref Vector3 c, out float aWeight, out float bWeight, out float cWeight)
         {
-            Vector3 ab, ac;
-            Vector3.Subtract(ref b, ref a, out ab);
-            Vector3.Subtract(ref c, ref a, out ac);
-            Vector3 triangleNormal;
-            Vector3.Cross(ref ab, ref ac, out triangleNormal);
+            Vector3.Subtract(ref b, ref a, out Vector3 ab);
+            Vector3.Subtract(ref c, ref a, out Vector3 ac);
+            Vector3.Cross(ref ab, ref ac, out Vector3 triangleNormal);
             float x = triangleNormal.X < 0 ? -triangleNormal.X : triangleNormal.X;
             float y = triangleNormal.Y < 0 ? -triangleNormal.Y : triangleNormal.Y;
             float z = triangleNormal.Z < 0 ? -triangleNormal.Z : triangleNormal.Z;
@@ -1712,10 +1594,9 @@ namespace BEPUutilities
                 //Sometimes, though, it could be that it's more of a line.
                 //If it's a little inefficient, don't worry- this is a corner case anyway.
 
-                float distance1, distance2, distance3;
-                Vector3.DistanceSquared(ref p, ref a, out distance1);
-                Vector3.DistanceSquared(ref p, ref b, out distance2);
-                Vector3.DistanceSquared(ref p, ref c, out distance3);
+                Vector3.DistanceSquared(ref p, ref a, out float distance1);
+                Vector3.DistanceSquared(ref p, ref b, out float distance2);
+                Vector3.DistanceSquared(ref p, ref c, out float distance3);
                 if (distance1 < distance2 && distance1 < distance3)
                 {
                     aWeight = 1;
@@ -1735,13 +1616,7 @@ namespace BEPUutilities
                     cWeight = 1;
                 }
             }
-
-
         }
-
-
-
-
         #endregion
     }
 }

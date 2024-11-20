@@ -34,21 +34,17 @@ namespace BEPUutilities
         /// Attempts to enters the critical section.  A thread cannot attempt to enter the spinlock if it already owns the spinlock.
         /// </summary>
         public bool TryEnter()
-        {
-            return Interlocked.CompareExchange(ref owner, 0, -1) == -1;
-        }
+            => Interlocked.CompareExchange(ref owner, 0, -1) == -1;
 
         /// <summary>
         /// Exits the critical section.  This can only be safely called from the same
         /// thread of execution after a corresponding Enter.
         /// </summary>
         public void Exit()
-        {
             //To be safe, technically should check the identity of the exiter.
             //But since this is a very low-level, restricted access class,
             //assume that enter has to succeed before exit is tried.
-            owner = -1;
-        }
+            => owner = -1;
 
         internal void WaitBriefly(ref int attempt)
         {

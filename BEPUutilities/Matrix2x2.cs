@@ -1,4 +1,4 @@
-﻿ 
+﻿
 
 
 
@@ -7,51 +7,40 @@ namespace BEPUutilities
     /// <summary>
     /// 2 row, 2 column matrix.
     /// </summary>
-    public struct Matrix2x2
+    /// <remarks>
+    /// Constructs a new 2 row, 2 column matrix.
+    /// </remarks>
+    /// <param name="m11">Value at row 1, column 1 of the matrix.</param>
+    /// <param name="m12">Value at row 1, column 2 of the matrix.</param>
+    /// <param name="m21">Value at row 2, column 1 of the matrix.</param>
+    /// <param name="m22">Value at row 2, column 2 of the matrix.</param>
+    public struct Matrix2x2(float m11, float m12, float m21, float m22)
     {
         /// <summary>
         /// Value at row 1, column 1 of the matrix.
         /// </summary>
-        public float M11;
+        public float M11 = m11;
 
         /// <summary>
         /// Value at row 1, column 2 of the matrix.
         /// </summary>
-        public float M12;
+        public float M12 = m12;
 
         /// <summary>
         /// Value at row 2, column 1 of the matrix.
         /// </summary>
-        public float M21;
+        public float M21 = m21;
 
         /// <summary>
         /// Value at row 2, column 2 of the matrix.
         /// </summary>
-        public float M22;
-
-
-        /// <summary>
-        /// Constructs a new 2 row, 2 column matrix.
-        /// </summary>
-        /// <param name="m11">Value at row 1, column 1 of the matrix.</param>
-        /// <param name="m12">Value at row 1, column 2 of the matrix.</param>
-        /// <param name="m21">Value at row 2, column 1 of the matrix.</param>
-        /// <param name="m22">Value at row 2, column 2 of the matrix.</param>
-        public Matrix2x2(float m11, float m12, float m21, float m22)
-        {
-            M11 = m11;
-            M12 = m12;
-            M21 = m21;
-            M22 = m22;
-        }
+        public float M22 = m22;
 
         /// <summary>
         /// Gets the 2x2 identity matrix.
         /// </summary>
         public static Matrix2x2 Identity
-        {
-            get { return new Matrix2x2(1, 0, 0, 1); }
-        }
+            => new(1f, 0f, 0f, 1f);
 
         /// <summary>
         /// Adds the two matrices together on a per-element basis.
@@ -61,17 +50,11 @@ namespace BEPUutilities
         /// <param name="result">Sum of the two matrices.</param>
         public static void Add(ref Matrix2x2 a, ref Matrix2x2 b, out Matrix2x2 result)
         {
-            float m11 = a.M11 + b.M11;
-            float m12 = a.M12 + b.M12;
+            result.M11 = a.M11 + b.M11;
+            result.M12 = a.M12 + b.M12;
 
-            float m21 = a.M21 + b.M21;
-            float m22 = a.M22 + b.M22;
-
-            result.M11 = m11;
-            result.M12 = m12;
-
-            result.M21 = m21;
-            result.M22 = m22;
+            result.M21 = a.M21 + b.M21;
+            result.M22 = a.M22 + b.M22;
         }
 
         /// <summary>
@@ -82,17 +65,11 @@ namespace BEPUutilities
         /// <param name="result">Sum of the two matrices.</param>
         public static void Add(ref Matrix a, ref Matrix2x2 b, out Matrix2x2 result)
         {
-            float m11 = a.M11 + b.M11;
-            float m12 = a.M12 + b.M12;
+            result.M11 = a.M11 + b.M11;
+            result.M12 = a.M12 + b.M12;
 
-            float m21 = a.M21 + b.M21;
-            float m22 = a.M22 + b.M22;
-
-            result.M11 = m11;
-            result.M12 = m12;
-
-            result.M21 = m21;
-            result.M22 = m22;
+            result.M21 = a.M21 + b.M21;
+            result.M22 = a.M22 + b.M22;
         }
 
         /// <summary>
@@ -103,17 +80,12 @@ namespace BEPUutilities
         /// <param name="result">Sum of the two matrices.</param>
         public static void Add(ref Matrix2x2 a, ref Matrix b, out Matrix2x2 result)
         {
-            float m11 = a.M11 + b.M11;
-            float m12 = a.M12 + b.M12;
 
-            float m21 = a.M21 + b.M21;
-            float m22 = a.M22 + b.M22;
+            result.M11 = a.M11 + b.M11;
+            result.M12 = a.M12 + b.M12;
 
-            result.M11 = m11;
-            result.M12 = m12;
-
-            result.M21 = m21;
-            result.M22 = m22;
+            result.M21 = a.M21 + b.M21;
+            result.M22 = a.M22 + b.M22;
         }
 
         /// <summary>
@@ -124,17 +96,11 @@ namespace BEPUutilities
         /// <param name="result">Sum of the two matrices.</param>
         public static void Add(ref Matrix a, ref Matrix b, out Matrix2x2 result)
         {
-            float m11 = a.M11 + b.M11;
-            float m12 = a.M12 + b.M12;
+            result.M11 = a.M11 + b.M11;
+            result.M12 = a.M12 + b.M12;
 
-            float m21 = a.M21 + b.M21;
-            float m22 = a.M22 + b.M22;
-
-            result.M11 = m11;
-            result.M12 = m12;
-
-            result.M21 = m21;
-            result.M22 = m22;
+            result.M21 = a.M21 + b.M21;
+            result.M22 = a.M22 + b.M22;
         }
 
         /// <summary>
@@ -147,8 +113,8 @@ namespace BEPUutilities
             matrix.M11 = scale;
             matrix.M22 = scale;
 
-            matrix.M12 = 0;
-            matrix.M21 = 0;
+            matrix.M12 = 0f;
+            matrix.M21 = 0f;
         }
 
 
@@ -159,18 +125,12 @@ namespace BEPUutilities
         /// <param name="result">Inverted matrix.</param>
         public static void Invert(ref Matrix2x2 matrix, out Matrix2x2 result)
         {
-            float determinantInverse = 1 / (matrix.M11 * matrix.M22 - matrix.M12 * matrix.M21);
-            float m11 = matrix.M22 * determinantInverse;
-            float m12 = -matrix.M12 * determinantInverse;
+            float determinantInverse = 1f / (matrix.M11 * matrix.M22 - matrix.M12 * matrix.M21);
+            result.M11 = matrix.M22 * determinantInverse;
+            result.M12 = -matrix.M12 * determinantInverse;
 
-            float m21 = -matrix.M21 * determinantInverse;
-            float m22 = matrix.M11 * determinantInverse;
-
-            result.M11 = m11;
-            result.M12 = m12;
-
-            result.M21 = m21;
-            result.M22 = m22;
+            result.M21 = -matrix.M21 * determinantInverse;
+            result.M22 = matrix.M11 * determinantInverse;
         }
 
         /// <summary>
@@ -181,17 +141,11 @@ namespace BEPUutilities
         /// <param name="result">Product of the multiplication.</param>
         public static void Multiply(ref Matrix2x2 a, ref Matrix2x2 b, out Matrix2x2 result)
         {
-            float resultM11 = a.M11 * b.M11 + a.M12 * b.M21;
-            float resultM12 = a.M11 * b.M12 + a.M12 * b.M22;
+            result.M11 = a.M11 * b.M11 + a.M12 * b.M21;
+            result.M12 = a.M11 * b.M12 + a.M12 * b.M22;
 
-            float resultM21 = a.M21 * b.M11 + a.M22 * b.M21;
-            float resultM22 = a.M21 * b.M12 + a.M22 * b.M22;
-
-            result.M11 = resultM11;
-            result.M12 = resultM12;
-
-            result.M21 = resultM21;
-            result.M22 = resultM22;
+            result.M21 = a.M21 * b.M11 + a.M22 * b.M21;
+            result.M22 = a.M21 * b.M12 + a.M22 * b.M22;
         }
 
         /// <summary>
@@ -202,17 +156,11 @@ namespace BEPUutilities
         /// <param name="result">Product of the multiplication.</param>
         public static void Multiply(ref Matrix2x2 a, ref Matrix b, out Matrix2x2 result)
         {
-            float resultM11 = a.M11 * b.M11 + a.M12 * b.M21;
-            float resultM12 = a.M11 * b.M12 + a.M12 * b.M22;
+            result.M11 = a.M11 * b.M11 + a.M12 * b.M21;
+            result.M12 = a.M11 * b.M12 + a.M12 * b.M22;
 
-            float resultM21 = a.M21 * b.M11 + a.M22 * b.M21;
-            float resultM22 = a.M21 * b.M12 + a.M22 * b.M22;
-
-            result.M11 = resultM11;
-            result.M12 = resultM12;
-
-            result.M21 = resultM21;
-            result.M22 = resultM22;
+            result.M21 = a.M21 * b.M11 + a.M22 * b.M21;
+            result.M22 = a.M21 * b.M12 + a.M22 * b.M22;
         }
 
         /// <summary>
@@ -223,17 +171,12 @@ namespace BEPUutilities
         /// <param name="result">Product of the multiplication.</param>
         public static void Multiply(ref Matrix a, ref Matrix2x2 b, out Matrix2x2 result)
         {
-            float resultM11 = a.M11 * b.M11 + a.M12 * b.M21;
-            float resultM12 = a.M11 * b.M12 + a.M12 * b.M22;
 
-            float resultM21 = a.M21 * b.M11 + a.M22 * b.M21;
-            float resultM22 = a.M21 * b.M12 + a.M22 * b.M22;
+            result.M11 = a.M11 * b.M11 + a.M12 * b.M21;
+            result.M12 = a.M11 * b.M12 + a.M12 * b.M22;
 
-            result.M11 = resultM11;
-            result.M12 = resultM12;
-
-            result.M21 = resultM21;
-            result.M22 = resultM22;
+            result.M21 = a.M21 * b.M11 + a.M22 * b.M21;
+            result.M22 = a.M21 * b.M12 + a.M22 * b.M22;
         }
 
         /// <summary>
@@ -258,18 +201,11 @@ namespace BEPUutilities
         /// <param name="result">Negated matrix.</param>
         public static void Negate(ref Matrix2x2 matrix, out Matrix2x2 result)
         {
-            float m11 = -matrix.M11;
-            float m12 = -matrix.M12;
+            result.M11 = -matrix.M11;
+            result.M12 = -matrix.M12;
 
-            float m21 = -matrix.M21;
-            float m22 = -matrix.M22;
-
-
-            result.M11 = m11;
-            result.M12 = m12;
-
-            result.M21 = m21;
-            result.M22 = m22;
+            result.M21 = -matrix.M21;
+            result.M22 = -matrix.M22;
         }
 
         /// <summary>
@@ -280,17 +216,11 @@ namespace BEPUutilities
         /// <param name="result">Difference of the two matrices.</param>
         public static void Subtract(ref Matrix2x2 a, ref Matrix2x2 b, out Matrix2x2 result)
         {
-            float m11 = a.M11 - b.M11;
-            float m12 = a.M12 - b.M12;
+            result.M11 = a.M11 - b.M11;
+            result.M12 = a.M12 - b.M12;
 
-            float m21 = a.M21 - b.M21;
-            float m22 = a.M22 - b.M22;
-
-            result.M11 = m11;
-            result.M12 = m12;
-
-            result.M21 = m21;
-            result.M22 = m22;
+            result.M21 = a.M21 - b.M21;
+            result.M22 = a.M22 - b.M22;
         }
 
         /// <summary>
@@ -300,15 +230,7 @@ namespace BEPUutilities
         /// <param name="matrix">Matrix to use as the transformation.</param>
         /// <param name="result">Product of the transformation.</param>
         public static void Transform(ref Vector2 v, ref Matrix2x2 matrix, out Vector2 result)
-        {
-            float vX = v.X;
-            float vY = v.Y;
-#if !WINDOWS
-            result = new Vector2();
-#endif
-            result.X = vX * matrix.M11 + vY * matrix.M21;
-            result.Y = vX * matrix.M12 + vY * matrix.M22;
-        }
+            => result = new( v.X * matrix.M11 + v.Y * matrix.M21, v.Y * matrix.M12 + v.Y * matrix.M22);
 
         /// <summary>
         /// Computes the transposed matrix of a matrix.
@@ -325,34 +247,26 @@ namespace BEPUutilities
             result.M21 = m21;
             result.M22 = matrix.M22;
         }
-        
+
         /// <summary>
         /// Transposes the matrix in-place.
         /// </summary>
         public void Transpose()
-        {
-            float m21 = M21;
-            M21 = M12;
-            M12 = m21;
-        }      
+            => (M12, M21) = (M21, M12);
 
         /// <summary>
         /// Creates a string representation of the matrix.
         /// </summary>
         /// <returns>A string representation of the matrix.</returns>
-        public override string ToString()
-        {
-            return "{" + M11 + ", " + M12 + "} " +
+        public override readonly string ToString()
+            => "{" + M11 + ", " + M12 + "} " +
                    "{" + M21 + ", " + M22 + "}";
-        }
 
         /// <summary>
         /// Calculates the determinant of the matrix.
         /// </summary>
         /// <returns>The matrix's determinant.</returns>
-        public float Determinant()
-        {
-            return M11 * M22 - M12 * M21;
-        }
+        public readonly float Determinant()
+            => M11 * M22 - M12 * M21;
     }
 }
