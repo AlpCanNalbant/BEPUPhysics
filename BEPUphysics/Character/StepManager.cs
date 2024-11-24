@@ -13,10 +13,18 @@ namespace BEPUphysics.Character
     /// <summary>
     /// Checks to see if a character is capable of stepping up or down onto a new support object.
     /// </summary>
-    public class StepManager
+    /// <remarks>
+    /// Constructs a new step manager for a character.
+    /// </remarks>
+    /// <param name="characterBody">The character's body.</param>
+    /// <param name="contactCategorizer">Contact categorizer used by the character.</param>
+    /// <param name="supportFinder">Support finder used by the character.</param>
+    /// <param name="queryManager">Query provider to use in checking for obstructions.</param>
+    /// <param name="horizontalMotionConstraint">Horizontal motion constraint used by the character. Source of 3d movement direction.</param>
+    public class StepManager(Cylinder characterBody, CharacterContactCategorizer contactCategorizer, SupportFinder supportFinder, QueryManager queryManager, HorizontalMotionConstraint horizontalMotionConstraint)
     {
-        private Cylinder characterBody;
-        ConvexCollidable<CylinderShape> currentQueryObject;
+        private readonly Cylinder characterBody = characterBody;
+        readonly ConvexCollidable<CylinderShape> currentQueryObject = new(characterBody.CollisionInformation.Shape);
 
         float maximumStepHeight = 1f;
         /// <summary>
@@ -24,10 +32,7 @@ namespace BEPUphysics.Character
         /// </summary>
         public float MaximumStepHeight
         {
-            get
-            {
-                return maximumStepHeight;
-            }
+            get => maximumStepHeight;
             set
             {
                 if (maximumStepHeight < 0)
@@ -43,10 +48,7 @@ namespace BEPUphysics.Character
         /// </summary>
         public float MinimumDownStepHeight
         {
-            get
-            {
-                return minimumDownStepHeight;
-            }
+            get => minimumDownStepHeight;
             set
             {
                 if (minimumDownStepHeight < 0)
@@ -54,34 +56,12 @@ namespace BEPUphysics.Character
                 minimumDownStepHeight = value;
             }
         }
-        float minimumUpStepHeight;
+        readonly float minimumUpStepHeight = CollisionDetectionSettings.AllowedPenetration * 1.1f;
 
-        private SupportFinder SupportFinder { get; set; }
-        private QueryManager QueryManager { get; set; }
-        private CharacterContactCategorizer ContactCategorizer { get; set; }
-        private HorizontalMotionConstraint HorizontalMotionConstraint { get; set; }
-
-        /// <summary>
-        /// Constructs a new step manager for a character.
-        /// </summary>
-        /// <param name="characterBody">The character's body.</param>
-        /// <param name="contactCategorizer">Contact categorizer used by the character.</param>
-        /// <param name="supportFinder">Support finder used by the character.</param>
-        /// <param name="queryManager">Query provider to use in checking for obstructions.</param>
-        /// <param name="horizontalMotionConstraint">Horizontal motion constraint used by the character. Source of 3d movement direction.</param>
-        public StepManager(Cylinder characterBody, CharacterContactCategorizer contactCategorizer, SupportFinder supportFinder, QueryManager queryManager, HorizontalMotionConstraint horizontalMotionConstraint)
-        {
-            this.characterBody = characterBody;
-            currentQueryObject = new ConvexCollidable<CylinderShape>(characterBody.CollisionInformation.Shape);
-            ContactCategorizer = contactCategorizer;
-            SupportFinder = supportFinder;
-            QueryManager = queryManager;
-            HorizontalMotionConstraint = horizontalMotionConstraint;
-            //The minimum step height is just barely above where the character would generally find the ground.
-            //This helps avoid excess tests.
-            minimumUpStepHeight = CollisionDetectionSettings.AllowedPenetration * 1.1f;// Math.Max(0, -.01f + character.Body.CollisionInformation.Shape.CollisionMargin * (1 - character.SupportFinder.sinMaximumSlope));
-
-        }
+        private SupportFinder SupportFinder { get; set; } = supportFinder;
+        private QueryManager QueryManager { get; set; } = queryManager;
+        private CharacterContactCategorizer ContactCategorizer { get; set; } = contactCategorizer;
+        private HorizontalMotionConstraint HorizontalMotionConstraint { get; set; } = horizontalMotionConstraint;
 
         bool IsDownStepObstructed(ref QuickList<CharacterContact> sideContacts)
         {
@@ -93,10 +73,10 @@ namespace BEPUphysics.Character
             }
             return false;
         }
-        
 
 
-        RawList<ContactData> stepContacts = new RawList<ContactData>();
+
+        readonly RawList<ContactData> stepContacts = [];
 
         /// <summary>
         /// Determines if a down step is possible, and if so, computes the location to which the character should teleport.
@@ -131,8 +111,7 @@ namespace BEPUphysics.Character
             ray.Direction = down;
 
             //Intersect the ray against the plane defined by the support hit.
-            Vector3 intersection;
-            Plane plane = new Plane(normal, Vector3.Dot(SupportFinder.SupportRayData.Value.HitData.Location, normal));
+            Plane plane = new(normal, Vector3.Dot(SupportFinder.SupportRayData.Value.HitData.Location, normal));
             Vector3 candidatePosition;
 
             //Define the interval bounds to be used later.
@@ -155,8 +134,7 @@ namespace BEPUphysics.Character
             {
 
                 //This guess may either win immediately, or at least give us a better idea of where to search.
-                float hitT;
-                if (Toolbox.GetRayPlaneIntersection(ref ray, ref plane, out hitT, out intersection))
+                if (Toolbox.GetRayPlaneIntersection(ref ray, ref plane, out float hitT, out Vector3 intersection))
                 {
                     currentOffset = hitT + CollisionDetectionSettings.AllowedPenetration * 0.5f;
                     candidatePosition = characterBody.Position + down * currentOffset;
@@ -266,13 +244,11 @@ namespace BEPUphysics.Character
             //Note the use of traction contacts. We only want to step down if there are traction contacts to support us.
             if (tractionContacts.Count > 0)
             {
-                CharacterContactPositionState supportState;
-                CharacterContact supportContact;
-                QueryManager.AnalyzeSupportState(ref tractionContacts, ref supportContacts, out supportState, out supportContact);
+                QueryManager.AnalyzeSupportState(ref tractionContacts, ref supportContacts, out CharacterContactPositionState supportState, out CharacterContact supportContact);
                 if (supportState == CharacterContactPositionState.Accepted)
                 {
                     //We're done! The guess found a good spot to stand on.
-                    //The final state doesn't need to actually create contacts, so shove it up 
+                    //The final state doesn't need to actually create contacts, so shove it up
                     //just barely to the surface.
                     hintOffset = -Vector3.Dot(supportContact.Contact.Normal, down) * supportContact.Contact.PenetrationDepth;
                     return CharacterContactPositionState.Accepted;
@@ -326,7 +302,7 @@ namespace BEPUphysics.Character
             return false;
         }
 
-        float upStepMargin = .1f;  //There's a little extra space above the maximum step height to start the obstruction and downcast test rays.  Helps when a step is very close to the max step height.
+        readonly float upStepMargin = .1f;  //There's a little extra space above the maximum step height to start the obstruction and downcast test rays.  Helps when a step is very close to the max step height.
         void FindUpStepCandidates(RawList<ContactData> outputStepCandidates, ref Vector3 down)
         {
             Vector3 movementDirection = HorizontalMotionConstraint.MovementDirection3d;
@@ -335,8 +311,7 @@ namespace BEPUphysics.Character
                 //Check to see if the contact is sufficiently aligned with the movement direction to be considered for stepping.
                 //TODO: This could behave a bit odd when encountering steps or slopes near the base of rounded collision margin.
                 var contact = c.Contact;
-                float dot;
-                Vector3.Dot(ref contact.Normal, ref movementDirection, out dot);
+                Vector3.Dot(ref contact.Normal, ref movementDirection, out float dot);
                 if (dot > 0)
                 {
                     //It is! But is it low enough?
@@ -371,10 +346,8 @@ namespace BEPUphysics.Character
             //The detection process allows a bit of slop.
             //Correct it by removing any component of the normal along the local up vector.
             Vector3 normal = contact.Normal;
-            float dot;
-            Vector3.Dot(ref normal, ref down, out dot);
-            Vector3 error;
-            Vector3.Multiply(ref down, dot, out error);
+            Vector3.Dot(ref normal, ref down, out float dot);
+            Vector3.Multiply(ref down, dot, out Vector3 error);
             Vector3.Subtract(ref normal, ref error, out normal);
             normal.Normalize();
 
@@ -404,14 +377,12 @@ namespace BEPUphysics.Character
 
             //The down-cast ray origin has been verified by the previous ray cast.
             //Let's look for a support!
-            Vector3 horizontalOffset;
-            Vector3.Multiply(ref normal, length, out horizontalOffset);
+            Vector3.Multiply(ref normal, length, out Vector3 horizontalOffset);
             Vector3.Add(ref ray.Position, ref horizontalOffset, out ray.Position);
             ray.Direction = down;
 
             //Find the earliest hit, if any.
-            RayHit earliestHit;
-            if (!QueryManager.RayCast(ray, downRayLength, out earliestHit) || //Can't do anything if it didn't hit.
+            if (!QueryManager.RayCast(ray, downRayLength, out RayHit earliestHit) || //Can't do anything if it didn't hit.
                 earliestHit.T <= 0 || //Can't do anything if the hit was invalid.
                 earliestHit.T - downRayLength > -minimumUpStepHeight || //Don't bother doing anything if the step is too small.
                 earliestHit.T - downRayLength < -maximumStepHeight - upStepMargin) //Can't do anything if the step is too tall.
@@ -422,8 +393,7 @@ namespace BEPUphysics.Character
             }
 
             //Ensure the candidate surface supports traction.
-            Vector3 supportNormal;
-            Vector3.Normalize(ref earliestHit.Normal, out supportNormal);
+            Vector3.Normalize(ref earliestHit.Normal, out Vector3 supportNormal);
             //Calibrate the normal to face in the same direction as the down vector for consistency.
             Vector3.Dot(ref supportNormal, ref down, out dot);
             if (dot < 0)
@@ -469,8 +439,7 @@ namespace BEPUphysics.Character
             //The horizontal offset of the queries ensures that a tractionable part of the character will be put onto the new support.
             Vector3.Multiply(ref normal, horizontalOffsetAmount, out horizontalOffset);
             Vector3.Add(ref transform.Position, ref horizontalOffset, out transform.Position);
-            Vector3 verticalOffset;
-            Vector3.Multiply(ref down, -downRayLength, out verticalOffset);
+            Vector3.Multiply(ref down, -downRayLength, out Vector3 verticalOffset);
             Vector3.Add(ref transform.Position, ref verticalOffset, out transform.Position);
 
             //We know that the closest point to the plane will be the extreme point in the plane's direction.
@@ -480,9 +449,8 @@ namespace BEPUphysics.Character
             downRay.Direction = down;
 
             //Intersect the ray against the plane defined by the support hit.
-            Vector3 intersection;
             Vector3.Dot(ref earliestHit.Location, ref supportNormal, out dot);
-            Plane plane = new Plane(supportNormal, dot);
+            Plane plane = new(supportNormal, dot);
             Vector3 candidatePosition;
 
             //Define the interval bounds to be used later.
@@ -501,8 +469,7 @@ namespace BEPUphysics.Character
             try
             {
                 //This guess may either win immediately, or at least give us a better idea of where to search.
-                float hitT;
-                if (Toolbox.GetRayPlaneIntersection(ref downRay, ref plane, out hitT, out intersection))
+                if (Toolbox.GetRayPlaneIntersection(ref downRay, ref plane, out float hitT, out Vector3 intersection))
                 {
                     hitT = -downRayLength + hitT + CollisionDetectionSettings.AllowedPenetration;
                     if (hitT < highestBound)
@@ -647,8 +614,7 @@ namespace BEPUphysics.Character
             {
                 //The head is obstructed.  This will define a maximum bound.
                 //Find the deepest contact on the head and use it to provide a hint.
-                float dot;
-                Vector3.Dot(ref down, ref headContacts.Elements[0].Contact.Normal, out dot);
+                Vector3.Dot(ref down, ref headContacts.Elements[0].Contact.Normal, out float dot);
                 hintOffset = -dot * headContacts.Elements[0].Contact.PenetrationDepth;
                 for (int i = 1; i < headContacts.Count; i++)
                 {
@@ -664,9 +630,7 @@ namespace BEPUphysics.Character
             bool obstructed = IsUpStepObstructedBySideContacts(ref sideNormal, ref sideContacts);
             if (!obstructed && supportContacts.Count > 0)
             {
-                CharacterContactPositionState supportState;
-                CharacterContact supportContact;
-                QueryManager.AnalyzeSupportState(ref tractionContacts, ref supportContacts, out supportState, out supportContact);
+                QueryManager.AnalyzeSupportState(ref tractionContacts, ref supportContacts, out CharacterContactPositionState supportState, out CharacterContact supportContact);
                 if (supportState == CharacterContactPositionState.Accepted)
                 {
                     if (tractionContacts.Count > 0)
@@ -708,16 +672,14 @@ namespace BEPUphysics.Character
                         if (!QueryManager.RayCastHitAnything(obstructionTestRay, 1))
                         {
                             //Okay! it's safe to cast down, then.
-                            RayHit hit;
-                            if (QueryManager.RayCast(downRay, characterBody.Height, out hit))
+                            if (QueryManager.RayCast(downRay, characterBody.Height, out RayHit hit))
                             {
                                 //Got a hit!
                                 if (characterBody.Height - maximumStepHeight < hit.T)
                                 {
-                                    //It's in range!                   
-                                    float dot;
+                                    //It's in range!
                                     hit.Normal.Normalize();
-                                    Vector3.Dot(ref hit.Normal, ref down, out dot);
+                                    Vector3.Dot(ref hit.Normal, ref down, out float dot);
                                     if (Math.Abs(dot) > ContactCategorizer.TractionThreshold)
                                     {
                                         //Slope is shallow enough to stand on!
@@ -786,8 +748,7 @@ namespace BEPUphysics.Character
             //For contacts with normals aligned with the side normal that triggered the step,
             //only marginal (allowed penetration) obstruction is permitted.
             //Consider the side normal to define an implicit plane.
-            float dot;
-            Vector3.Dot(ref contact.Normal, ref sideNormal, out dot);
+            Vector3.Dot(ref contact.Normal, ref sideNormal, out float dot);
             if (dot * contact.PenetrationDepth > CollisionDetectionSettings.AllowedPenetration)
             {
                 //It's too deep! Can't step.

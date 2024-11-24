@@ -17,17 +17,17 @@ namespace BEPUutilities
         /// <summary>
         /// Large tolerance value. Defaults to 1e-5f.
         /// </summary>
-        public const float BigEpsilon = 1E-5f;
+        public const  float BigEpsilon = 1E-5f;
 
         /// <summary>
         /// Tolerance value. Defaults to 1e-7f.
         /// </summary>
-        public const float Epsilon = 1E-7f;
+        public const  float Epsilon = 1E-7f;
 
         /// <summary>
         /// Represents an invalid Vector3.
         /// </summary>
-        public static readonly Vector3 NoVector = new(-float.MaxValue, -float.MaxValue, -float.MaxValue);
+        public static readonly Vector3 NoVector = new (-float.MaxValue, -float.MaxValue, -float.MaxValue);
 
         /// <summary>
         /// Reference for a vector with dimensions (0,0,1).
@@ -67,7 +67,7 @@ namespace BEPUutilities
         /// <summary>
         /// Matrix containing zeroes for every element.
         /// </summary>
-        public static Matrix ZeroMatrix = new(0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f);
+        public static Matrix ZeroMatrix = new (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
         /// <summary>
         /// Reference for a vector with dimensions (0,0,0).
@@ -131,6 +131,7 @@ namespace BEPUutilities
             float v = (ABdotAB * ACdotAP - ABdotAC * ABdotAP) * denom;
 
             return (u >= -Toolbox.BigEpsilon) && (v >= -Toolbox.BigEpsilon) && (u + v <= 1 + Toolbox.BigEpsilon);
+
         }
 
         /// <summary>
@@ -202,6 +203,7 @@ namespace BEPUutilities
             float v = (ABdotAB * ACdotAP - ABdotAC * ABdotAP) * denom;
 
             return (u >= -Toolbox.BigEpsilon) && (v >= -Toolbox.BigEpsilon) && (u + v <= 1 + Toolbox.BigEpsilon);
+
         }
 
         /// <summary>
@@ -219,7 +221,7 @@ namespace BEPUutilities
             Plane p;
             p.Normal = Vector3.Cross(e - d, f - d);
             p.D = Vector3.Dot(p.Normal, d);
-            return GetSegmentPlaneIntersection(a, b, p, out _, out q);
+            return GetSegmentPlaneIntersection(a, b, p, out float t, out q);
         }
 
         /// <summary>
@@ -687,7 +689,7 @@ namespace BEPUutilities
                 }
                 else
                 {
-                    t = t / denom;
+                    t /= denom;
                     subsimplex.Add(a);
                     subsimplex.Add(b);
                     Vector3.Multiply(ref ab, t, out Vector3 tab);
@@ -1616,7 +1618,13 @@ namespace BEPUutilities
                     cWeight = 1;
                 }
             }
+
+
         }
+
+
+
+
         #endregion
     }
 }

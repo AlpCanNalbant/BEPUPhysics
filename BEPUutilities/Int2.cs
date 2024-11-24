@@ -20,7 +20,9 @@ namespace BEPUutilities
             => lhs.X == rhs.X && lhs.Y == rhs.Y;
 
         public static bool operator !=(Int2 lhs, Int2 rhs)
-            => lhs.X != rhs.X || lhs.Y != rhs.Y;
+        {
+            return lhs.X != rhs.X || lhs.Y != rhs.Y;
+        }
 
         public override readonly int GetHashCode()
             => (X * 533000401) ^ (Y * 920419813);

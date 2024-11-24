@@ -13,9 +13,7 @@ namespace BEPUphysics.BroadPhaseEntries.MobileCollidables
 
         protected ConvexCollidable(ConvexShape shape)
             : base(shape)
-        {
-            Events = new ContactEventManager<EntityCollidable>();
-        }
+            => Events = new ContactEventManager<EntityCollidable>();
 
         ///<summary>
         /// Gets the shape of the collidable.

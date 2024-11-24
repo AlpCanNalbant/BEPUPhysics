@@ -9,12 +9,10 @@ namespace BEPUphysics.Paths
     /// <typeparam name="TValue">Type of values in the curve.</typeparam>
     public class CurveControlPointList<TValue> : IEnumerable<CurveControlPoint<TValue>>
     {
-        internal List<CurveControlPoint<TValue>> list = new List<CurveControlPoint<TValue>>();
+        internal List<CurveControlPoint<TValue>> list = [];
 
         internal CurveControlPointList(Curve<TValue> curve)
-        {
-            Curve = curve;
-        }
+            => Curve = curve;
 
         /// <summary>
         /// Gets the control point at the given index.
@@ -22,17 +20,13 @@ namespace BEPUphysics.Paths
         /// <param name="index">Index into the list.</param>
         /// <returns>Control point at the index.</returns>
         public CurveControlPoint<TValue> this[int index]
-        {
-            get { return list[index]; }
-        }
+            => list[index];
 
         /// <summary>
         /// Gets the number of elements in the list.
         /// </summary>
         public int Count
-        {
-            get { return list.Count; }
-        }
+            => list.Count;
 
         /// <summary>
         /// Gets the curve associated with this control point list.
@@ -46,18 +40,12 @@ namespace BEPUphysics.Paths
         ///</summary>
         ///<returns>Enumerator for the list.</returns>
         public List<CurveControlPoint<TValue>>.Enumerator GetEnumerator()
-        {
-            return list.GetEnumerator();
-        }
+            => list.GetEnumerator();
         IEnumerator<CurveControlPoint<TValue>> IEnumerable<CurveControlPoint<TValue>>.GetEnumerator()
-        {
-            return list.GetEnumerator();
-        }
+            => list.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator()
-        {
-            return list.GetEnumerator();
-        }
+            => list.GetEnumerator();
 
         #endregion
 
@@ -93,9 +81,7 @@ namespace BEPUphysics.Paths
         /// </summary>
         /// <param name="controlPoint">Control point to remove.</param>
         public void Remove(CurveControlPoint<TValue> controlPoint)
-        {
-            RemoveAt(list.IndexOf(controlPoint));
-        }
+            => RemoveAt(list.IndexOf(controlPoint));
 
         /// <summary>
         /// Removes the control point from the curve.

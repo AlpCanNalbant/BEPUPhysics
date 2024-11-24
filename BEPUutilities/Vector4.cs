@@ -134,14 +134,14 @@ namespace BEPUutilities
         /// </summary>
         /// <returns>Length of the vector.</returns>
         public readonly float Length()
-            => System.MathF.Sqrt(X * X + Y * Y + Z * Z + W * W);
+            => (float)System.Math.Sqrt(X * X + Y * Y + Z * Z + W * W);
 
         /// <summary>
         /// Normalizes the vector.
         /// </summary>
         public void Normalize()
         {
-            float inverse = (1f / System.MathF.Sqrt(X * X + Y * Y + Z * Z + W * W));
+            float inverse = (float)(1 / System.Math.Sqrt(X * X + Y * Y + Z * Z + W * W));
             X *= inverse;
             Y *= inverse;
             Z *= inverse;
@@ -171,7 +171,7 @@ namespace BEPUutilities
         /// <param name="b">Second vector in the product.</param>
         /// <param name="product">Resulting dot product.</param>
         public static void Dot(ref Vector4 a, ref Vector4 b, out float product)
-            => product = a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W * b.W;
+           => product = a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W * b.W;
         /// <summary>
         /// Adds two vectors together.
         /// </summary>
@@ -179,7 +179,12 @@ namespace BEPUutilities
         /// <param name="b">Second vector to add.</param>
         /// <param name="sum">Sum of the two vectors.</param>
         public static void Add(ref Vector4 a, ref Vector4 b, out Vector4 sum)
-            => sum = new(a.X + b.X, a.Y + b.Y, a.Z + b.Z, a.W + b.W);
+        {
+            sum.X = a.X + b.X;
+            sum.Y = a.Y + b.Y;
+            sum.Z = a.Z + b.Z;
+            sum.W = a.W + b.W;
+        }
         /// <summary>
         /// Subtracts two vectors.
         /// </summary>
@@ -187,8 +192,12 @@ namespace BEPUutilities
         /// <param name="b">Vector to subtract from the first vector.</param>
         /// <param name="difference">Result of the subtraction.</param>
         public static void Subtract(ref Vector4 a, ref Vector4 b, out Vector4 difference)
-            => difference = new(a.X - b.X, a.Y - b.Y, a.Z - b.Z, a.W - b.W);
-
+        {
+            difference.X = a.X - b.X;
+            difference.Y = a.Y - b.Y;
+            difference.Z = a.Z - b.Z;
+            difference.W = a.W - b.W;
+        }
         /// <summary>
         /// Scales a vector.
         /// </summary>
@@ -196,7 +205,12 @@ namespace BEPUutilities
         /// <param name="scale">Amount to scale.</param>
         /// <param name="result">Scaled vector.</param>
         public static void Multiply(ref Vector4 v, float scale, out Vector4 result)
-            => result = new(v.X * scale, v.Y * scale, v.Z * scale, v.W * scale);
+        {
+            result.X = v.X * scale;
+            result.Y = v.Y * scale;
+            result.Z = v.Z * scale;
+            result.W = v.W * scale;
+        }
 
 
         /// <summary>
@@ -206,7 +220,12 @@ namespace BEPUutilities
         /// <param name="b">Second vector to multiply.</param>
         /// <param name="result">Result of the componentwise multiplication.</param>
         public static void Multiply(ref Vector4 a, ref Vector4 b, out Vector4 result)
-            => result = new(a.X * b.X, a.Y * b.Y, a.Z * b.Z, a.W * b.W);
+        {
+            result.X = a.X * b.X;
+            result.Y = a.Y * b.Y;
+            result.Z = a.Z * b.Z;
+            result.W = a.W * b.W;
+        }
 
 
         /// <summary>
@@ -217,8 +236,11 @@ namespace BEPUutilities
         /// <param name="result">Result of the division.</param>
         public static void Divide(ref Vector4 v, float divisor, out Vector4 result)
         {
-            float inverse = 1f / divisor;
-            result = new(v.X * inverse, v.Y * inverse, v.Z * inverse, v.W * inverse);
+            float inverse = 1 / divisor;
+            result.X = v.X * inverse;
+            result.Y = v.Y * inverse;
+            result.Z = v.Z * inverse;
+            result.W = v.W * inverse;
         }
         /// <summary>
         /// Scales a vector.
@@ -227,8 +249,14 @@ namespace BEPUutilities
         /// <param name="f">Amount to scale.</param>
         /// <returns>Scaled vector.</returns>
         public static Vector4 operator *(Vector4 v, float f)
-            => new (v.X * f, v.Y * f, v.Z * f, v.W * f);
-
+        {
+            Vector4 toReturn;
+            toReturn.X = v.X * f;
+            toReturn.Y = v.Y * f;
+            toReturn.Z = v.Z * f;
+            toReturn.W = v.W * f;
+            return toReturn;
+        }
         /// <summary>
         /// Scales a vector.
         /// </summary>
@@ -236,7 +264,15 @@ namespace BEPUutilities
         /// <param name="f">Amount to scale.</param>
         /// <returns>Scaled vector.</returns>
         public static Vector4 operator *(float f, Vector4 v)
-            => new (v.X * f, v.Y * f, v.Z * f, v.W * f);
+        {
+            Vector4 toReturn;
+            toReturn.X = v.X * f;
+            toReturn.Y = v.Y * f;
+            toReturn.Z = v.Z * f;
+            toReturn.W = v.W * f;
+            return toReturn;
+        }
+
 
         /// <summary>
         /// Multiplies two vectors on a per-component basis.
@@ -259,8 +295,13 @@ namespace BEPUutilities
         /// <returns>Result of the division.</returns>
         public static Vector4 operator /(Vector4 v, float f)
         {
-            f = 1f / f;
-            return new (v.X * f, v.Y * f, v.Z * f, v.W * f);
+            Vector4 toReturn;
+            f = 1 / f;
+            toReturn.X = v.X * f;
+            toReturn.Y = v.Y * f;
+            toReturn.Z = v.Z * f;
+            toReturn.W = v.W * f;
+            return toReturn;
         }
         /// <summary>
         /// Subtracts two vectors.
@@ -269,7 +310,14 @@ namespace BEPUutilities
         /// <param name="b">Vector to subtract from the first vector.</param>
         /// <returns>Result of the subtraction.</returns>
         public static Vector4 operator -(Vector4 a, Vector4 b)
-            => new (a.X - b.X, a.Y - b.Y, a.Z - b.Z, a.W - b.W);
+        {
+            Vector4 v;
+            v.X = a.X - b.X;
+            v.Y = a.Y - b.Y;
+            v.Z = a.Z - b.Z;
+            v.W = a.W - b.W;
+            return v;
+        }
         /// <summary>
         /// Adds two vectors together.
         /// </summary>
@@ -277,7 +325,15 @@ namespace BEPUutilities
         /// <param name="b">Second vector to add.</param>
         /// <returns>Sum of the two vectors.</returns>
         public static Vector4 operator +(Vector4 a, Vector4 b)
-            => new(a.X + b.X, a.Y + b.Y, a.Z + b.Z, a.W + b.W);
+        {
+            Vector4 v;
+            v.X = a.X + b.X;
+            v.Y = a.Y + b.Y;
+            v.Z = a.Z + b.Z;
+            v.W = a.W + b.W;
+            return v;
+        }
+
 
         /// <summary>
         /// Negates the vector.
@@ -285,8 +341,13 @@ namespace BEPUutilities
         /// <param name="v">Vector to negate.</param>
         /// <returns>Negated vector.</returns>
         public static Vector4 operator -(Vector4 v)
-            => new(-v.X, -v.Y, -v.Z, -v.W);
-
+        {
+            v.X = -v.X;
+            v.Y = -v.Y;
+            v.Z = -v.Z;
+            v.W = -v.W;
+            return v;
+        }
         /// <summary>
         /// Tests two vectors for componentwise equivalence.
         /// </summary>
@@ -367,7 +428,7 @@ namespace BEPUutilities
             float y = a.Y - b.Y;
             float z = a.Z - b.Z;
             float w = a.W - b.W;
-            distance = System.MathF.Sqrt(x * x + y * y + z * z + w * w);
+            distance = (float)System.Math.Sqrt(x * x + y * y + z * z + w * w);
         }
         /// <summary>
         /// Computes the distance between two two vectors.
@@ -385,34 +446,31 @@ namespace BEPUutilities
         /// Gets the zero vector.
         /// </summary>
         public static Vector4 Zero
-            => default;
+                => new ();
 
         /// <summary>
         /// Gets a vector pointing along the X axis.
         /// </summary>
         public static Vector4 UnitX
-            => new()
-            { X = 1f };
+            => new () { X = 1 };
 
         /// <summary>
         /// Gets a vector pointing along the Y axis.
         /// </summary>
         public static Vector4 UnitY
-             => new()
-             { Y = 1f };
+            => new () { Y = 1 };
 
         /// <summary>
         /// Gets a vector pointing along the Z axis.
         /// </summary>
         public static Vector4 UnitZ
-            => new()
-            { Z = 1f };
+            => new () { Z = 1 };
 
         /// <summary>
         /// Gets a vector pointing along the W axis.
         /// </summary>
         public static Vector4 UnitW
-            => new() { W = 1f };
+            => new () { W = 1 };
 
         /// <summary>
         /// Normalizes the given vector.
@@ -432,8 +490,11 @@ namespace BEPUutilities
         /// <param name="result">Normalized vector.</param>
         public static void Normalize(ref Vector4 v, out Vector4 result)
         {
-            float inverse = (1f / System.MathF.Sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z + v.W * v.W));
-            result = new Vector4(v.X * inverse, v.Y * inverse, v.Z * inverse, v.W * inverse);
+            float inverse = (float)(1 / System.Math.Sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z + v.W * v.W));
+            result.X = v.X * inverse;
+            result.Y = v.Y * inverse;
+            result.Z = v.Z * inverse;
+            result.W = v.W * inverse;
         }
 
         /// <summary>
@@ -442,7 +503,12 @@ namespace BEPUutilities
         /// <param name="v">Vector to negate.</param>
         /// <param name="negated">Negated vector.</param>
         public static void Negate(ref Vector4 v, out Vector4 negated)
-            => negated = new(-v.X, -v.Y, -v.Z, -v.W);
+        {
+            negated.X = -v.X;
+            negated.Y = -v.Y;
+            negated.Z = -v.Z;
+            negated.W = -v.W;
+        }
 
 
         /// <summary>
@@ -452,19 +518,19 @@ namespace BEPUutilities
         /// <param name="result">Vector with nonnegative elements.</param>
         public static void Abs(ref Vector4 v, out Vector4 result)
         {
-            if (v.X < 0f)
+            if (v.X < 0)
                 result.X = -v.X;
             else
                 result.X = v.X;
-            if (v.Y < 0f)
+            if (v.Y < 0)
                 result.Y = -v.Y;
             else
                 result.Y = v.Y;
-            if (v.Z < 0f)
+            if (v.Z < 0)
                 result.Z = -v.Z;
             else
                 result.Z = v.Z;
-            if (v.W < 0f)
+            if (v.W < 0)
                 result.W = -v.W;
             else
                 result.W = v.W;
@@ -488,7 +554,12 @@ namespace BEPUutilities
         /// <param name="b">Second input vector to compare values from.</param>
         /// <param name="min">Vector containing the lesser values of each vector.</param>
         public static void Min(ref Vector4 a, ref Vector4 b, out Vector4 min)
-            => min = new(a.X < b.X ? a.X : b.X, a.Y < b.Y ? a.Y : b.Y, a.Z < b.Z ? a.Z : b.Z, a.W < b.W ? a.W : b.W);
+        {
+            min.X = a.X < b.X ? a.X : b.X;
+            min.Y = a.Y < b.Y ? a.Y : b.Y;
+            min.Z = a.Z < b.Z ? a.Z : b.Z;
+            min.W = a.W < b.W ? a.W : b.W;
+        }
 
         /// <summary>
         /// Creates a vector from the lesser values in each vector.
@@ -510,7 +581,12 @@ namespace BEPUutilities
         /// <param name="b">Second input vector to compare values from.</param>
         /// <param name="max">Vector containing the greater values of each vector.</param>
         public static void Max(ref Vector4 a, ref Vector4 b, out Vector4 max)
-            => max = new Vector4(a.X > b.X ? a.X : b.X, a.Y > b.Y ? a.Y : b.Y, a.Z > b.Z ? a.Z : b.Z, a.W > b.W ? a.W : b.W);
+        {
+            max.X = a.X > b.X ? a.X : b.X;
+            max.Y = a.Y > b.Y ? a.Y : b.Y;
+            max.Z = a.Z > b.Z ? a.Z : b.Z;
+            max.W = a.W > b.W ? a.W : b.W;
+        }
 
         /// <summary>
         /// Creates a vector from the greater values in each vector.
@@ -545,11 +621,11 @@ namespace BEPUutilities
         /// <param name="result">Interpolated intermediate state.</param>
         public static void Lerp(ref Vector4 start, ref Vector4 end, float interpolationAmount, out Vector4 result)
         {
-            float startAmount = 1f - interpolationAmount;
-            result = new(start.X * startAmount + end.X * interpolationAmount,
-                         start.Y * startAmount + end.Y * interpolationAmount,
-                         start.Z * startAmount + end.Z * interpolationAmount,
-                         start.W * startAmount + end.W * interpolationAmount);
+            float startAmount = 1 - interpolationAmount;
+            result.X = start.X * startAmount + end.X * interpolationAmount;
+            result.Y = start.Y * startAmount + end.Y * interpolationAmount;
+            result.Z = start.Z * startAmount + end.Z * interpolationAmount;
+            result.W = start.W * startAmount + end.W * interpolationAmount;
         }
 
         /// <summary>
@@ -565,16 +641,14 @@ namespace BEPUutilities
         {
             float weightSquared = interpolationAmount * interpolationAmount;
             float weightCubed = interpolationAmount * weightSquared;
-            float value1Blend = 2f * weightCubed - 3f * weightSquared + 1f;
-            float tangent1Blend = weightCubed - 2f * weightSquared + interpolationAmount;
-            float value2Blend = -2f * weightCubed + 3f * weightSquared;
+            float value1Blend = 2 * weightCubed - 3 * weightSquared + 1;
+            float tangent1Blend = weightCubed - 2 * weightSquared + interpolationAmount;
+            float value2Blend = -2 * weightCubed + 3 * weightSquared;
             float tangent2Blend = weightCubed - weightSquared;
-            result = new(
-                value1.X * value1Blend + value2.X * value2Blend + tangent1.X * tangent1Blend + tangent2.X * tangent2Blend,
-                value1.Y * value1Blend + value2.Y * value2Blend + tangent1.Y * tangent1Blend + tangent2.Y * tangent2Blend,
-                value1.Z * value1Blend + value2.Z * value2Blend + tangent1.Z * tangent1Blend + tangent2.Z * tangent2Blend,
-                value1.W * value1Blend + value2.W * value2Blend + tangent1.W * tangent1Blend + tangent2.W * tangent2Blend
-            );
+            result.X = value1.X * value1Blend + value2.X * value2Blend + tangent1.X * tangent1Blend + tangent2.X * tangent2Blend;
+            result.Y = value1.Y * value1Blend + value2.Y * value2Blend + tangent1.Y * tangent1Blend + tangent2.Y * tangent2Blend;
+            result.Z = value1.Z * value1Blend + value2.Z * value2Blend + tangent1.Z * tangent1Blend + tangent2.Z * tangent2Blend;
+            result.W = value1.W * value1Blend + value2.W * value2Blend + tangent1.W * tangent1Blend + tangent2.W * tangent2Blend;
         }
         /// <summary>
         /// Computes an intermediate location using hermite interpolation.

@@ -114,7 +114,7 @@ namespace BEPUutilities.ResourceManagement
             {
                 for (int i = 0; i < buffer.Length; ++i)
                 {
-                    Debug.Assert(EqualityComparer<T>.Default.Equals(buffer[i], default(T)), "Buffers being returned to the pool should be clean. Every index should hold default(T).");
+                    Debug.Assert(EqualityComparer<T>.Default.Equals(buffer[i], default), "Buffers being returned to the pool should be clean. Every index should hold default(T).");
                 }
             }
 

@@ -20,7 +20,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         /// </summary>
         public float HalfWidth
         {
-            get { return halfWidth; }
+            get => halfWidth;
             set { halfWidth = value; OnShapeChanged(); }
         }
 
@@ -29,7 +29,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         /// </summary>
         public float HalfHeight
         {
-            get { return halfHeight; }
+            get => halfHeight;
             set { halfHeight = value; OnShapeChanged(); }
         }
 
@@ -38,7 +38,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         /// </summary>
         public float HalfLength
         {
-            get { return halfLength; }
+            get => halfLength;
             set { halfLength = value; OnShapeChanged(); }
         }
 
@@ -47,7 +47,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         /// </summary>
         public float Width
         {
-            get { return halfWidth * 2; }
+            get => halfWidth * 2;
             set { halfWidth = value * 0.5f; OnShapeChanged(); }
         }
 
@@ -56,7 +56,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         /// </summary>
         public float Height
         {
-            get { return halfHeight * 2; }
+            get => halfHeight * 2;
             set { halfHeight = value * 0.5f; OnShapeChanged(); }
         }
 
@@ -65,7 +65,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         /// </summary>
         public float Length
         {
-            get { return halfLength * 2; }
+            get => halfLength * 2;
             set { halfLength = value * 0.5f; OnShapeChanged(); }
         }
 
@@ -123,15 +123,15 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
             float widthSquared = width * width;
             float heightSquared = height * height;
             float lengthSquared = length * length;
-            const float inv12 = 1 / 12f;
+            const float inv12 = 1f / 12f;
 
             description.EntityShapeVolume.VolumeDistribution = new Matrix3x3();
             description.EntityShapeVolume.VolumeDistribution.M11 = (heightSquared + lengthSquared) * inv12;
             description.EntityShapeVolume.VolumeDistribution.M22 = (widthSquared + lengthSquared) * inv12;
             description.EntityShapeVolume.VolumeDistribution.M33 = (widthSquared + heightSquared) * inv12;
 
-            description.MaximumRadius = 0.5f * (float)Math.Sqrt(width * width + height * height + length * length);
-            description.MinimumRadius = 0.5f * Math.Min(width, Math.Min(height, length));
+            description.MaximumRadius = 0.5f * MathF.Sqrt(width * width + height * height + length * length);
+            description.MinimumRadius = 0.5f * MathF.Min(width, MathF.Min(height, length));
 
             description.CollisionMargin = collisionMargin;
             return description;
@@ -148,29 +148,26 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         /// <param name="boundingBox">Bounding box of the transformed shape.</param>
         public override void GetBoundingBox(ref RigidTransform shapeTransform, out BoundingBox boundingBox)
         {
-#if !WINDOWS
-            boundingBox = new BoundingBox();
-#endif
+// #if !WINDOWS
+//             boundingBox = new BoundingBox();
+// #endif
 
-            Matrix3x3 o;
-            Matrix3x3.CreateFromQuaternion(ref shapeTransform.Orientation, out o);
+            Matrix3x3.CreateFromQuaternion(ref shapeTransform.Orientation, out var o);
             //Sample the local directions from the orientation matrix, implicitly transposed.
             //Notice only three directions are used.  Due to box symmetry, 'left' is just -right.
-            var right = new Vector3(Math.Sign(o.M11) * halfWidth, Math.Sign(o.M21) * halfHeight, Math.Sign(o.M31) * halfLength);
+            var right = new Vector3(MathF.Sign(o.M11) * halfWidth, MathF.Sign(o.M21) * halfHeight, MathF.Sign(o.M31) * halfLength);
 
-            var up = new Vector3(Math.Sign(o.M12) * halfWidth, Math.Sign(o.M22) * halfHeight, Math.Sign(o.M32) * halfLength);
+            var up = new Vector3(MathF.Sign(o.M12) * halfWidth, MathF.Sign(o.M22) * halfHeight, MathF.Sign(o.M32) * halfLength);
 
-            var backward = new Vector3(Math.Sign(o.M13) * halfWidth, Math.Sign(o.M23) * halfHeight, Math.Sign(o.M33) * halfLength);
+            var backward = new Vector3(MathF.Sign(o.M13) * halfWidth, MathF.Sign(o.M23) * halfHeight, MathF.Sign(o.M33) * halfLength);
 
 
             //Rather than transforming each axis independently (and doing three times as many operations as required), just get the 3 required values directly.
-            Vector3 offset;
-            TransformLocalExtremePoints(ref right, ref up, ref backward, ref o, out offset);
+            TransformLocalExtremePoints(ref right, ref up, ref backward, ref o, out var offset);
 
             //The positive and negative vectors represent the X, Y and Z coordinates of the extreme points in world space along the world space axes.
             Vector3.Add(ref shapeTransform.Position, ref offset, out boundingBox.Max);
             Vector3.Subtract(ref shapeTransform.Position, ref offset, out boundingBox.Min);
-
         }
 
 
@@ -181,9 +178,9 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         ///<param name="extremePoint">Extreme point on the shape.</param>
         public override void GetLocalExtremePointWithoutMargin(ref Vector3 direction, out Vector3 extremePoint)
             => extremePoint =
-                new Vector3(Math.Sign((!float.IsNaN(direction.X)) ? direction.X : 0f) * (halfWidth - collisionMargin),
-                            Math.Sign((!float.IsNaN(direction.Y)) ? direction.Y : 0f) * (halfHeight - collisionMargin),
-                            Math.Sign((!float.IsNaN(direction.Z)) ? direction.Z : 0f) * (halfLength - collisionMargin));
+                new Vector3(MathF.Sign((!float.IsNaN(direction.X)) ? direction.X : 0f) * (halfWidth - collisionMargin),
+                            MathF.Sign((!float.IsNaN(direction.Y)) ? direction.Y : 0f) * (halfHeight - collisionMargin),
+                            MathF.Sign((!float.IsNaN(direction.Z)) ? direction.Z : 0f) * (halfLength - collisionMargin));
 
         /// <summary>
         /// Gets the intersection between the box and the ray.
@@ -205,9 +202,9 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
             //because a parallel ray will never actually intersect the surface. The resulting intervals are practical approximations of the 'true' infinite intervals.
             //2) To compensate for the clamp and abs, we reintroduce the sign in the numerator. Note that it has the reverse sign since it will be applied to the offset to get the T value.
             var offsetToTScale = new Vector3(
-                (localDirection.X < 0 ? 1 : -1) / Math.Max(1e-15f, Math.Abs(localDirection.X)),
-                (localDirection.Y < 0 ? 1 : -1) / Math.Max(1e-15f, Math.Abs(localDirection.Y)),
-                (localDirection.Z < 0 ? 1 : -1) / Math.Max(1e-15f, Math.Abs(localDirection.Z)));
+                (localDirection.X < 0f ? 1f : -1f) / MathF.Max(1e-15f, MathF.Abs(localDirection.X)),
+                (localDirection.Y < 0f ? 1f : -1f) / MathF.Max(1e-15f, MathF.Abs(localDirection.Y)),
+                (localDirection.Z < 0f ? 1f : -1f) / MathF.Max(1e-15f, MathF.Abs(localDirection.Z)));
 
             //Compute impact times for each pair of planes in local space.
             var halfExtent = new Vector3(HalfWidth, HalfHeight, HalfLength);
@@ -226,7 +223,7 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
             if (earliestExit > maximumLength)
                 earliestExit = maximumLength;
             //The interval of ray-box intersection goes from latestEntry to earliestExit. If earliestExit is negative, then the ray is pointing away from the box.
-            if (earliestExit < 0)
+            if (earliestExit < 0f)
             {
                 hit = default;
                 return false;
@@ -265,9 +262,9 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
                 hit = default;
                 return false;
             }
-            hit.T = latestEntry < 0 ? 0 : latestEntry;
+            hit.T = latestEntry < 0f ? 0f : latestEntry;
             //The normal should point away from the center of the box.
-            if (Vector3.Dot(hit.Normal, offset) < 0)
+            if (Vector3.Dot(hit.Normal, offset) < 0f)
             {
                 Vector3.Negate(ref hit.Normal, out hit.Normal);
             }
@@ -281,9 +278,6 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         /// </summary>
         /// <returns>EntityCollidable that uses this shape.</returns>
         public override EntityCollidable GetCollidableInstance()
-        {
-            return new ConvexCollidable<BoxShape>(this);
-        }
-
+            => new ConvexCollidable<BoxShape>(this);
     }
 }

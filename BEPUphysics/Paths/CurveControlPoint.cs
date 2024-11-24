@@ -36,7 +36,7 @@ namespace BEPUphysics.Paths
         /// </summary>
         public double Time
         {
-            get { return time; }
+            get => time;
             set
             {
                 time = value;
@@ -52,7 +52,7 @@ namespace BEPUphysics.Paths
         /// </summary>
         public TValue Value
         {
-            get { return value; }
+            get => value;
             set
             {
                 this.value = value;

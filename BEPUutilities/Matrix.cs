@@ -115,7 +115,7 @@ namespace BEPUutilities
         public Vector3 Translation
         {
             get
-                => new()
+                => new ()
                 {
                     X = M41,
                     Y = M42,
@@ -134,7 +134,18 @@ namespace BEPUutilities
         /// </summary>
         public Vector3 Backward
         {
-            readonly get => new(M31, M32, M33);
+            readonly get
+            {
+#if !WINDOWS
+                Vector3 vector = new Vector3();
+#else
+                Vector3 vector;
+#endif
+                vector.X = M31;
+                vector.Y = M32;
+                vector.Z = M33;
+                return vector;
+            }
             set
             {
                 M31 = value.X;
@@ -148,7 +159,18 @@ namespace BEPUutilities
         /// </summary>
         public Vector3 Down
         {
-            readonly get => new(-M21, -M22, -M23);
+            readonly get
+            {
+#if !WINDOWS
+                Vector3 vector = new Vector3();
+#else
+                Vector3 vector;
+#endif
+                vector.X = -M21;
+                vector.Y = -M22;
+                vector.Z = -M23;
+                return vector;
+            }
             set
             {
                 M21 = -value.X;
@@ -162,7 +184,18 @@ namespace BEPUutilities
         /// </summary>
         public Vector3 Forward
         {
-            readonly get => new(-M31, -M32, -M33);
+            readonly get
+            {
+#if !WINDOWS
+                Vector3 vector = new Vector3();
+#else
+                Vector3 vector;
+#endif
+                vector.X = -M31;
+                vector.Y = -M32;
+                vector.Z = -M33;
+                return vector;
+            }
             set
             {
                 M31 = -value.X;
@@ -176,7 +209,18 @@ namespace BEPUutilities
         /// </summary>
         public Vector3 Left
         {
-            readonly get => new(-M11, -M12, -M13);
+            readonly get
+            {
+#if !WINDOWS
+                Vector3 vector = new Vector3();
+#else
+                Vector3 vector;
+#endif
+                vector.X = -M11;
+                vector.Y = -M12;
+                vector.Z = -M13;
+                return vector;
+            }
             set
             {
                 M11 = -value.X;
@@ -190,7 +234,18 @@ namespace BEPUutilities
         /// </summary>
         public Vector3 Right
         {
-            readonly get => new(M11, M12, M13);
+            readonly get
+            {
+#if !WINDOWS
+                Vector3 vector = new Vector3();
+#else
+                Vector3 vector;
+#endif
+                vector.X = M11;
+                vector.Y = M12;
+                vector.Z = M13;
+                return vector;
+            }
             set
             {
                 M11 = value.X;
@@ -204,7 +259,18 @@ namespace BEPUutilities
         /// </summary>
         public Vector3 Up
         {
-            readonly get => new(M21, M22, M23);
+            readonly get
+            {
+#if !WINDOWS
+                Vector3 vector = new Vector3();
+#else
+                Vector3 vector;
+#endif
+                vector.X = M21;
+                vector.Y = M22;
+                vector.Z = M23;
+                return vector;
+            }
             set
             {
                 M21 = value.X;
@@ -292,27 +358,27 @@ namespace BEPUutilities
             float yz = axis.Y * axis.Z;
 
             float sinAngle = (float)Math.Sin(angle);
-            float oneMinusCosAngle = 1f - (float)Math.Cos(angle);
+            float oneMinusCosAngle = 1 - (float)Math.Cos(angle);
 
-            result.M11 = 1f + oneMinusCosAngle * (xx - 1f);
+            result.M11 = 1 + oneMinusCosAngle * (xx - 1);
             result.M21 = -axis.Z * sinAngle + oneMinusCosAngle * xy;
             result.M31 = axis.Y * sinAngle + oneMinusCosAngle * xz;
-            result.M41 = 0f;
+            result.M41 = 0;
 
             result.M12 = axis.Z * sinAngle + oneMinusCosAngle * xy;
-            result.M22 = 1f + oneMinusCosAngle * (yy - 1f);
+            result.M22 = 1 + oneMinusCosAngle * (yy - 1);
             result.M32 = -axis.X * sinAngle + oneMinusCosAngle * yz;
-            result.M42 = 0f;
+            result.M42 = 0;
 
             result.M13 = -axis.Y * sinAngle + oneMinusCosAngle * xz;
             result.M23 = axis.X * sinAngle + oneMinusCosAngle * yz;
-            result.M33 = 1f + oneMinusCosAngle * (zz - 1f);
-            result.M43 = 0f;
+            result.M33 = 1 + oneMinusCosAngle * (zz - 1);
+            result.M43 = 0;
 
-            result.M14 = 0f;
-            result.M24 = 0f;
-            result.M34 = 0f;
-            result.M44 = 1f;
+            result.M14 = 0;
+            result.M24 = 0;
+            result.M34 = 0;
+            result.M44 = 1;
         }
 
         /// <summary>
@@ -335,25 +401,25 @@ namespace BEPUutilities
             float YW = qY2 * quaternion.W;
             float ZW = qZ2 * quaternion.W;
 
-            result.M11 = 1f - YY - ZZ;
+            result.M11 = 1 - YY - ZZ;
             result.M21 = XY - ZW;
             result.M31 = XZ + YW;
-            result.M41 = 0f;
+            result.M41 = 0;
 
             result.M12 = XY + ZW;
-            result.M22 = 1f - XX - ZZ;
+            result.M22 = 1 - XX - ZZ;
             result.M32 = YZ - XW;
-            result.M42 = 0f;
+            result.M42 = 0;
 
             result.M13 = XZ - YW;
             result.M23 = YZ + XW;
-            result.M33 = 1f - XX - YY;
-            result.M43 = 0f;
+            result.M33 = 1 - XX - YY;
+            result.M43 = 0;
 
-            result.M14 = 0f;
-            result.M24 = 0f;
-            result.M34 = 0f;
-            result.M44 = 1f;
+            result.M14 = 0;
+            result.M24 = 0;
+            result.M34 = 0;
+            result.M44 = 1;
         }
 
         /// <summary>
@@ -502,12 +568,16 @@ namespace BEPUutilities
         /// <param name="matrix">Transform to apply to the vector.</param>
         /// <param name="result">Transformed vector.</param>
         public static void Transform(ref Vector4 v, ref Matrix matrix, out Vector4 result)
-            => result = new(
-                v.X * matrix.M11 + v.Y * matrix.M21 + v.Z * matrix.M31 + v.W * matrix.M41,
-                v.X * matrix.M12 + v.Y * matrix.M22 + v.Z * matrix.M32 + v.W * matrix.M42,
-                v.X * matrix.M13 + v.Y * matrix.M23 + v.Z * matrix.M33 + v.W * matrix.M43,
-                v.X * matrix.M14 + v.Y * matrix.M24 + v.Z * matrix.M34 + v.W * matrix.M44
-            );
+        {
+            float vX = v.X;
+            float vY = v.Y;
+            float vZ = v.Z;
+            float vW = v.W;
+            result.X = vX * matrix.M11 + vY * matrix.M21 + vZ * matrix.M31 + vW * matrix.M41;
+            result.Y = vX * matrix.M12 + vY * matrix.M22 + vZ * matrix.M32 + vW * matrix.M42;
+            result.Z = vX * matrix.M13 + vY * matrix.M23 + vZ * matrix.M33 + vW * matrix.M43;
+            result.W = vX * matrix.M14 + vY * matrix.M24 + vZ * matrix.M34 + vW * matrix.M44;
+        }
 
         /// <summary>
         /// Transforms a vector using a matrix.
@@ -528,11 +598,16 @@ namespace BEPUutilities
         /// <param name="matrix">Transform to tranpose and apply to the vector.</param>
         /// <param name="result">Transformed vector.</param>
         public static void TransformTranspose(ref Vector4 v, ref Matrix matrix, out Vector4 result)
-            => result = new(
-                v.X * matrix.M11 + v.Y * matrix.M12 + v.Z * matrix.M13 + v.W * matrix.M14,
-                v.X * matrix.M21 + v.Y * matrix.M22 + v.Z * matrix.M23 + v.W * matrix.M24,
-                v.X * matrix.M31 + v.Y * matrix.M32 + v.Z * matrix.M33 + v.W * matrix.M34,
-                v.X * matrix.M41 + v.Y * matrix.M42 + v.Z * matrix.M43 + v.W * matrix.M44);
+        {
+            float vX = v.X;
+            float vY = v.Y;
+            float vZ = v.Z;
+            float vW = v.W;
+            result.X = vX * matrix.M11 + vY * matrix.M12 + vZ * matrix.M13 + vW * matrix.M14;
+            result.Y = vX * matrix.M21 + vY * matrix.M22 + vZ * matrix.M23 + vW * matrix.M24;
+            result.Z = vX * matrix.M31 + vY * matrix.M32 + vZ * matrix.M33 + vW * matrix.M34;
+            result.W = vX * matrix.M41 + vY * matrix.M42 + vZ * matrix.M43 + vW * matrix.M44;
+        }
 
         /// <summary>
         /// Transforms a vector using the transpose of a matrix.
@@ -553,11 +628,12 @@ namespace BEPUutilities
         /// <param name="matrix">Transform to apply to the vector.</param>
         /// <param name="result">Transformed vector.</param>
         public static void Transform(ref Vector3 v, ref Matrix matrix, out Vector4 result)
-            => result = new(
-                v.X * matrix.M11 + v.Y * matrix.M21 + v.Z * matrix.M31 + matrix.M41,
-                v.X * matrix.M12 + v.Y * matrix.M22 + v.Z * matrix.M32 + matrix.M42,
-                v.X * matrix.M13 + v.Y * matrix.M23 + v.Z * matrix.M33 + matrix.M43,
-                v.X * matrix.M14 + v.Y * matrix.M24 + v.Z * matrix.M34 + matrix.M44);
+        {
+            result.X = v.X * matrix.M11 + v.Y * matrix.M21 + v.Z * matrix.M31 + matrix.M41;
+            result.Y = v.X * matrix.M12 + v.Y * matrix.M22 + v.Z * matrix.M32 + matrix.M42;
+            result.Z = v.X * matrix.M13 + v.Y * matrix.M23 + v.Z * matrix.M33 + matrix.M43;
+            result.W = v.X * matrix.M14 + v.Y * matrix.M24 + v.Z * matrix.M34 + matrix.M44;
+        }
 
         /// <summary>
         /// Transforms a vector using a matrix.
@@ -578,12 +654,12 @@ namespace BEPUutilities
         /// <param name="matrix">Transform to tranpose and apply to the vector.</param>
         /// <param name="result">Transformed vector.</param>
         public static void TransformTranspose(ref Vector3 v, ref Matrix matrix, out Vector4 result)
-            => result = new(
-                v.X * matrix.M11 + v.Y * matrix.M12 + v.Z * matrix.M13 + matrix.M14,
-                v.X * matrix.M21 + v.Y * matrix.M22 + v.Z * matrix.M23 + matrix.M24,
-                v.X * matrix.M31 + v.Y * matrix.M32 + v.Z * matrix.M33 + matrix.M34,
-                v.X * matrix.M41 + v.Y * matrix.M42 + v.Z * matrix.M43 + matrix.M44
-            );
+        {
+            result.X = v.X * matrix.M11 + v.Y * matrix.M12 + v.Z * matrix.M13 + matrix.M14;
+            result.Y = v.X * matrix.M21 + v.Y * matrix.M22 + v.Z * matrix.M23 + matrix.M24;
+            result.Z = v.X * matrix.M31 + v.Y * matrix.M32 + v.Z * matrix.M33 + matrix.M34;
+            result.W = v.X * matrix.M41 + v.Y * matrix.M42 + v.Z * matrix.M43 + matrix.M44;
+        }
 
         /// <summary>
         /// Transforms a vector using the transpose of a matrix.
@@ -604,11 +680,14 @@ namespace BEPUutilities
         /// <param name="matrix">Transform to apply to the vector.</param>
         /// <param name="result">Transformed vector.</param>
         public static void Transform(ref Vector3 v, ref Matrix matrix, out Vector3 result)
-            => result = new(
-                v.X * matrix.M11 + v.Y * matrix.M21 + v.Z * matrix.M31 + matrix.M41,
-                v.X * matrix.M12 + v.Y * matrix.M22 + v.Z * matrix.M32 + matrix.M42,
-                v.X * matrix.M13 + v.Y * matrix.M23 + v.Z * matrix.M33 + matrix.M43
-            );
+        {
+            float vX = v.X;
+            float vY = v.Y;
+            float vZ = v.Z;
+            result.X = vX * matrix.M11 + vY * matrix.M21 + vZ * matrix.M31 + matrix.M41;
+            result.Y = vX * matrix.M12 + vY * matrix.M22 + vZ * matrix.M32 + matrix.M42;
+            result.Z = vX * matrix.M13 + vY * matrix.M23 + vZ * matrix.M33 + matrix.M43;
+        }
 
         /// <summary>
         /// Transforms a vector using the transpose of a matrix.
@@ -617,11 +696,14 @@ namespace BEPUutilities
         /// <param name="matrix">Transform to tranpose and apply to the vector.</param>
         /// <param name="result">Transformed vector.</param>
         public static void TransformTranspose(ref Vector3 v, ref Matrix matrix, out Vector3 result)
-            => result = new(
-                v.X * matrix.M11 + v.Y * matrix.M12 + v.Z * matrix.M13 + matrix.M14,
-                v.X * matrix.M21 + v.Y * matrix.M22 + v.Z * matrix.M23 + matrix.M24,
-                v.X * matrix.M31 + v.Y * matrix.M32 + v.Z * matrix.M33 + matrix.M34
-            );
+        {
+            float vX = v.X;
+            float vY = v.Y;
+            float vZ = v.Z;
+            result.X = vX * matrix.M11 + vY * matrix.M12 + vZ * matrix.M13 + matrix.M14;
+            result.Y = vX * matrix.M21 + vY * matrix.M22 + vZ * matrix.M23 + matrix.M24;
+            result.Z = vX * matrix.M31 + vY * matrix.M32 + vZ * matrix.M33 + matrix.M34;
+        }
 
         /// <summary>
         /// Transforms a vector using a matrix.
@@ -630,10 +712,14 @@ namespace BEPUutilities
         /// <param name="matrix">Transform to apply to the vector.</param>
         /// <param name="result">Transformed vector.</param>
         public static void TransformNormal(ref Vector3 v, ref Matrix matrix, out Vector3 result)
-            => result = new(
-                v.X * matrix.M11 + v.Y * matrix.M21 + v.Z * matrix.M31,
-                v.X * matrix.M12 + v.Y * matrix.M22 + v.Z * matrix.M32,
-                v.X * matrix.M13 + v.Y * matrix.M23 + v.Z * matrix.M33);
+        {
+            float vX = v.X;
+            float vY = v.Y;
+            float vZ = v.Z;
+            result.X = vX * matrix.M11 + vY * matrix.M21 + vZ * matrix.M31;
+            result.Y = vX * matrix.M12 + vY * matrix.M22 + vZ * matrix.M32;
+            result.Z = vX * matrix.M13 + vY * matrix.M23 + vZ * matrix.M33;
+        }
 
         /// <summary>
         /// Transforms a vector using a matrix.
@@ -654,11 +740,14 @@ namespace BEPUutilities
         /// <param name="matrix">Transform to tranpose and apply to the vector.</param>
         /// <param name="result">Transformed vector.</param>
         public static void TransformNormalTranspose(ref Vector3 v, ref Matrix matrix, out Vector3 result)
-            => result = new(
-                v.X * matrix.M11 + v.Y * matrix.M12 + v.Z * matrix.M13,
-                v.X * matrix.M21 + v.Y * matrix.M22 + v.Z * matrix.M23,
-                v.X * matrix.M31 + v.Y * matrix.M32 + v.Z * matrix.M33
-            );
+        {
+            float vX = v.X;
+            float vY = v.Y;
+            float vZ = v.Z;
+            result.X = vX * matrix.M11 + vY * matrix.M12 + vZ * matrix.M13;
+            result.Y = vX * matrix.M21 + vY * matrix.M22 + vZ * matrix.M23;
+            result.Z = vX * matrix.M31 + vY * matrix.M32 + vZ * matrix.M33;
+        }
 
         /// <summary>
         /// Transforms a vector using the transpose of a matrix.
@@ -878,10 +967,10 @@ namespace BEPUutilities
             inverted.M43 = -(vX * inverted.M13 + vY * inverted.M23 + vZ * inverted.M33);
 
             //Last chunk.
-            inverted.M14 = 0f;
-            inverted.M24 = 0f;
-            inverted.M34 = 0f;
-            inverted.M44 = 1f;
+            inverted.M14 = 0;
+            inverted.M24 = 0;
+            inverted.M34 = 0;
+            inverted.M44 = 1;
         }
 
         /// <summary>
@@ -899,7 +988,32 @@ namespace BEPUutilities
         /// Gets the 4x4 identity matrix.
         /// </summary>
         public static Matrix Identity
-            => new(1f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f);
+        {
+            get
+            {
+                Matrix toReturn;
+                toReturn.M11 = 1;
+                toReturn.M12 = 0;
+                toReturn.M13 = 0;
+                toReturn.M14 = 0;
+
+                toReturn.M21 = 0;
+                toReturn.M22 = 1;
+                toReturn.M23 = 0;
+                toReturn.M24 = 0;
+
+                toReturn.M31 = 0;
+                toReturn.M32 = 0;
+                toReturn.M33 = 1;
+                toReturn.M34 = 0;
+
+                toReturn.M41 = 0;
+                toReturn.M42 = 0;
+                toReturn.M43 = 0;
+                toReturn.M44 = 1;
+                return toReturn;
+            }
+        }
 
         /// <summary>
         /// Creates a right handed orthographic projection.
@@ -917,19 +1031,19 @@ namespace BEPUutilities
             float height = top - bottom;
             float depth = zFar - zNear;
             projection.M11 = 2f / width;
-            projection.M12 = 0f;
-            projection.M13 = 0f;
-            projection.M14 = 0f;
+            projection.M12 = 0;
+            projection.M13 = 0;
+            projection.M14 = 0;
 
-            projection.M21 = 0f;
+            projection.M21 = 0;
             projection.M22 = 2f / height;
-            projection.M23 = 0f;
-            projection.M24 = 0f;
+            projection.M23 = 0;
+            projection.M24 = 0;
 
-            projection.M31 = 0f;
-            projection.M32 = 0f;
+            projection.M31 = 0;
+            projection.M32 = 0;
             projection.M33 = -1f / depth;
-            projection.M34 = 0f;
+            projection.M34 = 0;
 
             projection.M41 = (left + right) / -width;
             projection.M42 = (top + bottom) / -height;
@@ -951,23 +1065,23 @@ namespace BEPUutilities
             float h = 1f / ((float)Math.Tan(fieldOfView * 0.5f));
             float w = h / aspectRatio;
             perspective.M11 = w;
-            perspective.M12 = 0f;
-            perspective.M13 = 0f;
-            perspective.M14 = 0f;
+            perspective.M12 = 0;
+            perspective.M13 = 0;
+            perspective.M14 = 0;
 
-            perspective.M21 = 0f;
+            perspective.M21 = 0;
             perspective.M22 = h;
-            perspective.M23 = 0f;
-            perspective.M24 = 0f;
+            perspective.M23 = 0;
+            perspective.M24 = 0;
 
-            perspective.M31 = 0f;
-            perspective.M32 = 0f;
+            perspective.M31 = 0;
+            perspective.M32 = 0;
             perspective.M33 = farClip / (nearClip - farClip);
-            perspective.M34 = -1f;
+            perspective.M34 = -1;
 
-            perspective.M41 = 0f;
-            perspective.M42 = 0f;
-            perspective.M44 = 0f;
+            perspective.M41 = 0;
+            perspective.M42 = 0;
+            perspective.M44 = 0;
             perspective.M43 = nearClip * perspective.M33;
 
         }
@@ -1125,10 +1239,10 @@ namespace BEPUutilities
         public static void CreateTranslation(ref Vector3 translation, out Matrix translationMatrix)
             => translationMatrix = new Matrix
             {
-                M11 = 1f,
-                M22 = 1f,
-                M33 = 1f,
-                M44 = 1f,
+                M11 = 1,
+                M22 = 1,
+                M33 = 1,
+                M44 = 1,
                 M41 = translation.X,
                 M42 = translation.Y,
                 M43 = translation.Z
@@ -1156,7 +1270,7 @@ namespace BEPUutilities
                     M11 = scale.X,
                     M22 = scale.Y,
                     M33 = scale.Z,
-                    M44 = 1f
+                    M44 = 1
                 };
 
         /// <summary>
@@ -1183,7 +1297,7 @@ namespace BEPUutilities
                 M11 = x,
                 M22 = y,
                 M33 = z,
-                M44 = 1f
+                M44 = 1
             };
 
         /// <summary>

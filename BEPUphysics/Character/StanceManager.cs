@@ -18,12 +18,12 @@ namespace BEPUphysics.Character
         /// <summary>
         /// This is a direct reference to the 'true' character collidable. The others are query proxies that share the same shape.
         /// </summary>
-        private Cylinder characterBody;
+        private readonly Cylinder characterBody;
 
-        ConvexCollidable<CylinderShape> standingQueryObject;
-        ConvexCollidable<CylinderShape> crouchingQueryObject;
-        ConvexCollidable<CylinderShape> proneQueryObject;
-        ConvexCollidable<CylinderShape> currentQueryObject;
+        readonly ConvexCollidable<CylinderShape> standingQueryObject;
+        readonly ConvexCollidable<CylinderShape> crouchingQueryObject;
+        readonly ConvexCollidable<CylinderShape> proneQueryObject;
+        readonly ConvexCollidable<CylinderShape> currentQueryObject;
 
         /// <summary>
         /// Updates the query objects to match the character controller's current state.  Called when BodyRadius, StanceManager.StandingHeight, or StanceManager.CrouchingHeight is set.
@@ -47,7 +47,7 @@ namespace BEPUphysics.Character
         /// </summary>
         public float StandingHeight
         {
-            get { return standingHeight; }
+            get => standingHeight;
             set
             {
                 if (value <= 0 || value < CrouchingHeight)
@@ -69,7 +69,7 @@ namespace BEPUphysics.Character
         /// </summary>
         public float CrouchingHeight
         {
-            get { return crouchingHeight; }
+            get => crouchingHeight;
             set
             {
                 if (value <= 0 || value > StandingHeight)
@@ -92,7 +92,7 @@ namespace BEPUphysics.Character
         /// </summary>
         public float ProneHeight
         {
-            get { return proneHeight; }
+            get => proneHeight;
             set
             {
                 if (value <= 0 || value > CrouchingHeight)
@@ -189,35 +189,18 @@ namespace BEPUphysics.Character
 
             if (CurrentStance != targetStance)
             {
-
-                float currentHeight;
-                switch (CurrentStance)
+                var currentHeight = CurrentStance switch
                 {
-                    case Stance.Prone:
-                        currentHeight = proneHeight;
-                        break;
-                    case Stance.Crouching:
-                        currentHeight = crouchingHeight;
-                        break;
-                    default:
-                        currentHeight = standingHeight;
-                        break;
-                }
-                float targetHeight;
-                switch (targetStance)
+                    Stance.Prone => proneHeight,
+                    Stance.Crouching => crouchingHeight,
+                    _ => standingHeight,
+                };
+                var targetHeight = targetStance switch
                 {
-                    case Stance.Prone:
-                        targetHeight = proneHeight;
-                        break;
-                    case Stance.Crouching:
-                        targetHeight = crouchingHeight;
-                        break;
-                    default:
-                        targetHeight = standingHeight;
-                        break;
-                }
-
-
+                    Stance.Prone => proneHeight,
+                    Stance.Crouching => crouchingHeight,
+                    _ => standingHeight,
+                };
                 if (currentHeight >= targetHeight)
                 {
                     //The character is getting smaller, so no validation queries are required.
@@ -235,20 +218,12 @@ namespace BEPUphysics.Character
                     return true;
                 }
                 //The character is getting bigger, so validation is required.
-                ConvexCollidable<CylinderShape> queryObject;
-                switch (targetStance)
+                ConvexCollidable<CylinderShape> queryObject = targetStance switch
                 {
-                    case Stance.Prone:
-                        queryObject = proneQueryObject;
-                        break;
-                    case Stance.Crouching:
-                        queryObject = crouchingQueryObject;
-                        break;
-                    default:
-                        queryObject = standingQueryObject;
-                        break;
-                }
-
+                    Stance.Prone => proneQueryObject,
+                    Stance.Crouching => crouchingQueryObject,
+                    _ => standingQueryObject,
+                };
                 var tractionContacts = new QuickList<CharacterContact>(BufferPools<CharacterContact>.Thread);
                 var supportContacts = new QuickList<CharacterContact>(BufferPools<CharacterContact>.Thread);
                 var sideContacts = new QuickList<CharacterContact>(BufferPools<CharacterContact>.Thread);
@@ -291,8 +266,7 @@ namespace BEPUphysics.Character
                         while (attempts++ < 5 && lowestBound - highestBound > Toolbox.BigEpsilon)
                         {
                             Vector3 candidatePosition = currentPosition + currentOffset * down;
-                            float hintOffset;
-                            switch (lastState = TrySupportLocation(queryObject, ref candidatePosition, out hintOffset, ref tractionContacts, ref supportContacts, ref sideContacts, ref headContacts))
+                            switch (lastState = TrySupportLocation(queryObject, ref candidatePosition, out float hintOffset, ref tractionContacts, ref supportContacts, ref sideContacts, ref headContacts))
                             {
                                 case CharacterContactPositionState.Accepted:
                                     currentOffset += hintOffset;
@@ -351,8 +325,7 @@ namespace BEPUphysics.Character
         /// <returns>Whether or not the character was able to change its stance.</returns>
         public bool UpdateStance(out Vector3 newPosition)
         {
-            float newHeight;
-            if (CheckTransition(DesiredStance, out newHeight, out newPosition))
+            if (CheckTransition(DesiredStance, out float newHeight, out newPosition))
             {
                 CurrentStance = DesiredStance;
                 characterBody.Height = newHeight;
@@ -422,9 +395,7 @@ namespace BEPUphysics.Character
             }
             if (supportContacts.Count > 0)
             {
-                CharacterContactPositionState supportState;
-                CharacterContact supportContact;
-                QueryManager.AnalyzeSupportState(ref tractionContacts, ref supportContacts, out supportState, out supportContact);
+                QueryManager.AnalyzeSupportState(ref tractionContacts, ref supportContacts, out CharacterContactPositionState supportState, out CharacterContact supportContact);
                 var down = characterBody.orientationMatrix.Down;
                 //Note that traction is not tested for; it isn't important for the stance manager.
                 if (supportState == CharacterContactPositionState.Accepted)

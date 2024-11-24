@@ -40,7 +40,7 @@ namespace BEPUutilities
         /// Gets the 2x2 identity matrix.
         /// </summary>
         public static Matrix2x2 Identity
-            => new(1f, 0f, 0f, 1f);
+            => new (1, 0, 0, 1);
 
         /// <summary>
         /// Adds the two matrices together on a per-element basis.
@@ -50,11 +50,17 @@ namespace BEPUutilities
         /// <param name="result">Sum of the two matrices.</param>
         public static void Add(ref Matrix2x2 a, ref Matrix2x2 b, out Matrix2x2 result)
         {
-            result.M11 = a.M11 + b.M11;
-            result.M12 = a.M12 + b.M12;
+            float m11 = a.M11 + b.M11;
+            float m12 = a.M12 + b.M12;
 
-            result.M21 = a.M21 + b.M21;
-            result.M22 = a.M22 + b.M22;
+            float m21 = a.M21 + b.M21;
+            float m22 = a.M22 + b.M22;
+
+            result.M11 = m11;
+            result.M12 = m12;
+
+            result.M21 = m21;
+            result.M22 = m22;
         }
 
         /// <summary>
@@ -65,11 +71,17 @@ namespace BEPUutilities
         /// <param name="result">Sum of the two matrices.</param>
         public static void Add(ref Matrix a, ref Matrix2x2 b, out Matrix2x2 result)
         {
-            result.M11 = a.M11 + b.M11;
-            result.M12 = a.M12 + b.M12;
+            float m11 = a.M11 + b.M11;
+            float m12 = a.M12 + b.M12;
 
-            result.M21 = a.M21 + b.M21;
-            result.M22 = a.M22 + b.M22;
+            float m21 = a.M21 + b.M21;
+            float m22 = a.M22 + b.M22;
+
+            result.M11 = m11;
+            result.M12 = m12;
+
+            result.M21 = m21;
+            result.M22 = m22;
         }
 
         /// <summary>
@@ -80,12 +92,17 @@ namespace BEPUutilities
         /// <param name="result">Sum of the two matrices.</param>
         public static void Add(ref Matrix2x2 a, ref Matrix b, out Matrix2x2 result)
         {
+            float m11 = a.M11 + b.M11;
+            float m12 = a.M12 + b.M12;
 
-            result.M11 = a.M11 + b.M11;
-            result.M12 = a.M12 + b.M12;
+            float m21 = a.M21 + b.M21;
+            float m22 = a.M22 + b.M22;
 
-            result.M21 = a.M21 + b.M21;
-            result.M22 = a.M22 + b.M22;
+            result.M11 = m11;
+            result.M12 = m12;
+
+            result.M21 = m21;
+            result.M22 = m22;
         }
 
         /// <summary>
@@ -96,11 +113,17 @@ namespace BEPUutilities
         /// <param name="result">Sum of the two matrices.</param>
         public static void Add(ref Matrix a, ref Matrix b, out Matrix2x2 result)
         {
-            result.M11 = a.M11 + b.M11;
-            result.M12 = a.M12 + b.M12;
+            float m11 = a.M11 + b.M11;
+            float m12 = a.M12 + b.M12;
 
-            result.M21 = a.M21 + b.M21;
-            result.M22 = a.M22 + b.M22;
+            float m21 = a.M21 + b.M21;
+            float m22 = a.M22 + b.M22;
+
+            result.M11 = m11;
+            result.M12 = m12;
+
+            result.M21 = m21;
+            result.M22 = m22;
         }
 
         /// <summary>
@@ -113,8 +136,8 @@ namespace BEPUutilities
             matrix.M11 = scale;
             matrix.M22 = scale;
 
-            matrix.M12 = 0f;
-            matrix.M21 = 0f;
+            matrix.M12 = 0;
+            matrix.M21 = 0;
         }
 
 
@@ -125,12 +148,18 @@ namespace BEPUutilities
         /// <param name="result">Inverted matrix.</param>
         public static void Invert(ref Matrix2x2 matrix, out Matrix2x2 result)
         {
-            float determinantInverse = 1f / (matrix.M11 * matrix.M22 - matrix.M12 * matrix.M21);
-            result.M11 = matrix.M22 * determinantInverse;
-            result.M12 = -matrix.M12 * determinantInverse;
+            float determinantInverse = 1 / (matrix.M11 * matrix.M22 - matrix.M12 * matrix.M21);
+            float m11 = matrix.M22 * determinantInverse;
+            float m12 = -matrix.M12 * determinantInverse;
 
-            result.M21 = -matrix.M21 * determinantInverse;
-            result.M22 = matrix.M11 * determinantInverse;
+            float m21 = -matrix.M21 * determinantInverse;
+            float m22 = matrix.M11 * determinantInverse;
+
+            result.M11 = m11;
+            result.M12 = m12;
+
+            result.M21 = m21;
+            result.M22 = m22;
         }
 
         /// <summary>
@@ -141,11 +170,17 @@ namespace BEPUutilities
         /// <param name="result">Product of the multiplication.</param>
         public static void Multiply(ref Matrix2x2 a, ref Matrix2x2 b, out Matrix2x2 result)
         {
-            result.M11 = a.M11 * b.M11 + a.M12 * b.M21;
-            result.M12 = a.M11 * b.M12 + a.M12 * b.M22;
+            float resultM11 = a.M11 * b.M11 + a.M12 * b.M21;
+            float resultM12 = a.M11 * b.M12 + a.M12 * b.M22;
 
-            result.M21 = a.M21 * b.M11 + a.M22 * b.M21;
-            result.M22 = a.M21 * b.M12 + a.M22 * b.M22;
+            float resultM21 = a.M21 * b.M11 + a.M22 * b.M21;
+            float resultM22 = a.M21 * b.M12 + a.M22 * b.M22;
+
+            result.M11 = resultM11;
+            result.M12 = resultM12;
+
+            result.M21 = resultM21;
+            result.M22 = resultM22;
         }
 
         /// <summary>
@@ -156,11 +191,17 @@ namespace BEPUutilities
         /// <param name="result">Product of the multiplication.</param>
         public static void Multiply(ref Matrix2x2 a, ref Matrix b, out Matrix2x2 result)
         {
-            result.M11 = a.M11 * b.M11 + a.M12 * b.M21;
-            result.M12 = a.M11 * b.M12 + a.M12 * b.M22;
+            float resultM11 = a.M11 * b.M11 + a.M12 * b.M21;
+            float resultM12 = a.M11 * b.M12 + a.M12 * b.M22;
 
-            result.M21 = a.M21 * b.M11 + a.M22 * b.M21;
-            result.M22 = a.M21 * b.M12 + a.M22 * b.M22;
+            float resultM21 = a.M21 * b.M11 + a.M22 * b.M21;
+            float resultM22 = a.M21 * b.M12 + a.M22 * b.M22;
+
+            result.M11 = resultM11;
+            result.M12 = resultM12;
+
+            result.M21 = resultM21;
+            result.M22 = resultM22;
         }
 
         /// <summary>
@@ -171,12 +212,17 @@ namespace BEPUutilities
         /// <param name="result">Product of the multiplication.</param>
         public static void Multiply(ref Matrix a, ref Matrix2x2 b, out Matrix2x2 result)
         {
+            float resultM11 = a.M11 * b.M11 + a.M12 * b.M21;
+            float resultM12 = a.M11 * b.M12 + a.M12 * b.M22;
 
-            result.M11 = a.M11 * b.M11 + a.M12 * b.M21;
-            result.M12 = a.M11 * b.M12 + a.M12 * b.M22;
+            float resultM21 = a.M21 * b.M11 + a.M22 * b.M21;
+            float resultM22 = a.M21 * b.M12 + a.M22 * b.M22;
 
-            result.M21 = a.M21 * b.M11 + a.M22 * b.M21;
-            result.M22 = a.M21 * b.M12 + a.M22 * b.M22;
+            result.M11 = resultM11;
+            result.M12 = resultM12;
+
+            result.M21 = resultM21;
+            result.M22 = resultM22;
         }
 
         /// <summary>
@@ -201,11 +247,18 @@ namespace BEPUutilities
         /// <param name="result">Negated matrix.</param>
         public static void Negate(ref Matrix2x2 matrix, out Matrix2x2 result)
         {
-            result.M11 = -matrix.M11;
-            result.M12 = -matrix.M12;
+            float m11 = -matrix.M11;
+            float m12 = -matrix.M12;
 
-            result.M21 = -matrix.M21;
-            result.M22 = -matrix.M22;
+            float m21 = -matrix.M21;
+            float m22 = -matrix.M22;
+
+
+            result.M11 = m11;
+            result.M12 = m12;
+
+            result.M21 = m21;
+            result.M22 = m22;
         }
 
         /// <summary>
@@ -216,11 +269,17 @@ namespace BEPUutilities
         /// <param name="result">Difference of the two matrices.</param>
         public static void Subtract(ref Matrix2x2 a, ref Matrix2x2 b, out Matrix2x2 result)
         {
-            result.M11 = a.M11 - b.M11;
-            result.M12 = a.M12 - b.M12;
+            float m11 = a.M11 - b.M11;
+            float m12 = a.M12 - b.M12;
 
-            result.M21 = a.M21 - b.M21;
-            result.M22 = a.M22 - b.M22;
+            float m21 = a.M21 - b.M21;
+            float m22 = a.M22 - b.M22;
+
+            result.M11 = m11;
+            result.M12 = m12;
+
+            result.M21 = m21;
+            result.M22 = m22;
         }
 
         /// <summary>
@@ -230,7 +289,15 @@ namespace BEPUutilities
         /// <param name="matrix">Matrix to use as the transformation.</param>
         /// <param name="result">Product of the transformation.</param>
         public static void Transform(ref Vector2 v, ref Matrix2x2 matrix, out Vector2 result)
-            => result = new( v.X * matrix.M11 + v.Y * matrix.M21, v.Y * matrix.M12 + v.Y * matrix.M22);
+        {
+            float vX = v.X;
+            float vY = v.Y;
+#if !WINDOWS
+            result = new Vector2();
+#endif
+            result.X = vX * matrix.M11 + vY * matrix.M21;
+            result.Y = vX * matrix.M12 + vY * matrix.M22;
+        }
 
         /// <summary>
         /// Computes the transposed matrix of a matrix.

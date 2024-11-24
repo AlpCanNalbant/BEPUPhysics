@@ -41,7 +41,12 @@ namespace BEPUutilities
         /// <param name="b">Second quaternion to add.</param>
         /// <param name="result">Sum of the addition.</param>
         public static void Add(ref Quaternion a, ref Quaternion b, out Quaternion result)
-            => result = new(a.X + b.X, a.Y + b.Y, a.Z + b.Z, a.W + b.W);
+        {
+            result.X = a.X + b.X;
+            result.Y = a.Y + b.Y;
+            result.Z = a.Z + b.Z;
+            result.W = a.W + b.W;
+        }
 
         /// <summary>
         /// Multiplies two quaternions.
@@ -50,11 +55,20 @@ namespace BEPUutilities
         /// <param name="b">Second quaternion to multiply.</param>
         /// <param name="result">Product of the multiplication.</param>
         public static void Multiply(ref Quaternion a, ref Quaternion b, out Quaternion result)
-            => result = new(
-                a.X * b.W + b.X * a.W + a.Y * b.Z - a.Z * b.Y,
-                a.Y * b.W + b.Y * a.W + a.Z * b.X - a.X * b.Z,
-                a.Z * b.W + b.Z * a.W + a.X * b.Y - a.Y * b.X,
-                a.W * b.W - a.X * b.X - a.Y * b.Y - a.Z * b.Z);
+        {
+            float x = a.X;
+            float y = a.Y;
+            float z = a.Z;
+            float w = a.W;
+            float bX = b.X;
+            float bY = b.Y;
+            float bZ = b.Z;
+            float bW = b.W;
+            result.X = x * bW + bX * w + y * bZ - z * bY;
+            result.Y = y * bW + bY * w + z * bX - x * bZ;
+            result.Z = z * bW + bZ * w + x * bY - y * bX;
+            result.W = w * bW - x * bX - y * bY - z * bZ;
+        }
 
         /// <summary>
         /// Scales a quaternion.
@@ -63,7 +77,12 @@ namespace BEPUutilities
         /// <param name="scale">Amount to multiply each component of the quaternion by.</param>
         /// <param name="result">Scaled quaternion.</param>
         public static void Multiply(ref Quaternion q, float scale, out Quaternion result)
-            => result = new(q.X * scale, q.Y * scale, q.Z * scale, q.W * scale);
+        {
+            result.X = q.X * scale;
+            result.Y = q.Y * scale;
+            result.Z = q.Z * scale;
+            result.W = q.W * scale;
+        }
 
         /// <summary>
         /// Multiplies two quaternions together in opposite order.
@@ -72,11 +91,23 @@ namespace BEPUutilities
         /// <param name="b">Second quaternion to multiply.</param>
         /// <param name="result">Product of the multiplication.</param>
         public static void Concatenate(ref Quaternion a, ref Quaternion b, out Quaternion result)
-            => result = new(
-                a.W * b.X + a.X * b.W + a.Z * b.Y - a.Y * b.Z,
-                a.W * b.Y + a.Y * b.W + a.X * b.Z - a.Z * b.X,
-                a.W * b.Z + a.Z * b.W + a.Y * b.X - a.X * b.Y,
-                a.W * b.W - a.X * b.X - a.Y * b.Y - a.Z * b.Z);
+        {
+            float aX = a.X;
+            float aY = a.Y;
+            float aZ = a.Z;
+            float aW = a.W;
+            float bX = b.X;
+            float bY = b.Y;
+            float bZ = b.Z;
+            float bW = b.W;
+
+            result.X = aW * bX + aX * bW + aZ * bY - aY * bZ;
+            result.Y = aW * bY + aY * bW + aX * bZ - aZ * bX;
+            result.Z = aW * bZ + aZ * bW + aY * bX - aX * bY;
+            result.W = aW * bW - aX * bX - aY * bY - aZ * bZ;
+
+
+        }
 
         /// <summary>
         /// Multiplies two quaternions together in opposite order.
@@ -94,7 +125,8 @@ namespace BEPUutilities
         /// Quaternion representing the identity transform.
         /// </summary>
         public static Quaternion Identity
-            => new(0f, 0f, 0f, 1f);
+                => new (0, 0, 0, 1);
+
 
         /// <summary>
         /// Constructs a quaternion from a rotation matrix.
@@ -104,29 +136,44 @@ namespace BEPUutilities
         public static void CreateFromRotationMatrix(ref Matrix3x3 r, out Quaternion q)
         {
             float trace = r.M11 + r.M22 + r.M33;
-            if (trace >= 0f)
+#if !WINDOWS
+            q = new Quaternion();
+#endif
+            if (trace >= 0)
             {
-                float S = MathF.Sqrt(trace + 1.0f) * 2f; // S=4*qw
-                float inverseS = 1f / S;
-                q = new((r.M23 - r.M32) * inverseS, (r.M31 - r.M13) * inverseS, (r.M12 - r.M21) * inverseS, 0.25f * S);
+                var S = (float)Math.Sqrt(trace + 1.0) * 2; // S=4*qw
+                var inverseS = 1 / S;
+                q.W = 0.25f * S;
+                q.X = (r.M23 - r.M32) * inverseS;
+                q.Y = (r.M31 - r.M13) * inverseS;
+                q.Z = (r.M12 - r.M21) * inverseS;
             }
             else if ((r.M11 > r.M22) & (r.M11 > r.M33))
             {
-                float S = MathF.Sqrt(1.0f + r.M11 - r.M22 - r.M33) * 2f; // S=4*qx
-                float inverseS = 1f / S;
-                q = new(0.25f * S, (r.M21 + r.M12) * inverseS, (r.M31 + r.M13) * inverseS, (r.M23 - r.M32) * inverseS);
+                var S = (float)Math.Sqrt(1.0 + r.M11 - r.M22 - r.M33) * 2; // S=4*qx
+                var inverseS = 1 / S;
+                q.W = (r.M23 - r.M32) * inverseS;
+                q.X = 0.25f * S;
+                q.Y = (r.M21 + r.M12) * inverseS;
+                q.Z = (r.M31 + r.M13) * inverseS;
             }
             else if (r.M22 > r.M33)
             {
-                float S = MathF.Sqrt(1.0f + r.M22 - r.M11 - r.M33) * 2f; // S=4*qy
-                float inverseS = 1f / S;
-                q = new((r.M21 + r.M12) * inverseS, 0.25f * S, (r.M32 + r.M23) * inverseS, (r.M31 - r.M13) * inverseS);
+                var S = (float)Math.Sqrt(1.0 + r.M22 - r.M11 - r.M33) * 2; // S=4*qy
+                var inverseS = 1 / S;
+                q.W = (r.M31 - r.M13) * inverseS;
+                q.X = (r.M21 + r.M12) * inverseS;
+                q.Y = 0.25f * S;
+                q.Z = (r.M32 + r.M23) * inverseS;
             }
             else
             {
-                float S = MathF.Sqrt(1.0f + r.M33 - r.M11 - r.M22) * 2f; // S=4*qz
-                float inverseS = 1f / S;
-                q = new((r.M31 + r.M13) * inverseS, (r.M32 + r.M23) * inverseS, 0.25f * S, (r.M12 - r.M21) * inverseS);
+                var S = (float)Math.Sqrt(1.0 + r.M33 - r.M11 - r.M22) * 2; // S=4*qz
+                var inverseS = 1 / S;
+                q.W = (r.M12 - r.M21) * inverseS;
+                q.X = (r.M31 + r.M13) * inverseS;
+                q.Y = (r.M32 + r.M23) * inverseS;
+                q.Z = 0.25f * S;
             }
         }
 
@@ -182,8 +229,11 @@ namespace BEPUutilities
         /// <param name="toReturn">Normalized quaternion.</param>
         public static void Normalize(ref Quaternion quaternion, out Quaternion toReturn)
         {
-            float inverse = (1f / MathF.Sqrt(quaternion.X * quaternion.X + quaternion.Y * quaternion.Y + quaternion.Z * quaternion.Z + quaternion.W * quaternion.W));
-            toReturn = new(quaternion.X * inverse, quaternion.Y * inverse, quaternion.Z * inverse, quaternion.W * inverse);
+            float inverse = (float)(1 / Math.Sqrt(quaternion.X * quaternion.X + quaternion.Y * quaternion.Y + quaternion.Z * quaternion.Z + quaternion.W * quaternion.W));
+            toReturn.X = quaternion.X * inverse;
+            toReturn.Y = quaternion.Y * inverse;
+            toReturn.Z = quaternion.Z * inverse;
+            toReturn.W = quaternion.W * inverse;
         }
 
         /// <summary>
@@ -191,7 +241,7 @@ namespace BEPUutilities
         /// </summary>
         public void Normalize()
         {
-            float inverse = (1f / MathF.Sqrt(X * X + Y * Y + Z * Z + W * W));
+            float inverse = (float)(1 / Math.Sqrt(X * X + Y * Y + Z * Z + W * W));
             X *= inverse;
             Y *= inverse;
             Z *= inverse;
@@ -210,7 +260,7 @@ namespace BEPUutilities
         /// </summary>
         /// <returns>Length of the quaternion.</returns>
         public readonly float Length()
-            => MathF.Sqrt(X * X + Y * Y + Z * Z + W * W);
+            => (float)Math.Sqrt(X * X + Y * Y + Z * Z + W * W);
 
 
         /// <summary>
@@ -222,29 +272,42 @@ namespace BEPUutilities
         /// <param name="result">Interpolated intermediate quaternion.</param>
         public static void Slerp(ref Quaternion start, ref Quaternion end, float interpolationAmount, out Quaternion result)
         {
-            float cosHalfTheta = start.W * end.W + start.X * end.X + start.Y * end.Y + start.Z * end.Z;
-            if (cosHalfTheta < 0f)
+            double cosHalfTheta = start.W * end.W + start.X * end.X + start.Y * end.Y + start.Z * end.Z;
+            if (cosHalfTheta < 0)
             {
                 //Negating a quaternion results in the same orientation,
                 //but we need cosHalfTheta to be positive to get the shortest path.
-                end = new(-end.X, -end.Y, -end.Z, -end.W);
+                end.X = -end.X;
+                end.Y = -end.Y;
+                end.Z = -end.Z;
+                end.W = -end.W;
                 cosHalfTheta = -cosHalfTheta;
             }
             // If the orientations are similar enough, then just pick one of the inputs.
-            if (cosHalfTheta > (1f - 1e-12f))
+            if (cosHalfTheta > (1.0 - 1e-12))
             {
-                result = new(start.X, start.Y, start.Z, start.W);
+                result.W = start.W;
+                result.X = start.X;
+                result.Y = start.Y;
+                result.Z = start.Z;
                 return;
             }
             // Calculate temporary values.
-            float halfTheta = MathF.Acos(cosHalfTheta);
-            float sinHalfTheta = MathF.Sqrt(1.0f - cosHalfTheta * cosHalfTheta);
+            double halfTheta = Math.Acos(cosHalfTheta);
+            double sinHalfTheta = Math.Sqrt(1.0 - cosHalfTheta * cosHalfTheta);
 
-            float aFraction = MathF.Sin((1f - interpolationAmount) * halfTheta) / sinHalfTheta;
-            float bFraction = MathF.Sin(interpolationAmount * halfTheta) / sinHalfTheta;
+            double aFraction = Math.Sin((1 - interpolationAmount) * halfTheta) / sinHalfTheta;
+            double bFraction = Math.Sin(interpolationAmount * halfTheta) / sinHalfTheta;
 
             //Blend the two quaternions to get the result!
-            result = new((start.X * aFraction + end.X * bFraction), (start.Y * aFraction + end.Y * bFraction), (start.Z * aFraction + end.Z * bFraction), (start.W * aFraction + end.W * bFraction));
+            result.X = (float)(start.X * aFraction + end.X * bFraction);
+            result.Y = (float)(start.Y * aFraction + end.Y * bFraction);
+            result.Z = (float)(start.Z * aFraction + end.Z * bFraction);
+            result.W = (float)(start.W * aFraction + end.W * bFraction);
+
+
+
+
         }
 
         /// <summary>
@@ -267,7 +330,12 @@ namespace BEPUutilities
         /// <param name="quaternion">Quaternion to conjugate.</param>
         /// <param name="result">Conjugated quaternion.</param>
         public static void Conjugate(ref Quaternion quaternion, out Quaternion result)
-            => result = new(-quaternion.X, -quaternion.Y, -quaternion.Z, quaternion.W);
+        {
+            result.X = -quaternion.X;
+            result.Y = -quaternion.Y;
+            result.Z = -quaternion.Z;
+            result.W = quaternion.W;
+        }
 
         /// <summary>
         /// Computes the conjugate of the quaternion.
@@ -290,7 +358,10 @@ namespace BEPUutilities
         public static void Inverse(ref Quaternion quaternion, out Quaternion result)
         {
             float inverseSquaredNorm = quaternion.X * quaternion.X + quaternion.Y * quaternion.Y + quaternion.Z * quaternion.Z + quaternion.W * quaternion.W;
-            result = new(-quaternion.X * inverseSquaredNorm, -quaternion.Y * inverseSquaredNorm, -quaternion.Z * inverseSquaredNorm, quaternion.W * inverseSquaredNorm);
+            result.X = -quaternion.X * inverseSquaredNorm;
+            result.Y = -quaternion.Y * inverseSquaredNorm;
+            result.Z = -quaternion.Z * inverseSquaredNorm;
+            result.W = quaternion.W * inverseSquaredNorm;
         }
 
         /// <summary>
@@ -302,6 +373,7 @@ namespace BEPUutilities
         {
             Inverse(ref quaternion, out Quaternion result);
             return result;
+
         }
 
         /// <summary>
@@ -328,7 +400,12 @@ namespace BEPUutilities
         /// <param name="a">Quaternion to negate.</param>
         /// <param name="b">Negated result.</param>
         public static void Negate(ref Quaternion a, out Quaternion b)
-            => b = new(-a.X, -a.Y, -a.Z, -a.W);
+        {
+            b.X = -a.X;
+            b.Y = -a.Y;
+            b.Z = -a.Z;
+            b.W = -a.W;
+        }
 
         /// <summary>
         /// Negates the components of a quaternion.
@@ -413,10 +490,13 @@ namespace BEPUutilities
             float wy2 = rotation.W * y2;
             float wz2 = rotation.W * z2;
             //Defer the component setting since they're used in computation.
-            result = new(
-                v.X * (1f - yy2 - zz2) + v.Y * (xy2 - wz2) + v.Z * (xz2 + wy2),
-                v.X * (xy2 + wz2) + v.Y * (1f - xx2 - zz2) + v.Z * (yz2 - wx2),
-                v.X * (xz2 - wy2) + v.Y * (yz2 + wx2) + v.Z * (1f - xx2 - yy2));
+            float transformedX = v.X * (1f - yy2 - zz2) + v.Y * (xy2 - wz2) + v.Z * (xz2 + wy2);
+            float transformedY = v.X * (xy2 + wz2) + v.Y * (1f - xx2 - zz2) + v.Z * (yz2 - wx2);
+            float transformedZ = v.X * (xz2 - wy2) + v.Y * (yz2 + wx2) + v.Z * (1f - xx2 - yy2);
+            result.X = transformedX;
+            result.Y = transformedY;
+            result.Z = transformedZ;
+
         }
 
         /// <summary>
@@ -445,12 +525,20 @@ namespace BEPUutilities
             //q^-1 can be replaced by a conjugation.
             float y2 = rotation.Y + rotation.Y;
             float z2 = rotation.Z + rotation.Z;
+            float xy2 = rotation.X * y2;
+            float xz2 = rotation.X * z2;
+            float yy2 = rotation.Y * y2;
+            float zz2 = rotation.Z * z2;
+            float wy2 = rotation.W * y2;
+            float wz2 = rotation.W * z2;
             //Defer the component setting since they're used in computation.
-            result = new(
-                x * (1f - (rotation.Y * y2) - (rotation.Z * z2)),
-                x * ((rotation.X * y2) + (rotation.W * z2)),
-                x * ((rotation.X * z2) - (rotation.W * y2))
-            );
+            float transformedX = x * (1f - yy2 - zz2);
+            float transformedY = x * (xy2 + wz2);
+            float transformedZ = x * (xz2 - wy2);
+            result.X = transformedX;
+            result.Y = transformedY;
+            result.Z = transformedZ;
+
         }
 
         /// <summary>
@@ -466,9 +554,22 @@ namespace BEPUutilities
             //and perform standard quaternion multiplication.  Assuming q is normalized,
             //q^-1 can be replaced by a conjugation.
             float x2 = rotation.X + rotation.X;
+            float y2 = rotation.Y + rotation.Y;
             float z2 = rotation.Z + rotation.Z;
+            float xx2 = rotation.X * x2;
+            float xy2 = rotation.X * y2;
+            float yz2 = rotation.Y * z2;
+            float zz2 = rotation.Z * z2;
+            float wx2 = rotation.W * x2;
+            float wz2 = rotation.W * z2;
             //Defer the component setting since they're used in computation.
-            result = new(y * ((rotation.X * (rotation.Y + rotation.Y)) - (rotation.W * z2)), y * (1f - (rotation.X * x2) - (rotation.Z * z2)), y * ((rotation.Y * z2) + (rotation.W * x2)));
+            float transformedX = y * (xy2 - wz2);
+            float transformedY = y * (1f - xx2 - zz2);
+            float transformedZ = y * (yz2 + wx2);
+            result.X = transformedX;
+            result.Y = transformedY;
+            result.Z = transformedZ;
+
         }
 
         /// <summary>
@@ -486,8 +587,20 @@ namespace BEPUutilities
             float x2 = rotation.X + rotation.X;
             float y2 = rotation.Y + rotation.Y;
             float z2 = rotation.Z + rotation.Z;
+            float xx2 = rotation.X * x2;
+            float xz2 = rotation.X * z2;
+            float yy2 = rotation.Y * y2;
+            float yz2 = rotation.Y * z2;
+            float wx2 = rotation.W * x2;
+            float wy2 = rotation.W * y2;
             //Defer the component setting since they're used in computation.
-            result = new(z * ((rotation.X * z2) + (rotation.W * y2)), z * ((rotation.Y * z2) - (rotation.W * x2)), z * (1f - (rotation.X * x2) - (rotation.Y * y2)));
+            float transformedX = z * (xz2 + wy2);
+            float transformedY = z * (yz2 - wx2);
+            float transformedZ = z * (1f - xx2 - yy2);
+            result.X = transformedX;
+            result.Y = transformedY;
+            result.Z = transformedZ;
+
         }
 
 
@@ -511,9 +624,14 @@ namespace BEPUutilities
         /// <returns>Quaternion representing the axis and angle rotation.</returns>
         public static Quaternion CreateFromAxisAngle(Vector3 axis, float angle)
         {
-            float halfAngle = angle * 0.5f;
-            float s = MathF.Sin(halfAngle);
-            return new Quaternion((axis.X * s), (axis.Y * s), (axis.Z * s), MathF.Cos(halfAngle));
+            double halfAngle = angle * 0.5;
+            double s = Math.Sin(halfAngle);
+            Quaternion q;
+            q.X = (float)(axis.X * s);
+            q.Y = (float)(axis.Y * s);
+            q.Z = (float)(axis.Z * s);
+            q.W = (float)Math.Cos(halfAngle);
+            return q;
         }
 
         /// <summary>
@@ -524,9 +642,12 @@ namespace BEPUutilities
         /// <param name="q">Quaternion representing the axis and angle rotation.</param>
         public static void CreateFromAxisAngle(ref Vector3 axis, float angle, out Quaternion q)
         {
-            float halfAngle = angle * 0.5f;
-            float s = MathF.Sin(halfAngle);
-            q = new((axis.X * s), (axis.Y * s), (axis.Z * s), MathF.Cos(halfAngle));
+            double halfAngle = angle * 0.5;
+            double s = Math.Sin(halfAngle);
+            q.X = (float)(axis.X * s);
+            q.Y = (float)(axis.Y * s);
+            q.Z = (float)(axis.Z * s);
+            q.W = (float)Math.Cos(halfAngle);
         }
 
         /// <summary>
@@ -551,28 +672,28 @@ namespace BEPUutilities
         /// <param name="q">Quaternion representing the yaw, pitch, and roll.</param>
         public static void CreateFromYawPitchRoll(float yaw, float pitch, float roll, out Quaternion q)
         {
-            float halfRoll = roll * 0.5f;
-            float halfPitch = pitch * 0.5f;
-            float halfYaw = yaw * 0.5f;
+            double halfRoll = roll * 0.5;
+            double halfPitch = pitch * 0.5;
+            double halfYaw = yaw * 0.5;
 
-            float sinRoll = MathF.Sin(halfRoll);
-            float sinPitch = MathF.Sin(halfPitch);
-            float sinYaw = MathF.Sin(halfYaw);
+            double sinRoll = Math.Sin(halfRoll);
+            double sinPitch = Math.Sin(halfPitch);
+            double sinYaw = Math.Sin(halfYaw);
 
-            float cosRoll = MathF.Cos(halfRoll);
-            float cosPitch = MathF.Cos(halfPitch);
-            float cosYaw = MathF.Cos(halfYaw);
+            double cosRoll = Math.Cos(halfRoll);
+            double cosPitch = Math.Cos(halfPitch);
+            double cosYaw = Math.Cos(halfYaw);
 
-            float cosYawCosPitch = cosYaw * cosPitch;
-            float cosYawSinPitch = cosYaw * sinPitch;
-            float sinYawCosPitch = sinYaw * cosPitch;
-            float sinYawSinPitch = sinYaw * sinPitch;
+            double cosYawCosPitch = cosYaw * cosPitch;
+            double cosYawSinPitch = cosYaw * sinPitch;
+            double sinYawCosPitch = sinYaw * cosPitch;
+            double sinYawSinPitch = sinYaw * sinPitch;
 
-            q = new(
-                (cosYawSinPitch * cosRoll + sinYawCosPitch * sinRoll),
-                (sinYawCosPitch * cosRoll - cosYawSinPitch * sinRoll),
-                (cosYawCosPitch * sinRoll - sinYawSinPitch * cosRoll),
-                (cosYawCosPitch * cosRoll + sinYawSinPitch * sinRoll));
+            q.X = (float)(cosYawSinPitch * cosRoll + sinYawCosPitch * sinRoll);
+            q.Y = (float)(sinYawCosPitch * cosRoll - cosYawSinPitch * sinRoll);
+            q.Z = (float)(cosYawCosPitch * sinRoll - sinYawSinPitch * cosRoll);
+            q.W = (float)(cosYawCosPitch * cosRoll + sinYawSinPitch * sinRoll);
+
         }
 
         /// <summary>
@@ -582,10 +703,10 @@ namespace BEPUutilities
         /// <returns>Angle around the axis represented by the quaternion.</returns>
         public static float GetAngleFromQuaternion(ref Quaternion q)
         {
-            float qw = MathF.Abs(q.W);
-            if (qw > 1f)
-                return 0f;
-            return 2f * MathF.Acos(qw);
+            float qw = Math.Abs(q.W);
+            if (qw > 1)
+                return 0;
+            return 2 * (float)Math.Acos(qw);
         }
 
         /// <summary>
@@ -596,27 +717,34 @@ namespace BEPUutilities
         /// <param name="angle">Angle around the axis represented by the quaternion.</param>
         public static void GetAxisAngleFromQuaternion(ref Quaternion q, out Vector3 axis, out float angle)
         {
+#if !WINDOWS
+            axis = new Vector3();
+#endif
             float qw = q.W;
-            if (qw > 0f)
+            if (qw > 0)
             {
-                axis = new(q.X, q.Y, q.Z);
+                axis.X = q.X;
+                axis.Y = q.Y;
+                axis.Z = q.Z;
             }
             else
             {
-                axis = new(-q.X, -q.Y, -q.Z);
+                axis.X = -q.X;
+                axis.Y = -q.Y;
+                axis.Z = -q.Z;
                 qw = -qw;
             }
 
             float lengthSquared = axis.LengthSquared();
             if (lengthSquared > 1e-14f)
             {
-                Vector3.Divide(ref axis, MathF.Sqrt(lengthSquared), out axis);
-                angle = 2f * MathF.Acos(MathHelper.Clamp(qw, -1f, 1f));
+                Vector3.Divide(ref axis, (float)Math.Sqrt(lengthSquared), out axis);
+                angle = 2 * (float)Math.Acos(MathHelper.Clamp(qw, -1, 1));
             }
             else
             {
                 axis = Toolbox.UpVector;
-                angle = 0f;
+                angle = 0;
             }
         }
 
@@ -630,7 +758,7 @@ namespace BEPUutilities
         {
             Vector3.Dot(ref v1, ref v2, out float dot);
             //For non-normal vectors, the multiplying the axes length squared would be necessary:
-            //float w = dot + MathF.Sqrt(v1.LengthSquared() * v2.LengthSquared());
+            //float w = dot + (float)Math.Sqrt(v1.LengthSquared() * v2.LengthSquared());
             if (dot < -0.9999f) //parallel, opposing direction
             {
                 //If this occurs, the rotation required is ~180 degrees.
@@ -638,20 +766,20 @@ namespace BEPUutilities
                 //The solution is to pick an arbitrary perpendicular axis.
                 //Project onto the plane which has the lowest component magnitude.
                 //On that 2d plane, perform a 90 degree rotation.
-                float absX = MathF.Abs(v1.X);
-                float absY = MathF.Abs(v1.Y);
-                float absZ = MathF.Abs(v1.Z);
+                float absX = Math.Abs(v1.X);
+                float absY = Math.Abs(v1.Y);
+                float absZ = Math.Abs(v1.Z);
                 if (absX < absY && absX < absZ)
-                    q = new Quaternion(0f, -v1.Z, v1.Y, 0f);
+                    q = new Quaternion(0, -v1.Z, v1.Y, 0);
                 else if (absY < absZ)
-                    q = new Quaternion(-v1.Z, 0f, v1.X, 0f);
+                    q = new Quaternion(-v1.Z, 0, v1.X, 0);
                 else
-                    q = new Quaternion(-v1.Y, v1.X, 0f, 0f);
+                    q = new Quaternion(-v1.Y, v1.X, 0, 0);
             }
             else
             {
                 Vector3.Cross(ref v1, ref v2, out Vector3 axis);
-                q = new Quaternion(axis.X, axis.Y, axis.Z, dot + 1f);
+                q = new Quaternion(axis.X, axis.Y, axis.Z, dot + 1);
             }
             q.Normalize();
         }

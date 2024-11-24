@@ -472,7 +472,7 @@ namespace BEPUutilities
             //Assume a consistent winding.  Check to see if the normal points at the point.
             Vector3.Subtract(ref point, ref a, out Vector3 offset);
             Vector3.Dot(ref offset, ref normal, out float dot);
-            return dot >= 0f;
+            return dot >= 0;
         }
 
         private static void VerifyWindings(RawList<int> newIndices, RawList<Vector3> points, ref Vector3 centroid)

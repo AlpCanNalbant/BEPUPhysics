@@ -77,8 +77,7 @@ namespace BEPUutilities
         /// Gets the identity rigid transform.
         ///</summary>
         public static RigidTransform Identity
-            => new()
-            { Orientation = Quaternion.Identity, Position = new Vector3()};
+            => new () {Orientation = Quaternion.Identity, Position = new Vector3()};
 
         /// <summary>
         /// Inverts a rigid transform.
@@ -103,6 +102,7 @@ namespace BEPUutilities
             Quaternion.Transform(ref a.Position, ref b.Orientation, out Vector3 intermediate);
             Vector3.Add(ref intermediate, ref b.Position, out combined.Position);
             Quaternion.Concatenate(ref a.Orientation, ref b.Orientation, out combined.Orientation);
+
         }
 
         ///<summary>

@@ -120,9 +120,9 @@ namespace BEPUphysics.CollisionShapes.ConvexShapes
         /// <param name="boundingBox">Bounding box of the transformed shape.</param>
         public override void GetBoundingBox(ref RigidTransform shapeTransform, out BoundingBox boundingBox)
         {
-#if !WINDOWS
-            boundingBox = new BoundingBox();
-#endif
+// #if !WINDOWS
+//             boundingBox = new BoundingBox();
+// #endif
             Matrix3x3.CreateFromQuaternion(ref shapeTransform.Orientation, out Matrix3x3 o);
             //Sample the local directions from the orientation matrix, implicitly transposed.
 

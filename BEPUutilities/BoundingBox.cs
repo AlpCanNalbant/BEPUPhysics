@@ -30,10 +30,18 @@ namespace BEPUutilities
         /// </summary>
         /// <returns>Corners of the bounding box.</returns>
         public readonly Vector3[] GetCorners()
-            => [new Vector3(Min.X, Max.Y, Max.Z), Max, new Vector3(Max.X, Min.Y, Max.Z),
-                new Vector3(Min.X, Min.Y, Max.Z), new Vector3(Min.X, Max.Y, Min.Z),
-                new Vector3(Max.X, Max.Y, Min.Z), new Vector3(Max.X, Min.Y, Min.Z), Min];
-
+        {
+            var toReturn = new Vector3[8];
+            toReturn[0] = new Vector3(Min.X, Max.Y, Max.Z);
+            toReturn[1] = Max;
+            toReturn[2] = new Vector3(Max.X, Min.Y, Max.Z);
+            toReturn[3] = new Vector3(Min.X, Min.Y, Max.Z);
+            toReturn[4] = new Vector3(Min.X, Max.Y, Min.Z);
+            toReturn[5] = new Vector3(Max.X, Max.Y, Min.Z);
+            toReturn[6] = new Vector3(Max.X, Min.Y, Min.Z);
+            toReturn[7] = Min;
+            return toReturn;
+        }
 
 
         /// <summary>

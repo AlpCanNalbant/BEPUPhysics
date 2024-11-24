@@ -11,7 +11,6 @@ namespace BEPUphysics.OtherSpaceStages
     ///</summary>
     public class BoundingBoxUpdater : MultithreadedProcessingStage
     {
-
         //TODO: should the Entries field be publicly accessible since there's not any custom add/remove logic?
         readonly RawList<MobileCollidable> entries = [];
         readonly TimeStepSettings timeStepSettings;
@@ -44,11 +43,31 @@ namespace BEPUphysics.OtherSpaceStages
         readonly Action<int> multithreadedLoopBodyDelegate;
         void LoopBody(int i)
         {
-            MobileCollidable entry;
-            if ((i < entries.Count) && ((entry = entries.Elements[i]) != null) && entry.IsActive)
+            if (i < entries.Count)
             {
-                entry.UpdateBoundingBox(timeStepSettings.TimeStepDuration);
-                entry.boundingBox.Validate();
+                MobileCollidable entry;
+                try
+                {
+                    entry = entries.Elements[i];
+                }
+                catch
+                {
+                    entry = null;
+                }
+
+                if ((entry != null) && (entry.IsActive))
+                {
+                    entry.UpdateBoundingBox(timeStepSettings.TimeStepDuration);
+                    entry.boundingBox.Validate();
+                }
+                else if (entry == null)
+                {
+                    try
+                    {
+                        entries.RemoveAt(i);
+                    }
+                    catch { }
+                }
             }
         }
 
@@ -57,7 +76,7 @@ namespace BEPUphysics.OtherSpaceStages
         ///</summary>
         ///<param name="entry">Entry to add.</param>
         public void Add(MobileCollidable entry)
-        // {
+            // {
             //TODO: Contains check?
             => entries.Add(entry);
         // }

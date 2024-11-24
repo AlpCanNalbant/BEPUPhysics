@@ -17,9 +17,14 @@ namespace BEPUutilities
             public int Z;
 
             public override readonly int GetHashCode()
-                => (int)(X * 961748927L + Y * 961748941L + Z * 982451653L);
+            {
+                const long p1 = 961748927L;
+                const long p2 = 961748941L;
+                const long p3 = 982451653L;
+                return (int)(X * p1 + Y * p2 + Z * p3);
+            }
 
-            public override bool Equals(object obj)
+            public override readonly bool Equals(object obj)
                 => this.Equals((BlockedCell)obj);
 
             public readonly bool Equals(BlockedCell other)
@@ -36,7 +41,7 @@ namespace BEPUutilities
         /// Contains and manufactures cell sets used by the redundant point remover.  To minimize memory usage, this can be cleared
         /// after using the RemoveRedundantPoints if it isn't going to be used again.
         /// </summary>
-        public static readonly LockingResourcePool<HashSet<BlockedCell>> BlockedCellSets = new();
+        public static LockingResourcePool<HashSet<BlockedCell>> BlockedCellSets = new();
 
         /// <summary>
         /// Removes redundant points.  Two points are redundant if they occupy the same hash grid cell of size 0.001.

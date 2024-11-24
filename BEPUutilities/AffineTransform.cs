@@ -129,8 +129,8 @@ namespace BEPUutilities
         /// Gets the identity affine transform.
         ///</summary>
         public static AffineTransform Identity
-            => new()
-            { LinearTransform = Matrix3x3.Identity, Translation = new Vector3() };
+            => new () { LinearTransform = Matrix3x3.Identity, Translation = new Vector3() };
+
         ///<summary>
         /// Transforms a vector by an affine transform.
         ///</summary>

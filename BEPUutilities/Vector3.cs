@@ -69,14 +69,14 @@ namespace BEPUutilities
         /// </summary>
         /// <returns>Length of the vector.</returns>
         public readonly float Length()
-            => (float)MathF.Sqrt(X * X + Y * Y + Z * Z);
+            => (float)Math.Sqrt(X * X + Y * Y + Z * Z);
 
         /// <summary>
         /// Normalizes the vector.
         /// </summary>
         public void Normalize()
         {
-            float inverse = (1f / MathF.Sqrt(X * X + Y * Y + Z * Z));
+            float inverse = (float)(1 / Math.Sqrt(X * X + Y * Y + Z * Z));
             X *= inverse;
             Y *= inverse;
             Z *= inverse;
@@ -114,8 +114,11 @@ namespace BEPUutilities
         /// <param name="b">Second vector to add.</param>
         /// <param name="sum">Sum of the two vectors.</param>
         public static void Add(ref Vector3 a, ref Vector3 b, out Vector3 sum)
-            => sum = new(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
-
+        {
+            sum.X = a.X + b.X;
+            sum.Y = a.Y + b.Y;
+            sum.Z = a.Z + b.Z;
+        }
         /// <summary>
         /// Subtracts two vectors.
         /// </summary>
@@ -123,8 +126,11 @@ namespace BEPUutilities
         /// <param name="b">Vector to subtract from the first vector.</param>
         /// <param name="difference">Result of the subtraction.</param>
         public static void Subtract(ref Vector3 a, ref Vector3 b, out Vector3 difference)
-            => difference = new(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
-
+        {
+            difference.X = a.X - b.X;
+            difference.Y = a.Y - b.Y;
+            difference.Z = a.Z - b.Z;
+        }
         /// <summary>
         /// Scales a vector.
         /// </summary>
@@ -132,7 +138,11 @@ namespace BEPUutilities
         /// <param name="scale">Amount to scale.</param>
         /// <param name="result">Scaled vector.</param>
         public static void Multiply(ref Vector3 v, float scale, out Vector3 result)
-            => result = new(v.X * scale, v.Y * scale, v.Z * scale);
+        {
+            result.X = v.X * scale;
+            result.Y = v.Y * scale;
+            result.Z = v.Z * scale;
+        }
 
         /// <summary>
         /// Multiplies two vectors on a per-component basis.
@@ -141,7 +151,11 @@ namespace BEPUutilities
         /// <param name="b">Second vector to multiply.</param>
         /// <param name="result">Result of the componentwise multiplication.</param>
         public static void Multiply(ref Vector3 a, ref Vector3 b, out Vector3 result)
-            => result = new(a.X * b.X, a.Y * b.Y, a.Z * b.Z);
+        {
+            result.X = a.X * b.X;
+            result.Y = a.Y * b.Y;
+            result.Z = a.Z * b.Z;
+        }
 
         /// <summary>
         /// Divides a vector's components by some amount.
@@ -151,8 +165,10 @@ namespace BEPUutilities
         /// <param name="result">Result of the division.</param>
         public static void Divide(ref Vector3 v, float divisor, out Vector3 result)
         {
-            float inverse = 1f / divisor;
-            result = new(v.X * inverse, v.Y * inverse, v.Z * inverse);
+            float inverse = 1 / divisor;
+            result.X = v.X * inverse;
+            result.Y = v.Y * inverse;
+            result.Z = v.Z * inverse;
         }
         /// <summary>
         /// Scales a vector.
@@ -161,7 +177,13 @@ namespace BEPUutilities
         /// <param name="f">Amount to scale.</param>
         /// <returns>Scaled vector.</returns>
         public static Vector3 operator *(Vector3 v, float f)
-            => new (v.X * f, v.Y * f, v.Z * f);
+        {
+            Vector3 toReturn;
+            toReturn.X = v.X * f;
+            toReturn.Y = v.Y * f;
+            toReturn.Z = v.Z * f;
+            return toReturn;
+        }
 
         /// <summary>
         /// Scales a vector.
@@ -170,7 +192,13 @@ namespace BEPUutilities
         /// <param name="f">Amount to scale.</param>
         /// <returns>Scaled vector.</returns>
         public static Vector3 operator *(float f, Vector3 v)
-            => new (v.X * f, v.Y * f, v.Z * f);
+        {
+            Vector3 toReturn;
+            toReturn.X = v.X * f;
+            toReturn.Y = v.Y * f;
+            toReturn.Z = v.Z * f;
+            return toReturn;
+        }
 
         /// <summary>
         /// Multiplies two vectors on a per-component basis.
@@ -192,8 +220,12 @@ namespace BEPUutilities
         /// <returns>Result of the division.</returns>
         public static Vector3 operator /(Vector3 v, float f)
         {
-            f = 1f / f;
-            return new (v.X * f, v.Y * f, v.Z * f);
+            Vector3 toReturn;
+            f = 1 / f;
+            toReturn.X = v.X * f;
+            toReturn.Y = v.Y * f;
+            toReturn.Z = v.Z * f;
+            return toReturn;
         }
         /// <summary>
         /// Subtracts two vectors.
@@ -202,8 +234,13 @@ namespace BEPUutilities
         /// <param name="b">Vector to subtract from the first vector.</param>
         /// <returns>Result of the subtraction.</returns>
         public static Vector3 operator -(Vector3 a, Vector3 b)
-            => new (a.X - b.X, a.Y - b.Y, a.Z - b.Z);
-
+        {
+            Vector3 v;
+            v.X = a.X - b.X;
+            v.Y = a.Y - b.Y;
+            v.Z = a.Z - b.Z;
+            return v;
+        }
         /// <summary>
         /// Adds two vectors together.
         /// </summary>
@@ -211,7 +248,14 @@ namespace BEPUutilities
         /// <param name="b">Second vector to add.</param>
         /// <returns>Sum of the two vectors.</returns>
         public static Vector3 operator +(Vector3 a, Vector3 b)
-            => new(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+        {
+            Vector3 v;
+            v.X = a.X + b.X;
+            v.Y = a.Y + b.Y;
+            v.Z = a.Z + b.Z;
+            return v;
+        }
+
 
         /// <summary>
         /// Negates the vector.
@@ -219,8 +263,12 @@ namespace BEPUutilities
         /// <param name="v">Vector to negate.</param>
         /// <returns>Negated vector.</returns>
         public static Vector3 operator -(Vector3 v)
-            => new(-v.X, -v.Y, -v.Z);
-
+        {
+            v.X = -v.X;
+            v.Y = -v.Y;
+            v.Z = -v.Z;
+            return v;
+        }
         /// <summary>
         /// Tests two vectors for componentwise equivalence.
         /// </summary>
@@ -316,7 +364,7 @@ namespace BEPUutilities
             float x = a.X - b.X;
             float y = a.Y - b.Y;
             float z = a.Z - b.Z;
-            distance = MathF.Sqrt(x * x + y * y + z * z);
+            distance = (float)Math.Sqrt(x * x + y * y + z * z);
         }
         /// <summary>
         /// Computes the distance between two two vectors.
@@ -342,9 +390,9 @@ namespace BEPUutilities
         public static Vector3 Up
             => new()
             {
-                X = 0f,
-                Y = 1f,
-                Z = 0f
+                X = 0,
+                Y = 1,
+                Z = 0
             };
 
         /// <summary>
@@ -353,9 +401,9 @@ namespace BEPUutilities
         public static Vector3 Down
             => new()
             {
-                X = 0f,
-                Y = -1f,
-                Z = 0f
+                X = 0,
+                Y = -1,
+                Z = 0
             };
 
         /// <summary>
@@ -364,9 +412,9 @@ namespace BEPUutilities
         public static Vector3 Right
             => new()
                 {
-                    X = 1f,
-                    Y = 0f,
-                    Z = 0f
+                    X = 1,
+                    Y = 0,
+                    Z = 0
                 };
 
         /// <summary>
@@ -375,9 +423,9 @@ namespace BEPUutilities
         public static Vector3 Left
             => new()
                 {
-                    X = -1f,
-                    Y = 0f,
-                    Z = 0f
+                    X = -1,
+                    Y = 0,
+                    Z = 0
                 };
 
         /// <summary>
@@ -386,9 +434,9 @@ namespace BEPUutilities
         public static Vector3 Forward
             => new()
                 {
-                    X = 0f,
-                    Y = 0f,
-                    Z = -1f
+                    X = 0,
+                    Y = 0,
+                    Z = -1
                 };
 
         /// <summary>
@@ -397,9 +445,9 @@ namespace BEPUutilities
         public static Vector3 Backward
             => new()
                 {
-                    X = 0f,
-                    Y = 0f,
-                    Z = 1f
+                    X = 0,
+                    Y = 0,
+                    Z = 1
                 };
 
         /// <summary>
@@ -407,20 +455,20 @@ namespace BEPUutilities
         /// </summary>
         public static Vector3 UnitX
             => new()
-            { X = 1f };
+            { X = 1 };
 
         /// <summary>
         /// Gets a vector pointing along the Y axis.
         /// </summary>
         public static Vector3 UnitY
             => new()
-            { Y = 1f };
+            { Y = 1 };
 
         /// <summary>
         /// Gets a vector pointing along the Z axis.
         /// </summary>
         public static Vector3 UnitZ
-            => new() { Z = 1f };
+            => new() { Z = 1 };
 
         /// <summary>
         /// Computes the cross product between two vectors.
@@ -440,7 +488,14 @@ namespace BEPUutilities
         /// <param name="b">Second vector.</param>
         /// <param name="result">Cross product of the two vectors.</param>
         public static void Cross(ref Vector3 a, ref Vector3 b, out Vector3 result)
-            => result = new(a.Y * b.Z - a.Z * b.Y, a.Z * b.X - a.X * b.Z, a.X * b.Y - a.Y * b.X);
+        {
+            float resultX = a.Y * b.Z - a.Z * b.Y;
+            float resultY = a.Z * b.X - a.X * b.Z;
+            float resultZ = a.X * b.Y - a.Y * b.X;
+            result.X = resultX;
+            result.Y = resultY;
+            result.Z = resultZ;
+        }
 
         /// <summary>
         /// Normalizes the given vector.
@@ -460,8 +515,10 @@ namespace BEPUutilities
         /// <param name="result">Normalized vector.</param>
         public static void Normalize(ref Vector3 v, out Vector3 result)
         {
-            float inverse = (1 / System.MathF.Sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z));
-            result = new(v.X * inverse, v.Y * inverse, v.Z * inverse);
+            float inverse = (float)(1 / System.Math.Sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z));
+            result.X = v.X * inverse;
+            result.Y = v.Y * inverse;
+            result.Z = v.Z * inverse;
         }
 
         /// <summary>
@@ -470,7 +527,11 @@ namespace BEPUutilities
         /// <param name="v">Vector to negate.</param>
         /// <param name="negated">Negated vector.</param>
         public static void Negate(ref Vector3 v, out Vector3 negated)
-            => negated = new(-v.X, -v.Y, -v.Z);
+        {
+            negated.X = -v.X;
+            negated.Y = -v.Y;
+            negated.Z = -v.Z;
+        }
 
         /// <summary>
         /// Computes the absolute value of the input vector.
@@ -479,15 +540,15 @@ namespace BEPUutilities
         /// <param name="result">Vector with nonnegative elements.</param>
         public static void Abs(ref Vector3 v, out Vector3 result)
         {
-            if (v.X < 0f)
+            if (v.X < 0)
                 result.X = -v.X;
             else
                 result.X = v.X;
-            if (v.Y < 0f)
+            if (v.Y < 0)
                 result.Y = -v.Y;
             else
                 result.Y = v.Y;
-            if (v.Z < 0f)
+            if (v.Z < 0)
                 result.Z = -v.Z;
             else
                 result.Z = v.Z;
@@ -511,7 +572,11 @@ namespace BEPUutilities
         /// <param name="b">Second input vector to compare values from.</param>
         /// <param name="min">Vector containing the lesser values of each vector.</param>
         public static void Min(ref Vector3 a, ref Vector3 b, out Vector3 min)
-            => min = new(a.X < b.X ? a.X : b.X, a.Y < b.Y ? a.Y : b.Y, a.Z < b.Z ? a.Z : b.Z);
+        {
+            min.X = a.X < b.X ? a.X : b.X;
+            min.Y = a.Y < b.Y ? a.Y : b.Y;
+            min.Z = a.Z < b.Z ? a.Z : b.Z;
+        }
 
         /// <summary>
         /// Creates a vector from the lesser values in each vector.
@@ -533,7 +598,11 @@ namespace BEPUutilities
         /// <param name="b">Second input vector to compare values from.</param>
         /// <param name="max">Vector containing the greater values of each vector.</param>
         public static void Max(ref Vector3 a, ref Vector3 b, out Vector3 max)
-            => max = new (a.X > b.X ? a.X : b.X, a.Y > b.Y ? a.Y : b.Y, a.Z > b.Z ? a.Z : b.Z);
+        {
+            max.X = a.X > b.X ? a.X : b.X;
+            max.Y = a.Y > b.Y ? a.Y : b.Y;
+            max.Z = a.Z > b.Z ? a.Z : b.Z;
+        }
 
         /// <summary>
         /// Creates a vector from the greater values in each vector.
@@ -568,11 +637,10 @@ namespace BEPUutilities
         /// <param name="result">Interpolated intermediate state.</param>
         public static void Lerp(ref Vector3 start, ref Vector3 end, float interpolationAmount, out Vector3 result)
         {
-            float startAmount = 1f - interpolationAmount;
-            result = new(
-                start.X * startAmount + end.X * interpolationAmount,
-                start.Y * startAmount + end.Y * interpolationAmount,
-                start.Z * startAmount + end.Z * interpolationAmount);
+            float startAmount = 1 - interpolationAmount;
+            result.X = start.X * startAmount + end.X * interpolationAmount;
+            result.Y = start.Y * startAmount + end.Y * interpolationAmount;
+            result.Z = start.Z * startAmount + end.Z * interpolationAmount;
         }
 
         /// <summary>
@@ -588,15 +656,13 @@ namespace BEPUutilities
         {
             float weightSquared = interpolationAmount * interpolationAmount;
             float weightCubed = interpolationAmount * weightSquared;
-            float value1Blend = 2f * weightCubed - 3f * weightSquared + 1f;
-            float tangent1Blend = weightCubed - 2f * weightSquared + interpolationAmount;
-            float value2Blend = -2f * weightCubed + 3f * weightSquared;
+            float value1Blend = 2 * weightCubed - 3 * weightSquared + 1;
+            float tangent1Blend = weightCubed - 2 * weightSquared + interpolationAmount;
+            float value2Blend = -2 * weightCubed + 3 * weightSquared;
             float tangent2Blend = weightCubed - weightSquared;
-            result = new(
-                value1.X * value1Blend + value2.X * value2Blend + tangent1.X * tangent1Blend + tangent2.X * tangent2Blend,
-                value1.Y * value1Blend + value2.Y * value2Blend + tangent1.Y * tangent1Blend + tangent2.Y * tangent2Blend,
-                value1.Z * value1Blend + value2.Z * value2Blend + tangent1.Z * tangent1Blend + tangent2.Z * tangent2Blend
-            );
+            result.X = value1.X * value1Blend + value2.X * value2Blend + tangent1.X * tangent1Blend + tangent2.X * tangent2Blend;
+            result.Y = value1.Y * value1Blend + value2.Y * value2Blend + tangent1.Y * tangent1Blend + tangent2.Y * tangent2Blend;
+            result.Z = value1.Z * value1Blend + value2.Z * value2Blend + tangent1.Z * tangent1Blend + tangent2.Z * tangent2Blend;
         }
         /// <summary>
         /// Computes an intermediate location using hermite interpolation.
