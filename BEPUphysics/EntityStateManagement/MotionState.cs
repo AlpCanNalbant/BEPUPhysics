@@ -1,4 +1,4 @@
-﻿ 
+﻿
 using System;
 using BEPUutilities;
 
@@ -24,8 +24,7 @@ namespace BEPUphysics.EntityStateManagement
         {
             get
             {
-                Matrix toReturn;
-                Matrix.CreateFromQuaternion(ref Orientation, out toReturn);
+                Matrix.CreateFromQuaternion(ref Orientation, out Matrix toReturn);
                 return toReturn;
             }
         }
@@ -36,8 +35,7 @@ namespace BEPUphysics.EntityStateManagement
         {
             get
             {
-                Matrix toReturn;
-                Matrix.CreateFromQuaternion(ref Orientation, out toReturn);
+                Matrix.CreateFromQuaternion(ref Orientation, out Matrix toReturn);
                 toReturn.Translation = Position;
                 return toReturn;
             }
@@ -52,12 +50,10 @@ namespace BEPUphysics.EntityStateManagement
         public Vector3 AngularVelocity;
 
 
-        public bool Equals(MotionState other)
-        {
-            return other.AngularVelocity == AngularVelocity &&
+        public readonly bool Equals(MotionState other)
+            => other.AngularVelocity == AngularVelocity &&
                    other.LinearVelocity == LinearVelocity &&
                    other.Position == Position &&
                    other.Orientation == Orientation;
-        }
     }
 }

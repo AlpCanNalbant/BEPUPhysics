@@ -401,9 +401,7 @@ namespace BEPUphysics.DataStructures
             int LeafIndex;
 
             internal override bool IsLeaf
-            {
-                get { return true; }
-            }
+                => true;
 
             internal LeafNode(int leafIndex, MeshBoundingBoxTreeData data)
             {
@@ -419,15 +417,11 @@ namespace BEPUphysics.DataStructures
             }
 
             internal override void GetOverlaps(ref BoundingBox boundingBox, IList<int> outputOverlappedElements)
-            {
                 //Our parent already tested the bounding box.  All that's left is to add myself to the list.
-                outputOverlappedElements.Add(LeafIndex);
-            }
+                => outputOverlappedElements.Add(LeafIndex);
 
             internal override void GetOverlaps(ref BoundingSphere boundingSphere, IList<int> outputOverlappedElements)
-            {
-                outputOverlappedElements.Add(LeafIndex);
-            }
+                => outputOverlappedElements.Add(LeafIndex);
 
             //internal override void GetOverlaps(ref BoundingFrustum boundingFrustum, IList<int> outputOverlappedElements)
             //{
@@ -435,9 +429,7 @@ namespace BEPUphysics.DataStructures
             //}
 
             internal override void GetOverlaps(ref Ray ray, float maximumLength, IList<int> outputOverlappedElements)
-            {
-                outputOverlappedElements.Add(LeafIndex);
-            }
+                => outputOverlappedElements.Add(LeafIndex);
 
             internal override bool TryToInsert(LeafNode node, out Node treeNode)
             {
@@ -450,9 +442,7 @@ namespace BEPUphysics.DataStructures
             }
 
             public override string ToString()
-            {
-                return LeafIndex.ToString(CultureInfo.InvariantCulture);
-            }
+                => LeafIndex.ToString(CultureInfo.InvariantCulture);
 
             internal override void Analyze(List<int> depths, int depth, ref int nodeCount)
             {

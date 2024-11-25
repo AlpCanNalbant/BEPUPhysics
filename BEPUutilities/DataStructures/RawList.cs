@@ -29,9 +29,7 @@ namespace BEPUutilities.DataStructures
         /// Constructs an empty list.
         ///</summary>
         public RawList()
-        {
-            Elements = new T[4];
-        }
+            => Elements = new T[4];
         ///<summary>
         /// Constructs an empty list.
         ///</summary>
@@ -98,10 +96,7 @@ namespace BEPUutilities.DataStructures
         ///</summary>
         public int Capacity
         {
-            get
-            {
-                return Elements.Length;
-            }
+            get => Elements.Length;
             set
             {
                 T[] newArray = new T[value];
@@ -121,7 +116,6 @@ namespace BEPUutilities.DataStructures
                 Capacity = Elements.Length * 2;
             }
             Elements[Count++] = item;
-
         }
 
         ///<summary>
@@ -231,9 +225,7 @@ namespace BEPUutilities.DataStructures
         /// </returns>
         /// <param name="item">The object to locate in the <see cref="T:System.Collections.Generic.IList`1"/>.</param>
         public int IndexOf(T item)
-        {
-            return Array.IndexOf(Elements, item, 0, Count);
-        }
+            => Array.IndexOf(Elements, item, 0, Count);
 
         /// <summary>
         /// Copies the elements from the list into an array.
@@ -301,13 +293,7 @@ namespace BEPUutilities.DataStructures
         /// <returns>Element at the given index.</returns>
         public T this[int index]
         {
-            get
-            {
-                if (index < Count && index >= 0)
-                    return Elements[index];
-                else
-                    throw new IndexOutOfRangeException("Index is outside of the list's bounds.");
-            }
+            get => (index < Count && index >= 0) ? Elements[index] : throw new IndexOutOfRangeException("Index is outside of the list's bounds.");
             set
             {
                 if (index < Count && index >= 0)
@@ -327,9 +313,7 @@ namespace BEPUutilities.DataStructures
         /// <param name="item">Item to be tested.</param>
         /// <returns>Whether or not the item was contained by the list.</returns>
         public bool Contains(T item)
-        {
-            return IndexOf(item) != -1;
-        }
+            => IndexOf(item) != -1;
 
         /// <summary>
         /// Copies the list's contents to the array.
@@ -337,15 +321,10 @@ namespace BEPUutilities.DataStructures
         /// <param name="array">Array to receive the list's contents.</param>
         /// <param name="arrayIndex">Index in the array to start the dump.</param>
         public void CopyTo(T[] array, int arrayIndex)
-        {
-            Array.Copy(Elements, 0, array, arrayIndex, Count);
-        }
-
+            => Array.Copy(Elements, 0, array, arrayIndex, Count);
 
         bool ICollection<T>.IsReadOnly
-        {
-            get { return false; }
-        }
+            => false;
 
         #endregion
 
@@ -356,23 +335,17 @@ namespace BEPUutilities.DataStructures
         ///</summary>
         ///<returns>Enumerator for the list.</returns>
         public Enumerator GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
+            => new Enumerator(this);
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
+            => new Enumerator(this);
 
         #endregion
 
         #region IEnumerable Members
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
+            => new Enumerator(this);
 
         #endregion
 
@@ -383,9 +356,7 @@ namespace BEPUutilities.DataStructures
         ///</summary>
         ///<param name="comparer">Comparer to use to sort the list.</param>
         public void Sort(IComparer<T> comparer)
-        {
-            Array.Sort(Elements, 0, Count, comparer);
-        }
+            => Array.Sort(Elements, 0, Count, comparer);
 
 
         ///<summary>
@@ -405,30 +376,19 @@ namespace BEPUutilities.DataStructures
                 this.list = list;
             }
             public T Current
-            {
-                get { return list.Elements[index]; }
-            }
+                => list.Elements[index];
 
             public void Dispose()
-            {
-            }
+            { }
 
             object System.Collections.IEnumerator.Current
-            {
-                get { return list.Elements[index]; }
-            }
+                => list.Elements[index];
 
             public bool MoveNext()
-            {
-                return ++index < list.Count;
-            }
+                => ++index < list.Count;
 
             public void Reset()
-            {
-                index = -1;
-            }
+                => index = -1;
         }
-
-
     }
 }
