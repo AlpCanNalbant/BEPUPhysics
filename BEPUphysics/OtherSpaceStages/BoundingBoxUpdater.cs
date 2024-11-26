@@ -38,7 +38,6 @@ namespace BEPUphysics.OtherSpaceStages
         {
             ParallelLooper = parallelLooper;
             AllowMultithreading = true;
-
         }
         readonly Action<int> multithreadedLoopBodyDelegate;
         void LoopBody(int i)

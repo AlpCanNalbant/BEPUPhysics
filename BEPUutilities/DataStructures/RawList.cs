@@ -68,7 +68,7 @@ namespace BEPUutilities.DataStructures
             if (index < Count)
                 Array.Copy(Elements, index + 1, Elements, index, Count - index);
 
-            Elements[Count] = default(T);
+            Elements[Count] = default;
         }
 
         /// <summary>
@@ -79,14 +79,15 @@ namespace BEPUutilities.DataStructures
         {
             if (index >= Count)
             {
-                throw new ArgumentOutOfRangeException("index");
+                return;
+                // throw new ArgumentOutOfRangeException("index");
             }
             Count--;
             if (index < Count)
             {
                 Elements[index] = Elements[Count];
             }
-            Elements[Count] = default(T);
+            Elements[Count] = default;
 
         }
 
@@ -293,7 +294,9 @@ namespace BEPUutilities.DataStructures
         /// <returns>Element at the given index.</returns>
         public T this[int index]
         {
-            get => (index < Count && index >= 0) ? Elements[index] : throw new IndexOutOfRangeException("Index is outside of the list's bounds.");
+            get => (index < Count && index >= 0) ?
+                Elements[index] :
+                throw new IndexOutOfRangeException("Index is outside of the list's bounds.");
             set
             {
                 if (index < Count && index >= 0)
@@ -335,7 +338,7 @@ namespace BEPUutilities.DataStructures
         ///</summary>
         ///<returns>Enumerator for the list.</returns>
         public Enumerator GetEnumerator()
-            => new Enumerator(this);
+            => new(this);
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
             => new Enumerator(this);
@@ -358,30 +361,25 @@ namespace BEPUutilities.DataStructures
         public void Sort(IComparer<T> comparer)
             => Array.Sort(Elements, 0, Count, comparer);
 
-
         ///<summary>
         /// Enumerator for the RawList.
         ///</summary>
-        public struct Enumerator : IEnumerator<T>
+        ///<remarks>
+        /// Constructs a new enumerator.
+        ///</remarks>
+        ///<param name="list"></param>
+        public struct Enumerator(RawList<T> list) : IEnumerator<T>
         {
-            RawList<T> list;
-            int index;
-            ///<summary>
-            /// Constructs a new enumerator.
-            ///</summary>
-            ///<param name="list"></param>
-            public Enumerator(RawList<T> list)
-            {
-                index = -1;
-                this.list = list;
-            }
-            public T Current
+            readonly RawList<T> list = list;
+            int index = -1;
+
+            public readonly T Current
                 => list.Elements[index];
 
-            public void Dispose()
+            public readonly void Dispose()
             { }
 
-            object System.Collections.IEnumerator.Current
+            readonly object System.Collections.IEnumerator.Current
                 => list.Elements[index];
 
             public bool MoveNext()

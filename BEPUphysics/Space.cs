@@ -221,7 +221,6 @@ namespace BEPUphysics
             EndOfFrameUpdateables = new EndOfFrameUpdateableManager(timeStepSettings, ParallelLooper);
         }
 
-        static int i = 0;
         ///<summary>
         /// Adds a space object to the simulation.
         ///</summary>
@@ -261,12 +260,6 @@ namespace BEPUphysics
 
             if (spaceObject is MobileCollidable boundingBoxUpdateable)
             {
-                            ++i;
-            if (i == 197)
-            {
-                Console.WriteLine("Here.");
-            }
-
                 BoundingBoxUpdater.Add(boundingBoxUpdateable);
             }
 

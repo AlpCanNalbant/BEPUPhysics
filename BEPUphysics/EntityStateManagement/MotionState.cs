@@ -49,11 +49,10 @@ namespace BEPUphysics.EntityStateManagement
         ///</summary>
         public Vector3 AngularVelocity;
 
-
         public readonly bool Equals(MotionState other)
-            => other.AngularVelocity == AngularVelocity &&
-                   other.LinearVelocity == LinearVelocity &&
-                   other.Position == Position &&
-                   other.Orientation == Orientation;
+            =>  other.AngularVelocity == AngularVelocity &&
+                other.LinearVelocity == LinearVelocity &&
+                other.Position == Position &&
+                other.Orientation == Orientation;
     }
 }

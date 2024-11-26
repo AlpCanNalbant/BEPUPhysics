@@ -16,15 +16,7 @@ namespace BEPUphysics.DataStructures
         /// Gets the bounding box surrounding the tree.
         /// </summary>
         public BoundingBox BoundingBox
-        {
-            get
-            {
-                if (root != null)
-                    return root.BoundingBox;
-                else
-                    return new BoundingBox();
-            }
-        }
+            => (root != null) ? root.BoundingBox : new BoundingBox();
 
         Node root;
 
@@ -34,10 +26,7 @@ namespace BEPUphysics.DataStructures
         /// </summary>
         public MeshBoundingBoxTreeData Data
         {
-            get
-            {
-                return data;
-            }
+            get => data;
             set
             {
                 this.data = value;
@@ -50,9 +39,7 @@ namespace BEPUphysics.DataStructures
         /// </summary>
         /// <param name="data">Data to use to construct the tree.</param>
         public MeshBoundingBoxTree(MeshBoundingBoxTreeData data)
-        {
-            Data = data;
-        }
+            => Data = data;
 
 
         /// <summary>
@@ -75,14 +62,11 @@ namespace BEPUphysics.DataStructures
         /// does not change.
         /// </summary>
         public void Refit()
-        {
-            if (root != null)
-                root.Refit(data);
-        }
+            => root?.Refit(data);
 
         void Analyze(out List<int> depths, out int minDepth, out int maxDepth, out int nodeCount)
         {
-            depths = new List<int>();
+            depths = [];
             nodeCount = 0;
             root.Analyze(depths, 0, ref nodeCount);
 
@@ -133,8 +117,7 @@ namespace BEPUphysics.DataStructures
         {
             if (root != null)
             {
-                bool intersects;
-                root.BoundingBox.Intersects(ref boundingBox, out intersects);
+                root.BoundingBox.Intersects(ref boundingBox, out bool intersects);
                 if (intersects)
                     root.GetOverlaps(ref boundingBox, outputOverlappedElements);
             }
@@ -151,8 +134,7 @@ namespace BEPUphysics.DataStructures
         {
             if (root != null)
             {
-                bool intersects;
-                root.BoundingBox.Intersects(ref boundingSphere, out intersects);
+                root.BoundingBox.Intersects(ref boundingSphere, out bool intersects);
                 if (intersects)
                     root.GetOverlaps(ref boundingSphere, outputOverlappedElements);
             }
@@ -185,8 +167,7 @@ namespace BEPUphysics.DataStructures
         {
             if (root != null)
             {
-                float result;
-                if (ray.Intersects(ref root.BoundingBox, out result))
+                if (ray.Intersects(ref root.BoundingBox, out float result))
                     root.GetOverlaps(ref ray, float.MaxValue, outputOverlappedElements);
             }
             return outputOverlappedElements.Count > 0;
@@ -202,8 +183,7 @@ namespace BEPUphysics.DataStructures
         {
             if (root != null)
             {
-                float result;
-                if (ray.Intersects(ref root.BoundingBox, out result))
+                if (ray.Intersects(ref root.BoundingBox, out float result))
                     root.GetOverlaps(ref ray, maximumLength, outputOverlappedElements);
             }
             return outputOverlappedElements.Count > 0;
@@ -235,18 +215,14 @@ namespace BEPUphysics.DataStructures
             internal Node ChildB;
 
             internal override bool IsLeaf
-            {
-                get { return false; }
-            }
-
+                => false;
 
             internal override void GetOverlaps(ref BoundingBox boundingBox, IList<int> outputOverlappedElements)
             {
                 //Users of the GetOverlaps method will have to check the bounding box before calling
                 //root.getoverlaps.  This is actually desired in some cases, since the outer bounding box is used
                 //to determine a pair, and further overlap tests shouldn't bother retesting the root.
-                bool intersects;
-                ChildA.BoundingBox.Intersects(ref boundingBox, out intersects);
+                ChildA.BoundingBox.Intersects(ref boundingBox, out bool intersects);
                 if (intersects)
                     ChildA.GetOverlaps(ref boundingBox, outputOverlappedElements);
                 ChildB.BoundingBox.Intersects(ref boundingBox, out intersects);
@@ -256,8 +232,7 @@ namespace BEPUphysics.DataStructures
 
             internal override void GetOverlaps(ref BoundingSphere boundingSphere, IList<int> outputOverlappedElements)
             {
-                bool intersects;
-                ChildA.BoundingBox.Intersects(ref boundingSphere, out intersects);
+                ChildA.BoundingBox.Intersects(ref boundingSphere, out bool intersects);
                 if (intersects)
                     ChildA.GetOverlaps(ref boundingSphere, outputOverlappedElements);
                 ChildB.BoundingBox.Intersects(ref boundingSphere, out intersects);
@@ -278,8 +253,7 @@ namespace BEPUphysics.DataStructures
 
             internal override void GetOverlaps(ref Ray ray, float maximumLength, IList<int> outputOverlappedElements)
             {
-                float result;
-                if (ray.Intersects(ref ChildA.BoundingBox, out result) && result < maximumLength)
+                if (ray.Intersects(ref ChildA.BoundingBox, out float result) && result < maximumLength)
                     ChildA.GetOverlaps(ref ray, maximumLength, outputOverlappedElements);
                 if (ray.Intersects(ref ChildB.BoundingBox, out result) && result < maximumLength)
                     ChildB.GetOverlaps(ref ray, maximumLength, outputOverlappedElements);
@@ -315,13 +289,11 @@ namespace BEPUphysics.DataStructures
                 //Regardless of what kind of nodes they are, figure out which would be a better choice to merge the new node with.
 
                 //Use the path which produces the smallest 'volume.'
-                BoundingBox mergedA, mergedB;
-                BoundingBox.CreateMerged(ref ChildA.BoundingBox, ref node.BoundingBox, out mergedA);
-                BoundingBox.CreateMerged(ref ChildB.BoundingBox, ref node.BoundingBox, out mergedB);
+                BoundingBox.CreateMerged(ref ChildA.BoundingBox, ref node.BoundingBox, out BoundingBox mergedA);
+                BoundingBox.CreateMerged(ref ChildB.BoundingBox, ref node.BoundingBox, out BoundingBox mergedB);
 
-                Vector3 offset;
                 float originalAVolume, originalBVolume;
-                Vector3.Subtract(ref ChildA.BoundingBox.Max, ref ChildA.BoundingBox.Min, out offset);
+                Vector3.Subtract(ref ChildA.BoundingBox.Max, ref ChildA.BoundingBox.Min, out Vector3 offset);
                 originalAVolume = offset.X * offset.Y * offset.Z;
                 Vector3.Subtract(ref ChildB.BoundingBox.Max, ref ChildB.BoundingBox.Min, out offset);
                 originalBVolume = offset.X * offset.Y * offset.Z;
@@ -372,10 +344,7 @@ namespace BEPUphysics.DataStructures
             }
 
             public override string ToString()
-            {
-                return "{" + ChildA.ToString() + ", " + ChildB.ToString() + "}";
-
-            }
+                => "{" + ChildA.ToString() + ", " + ChildB.ToString() + "}";
 
             internal override void Analyze(List<int> depths, int depth, ref int nodeCount)
             {
@@ -395,10 +364,10 @@ namespace BEPUphysics.DataStructures
         /// <summary>
         /// The tiny extra margin added to leaf bounding boxes that allow the volume cost metric to function properly even in degenerate cases.
         /// </summary>
-        public static float LeafMargin = .001f;
+        public const float LeafMargin = .001f;
         sealed class LeafNode : Node
         {
-            int LeafIndex;
+            readonly int LeafIndex;
 
             internal override bool IsLeaf
                 => true;

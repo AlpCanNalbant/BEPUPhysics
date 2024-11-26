@@ -316,13 +316,13 @@ namespace BEPUphysics.NarrowPhaseSystems
 
         protected void OnCreatePair(NarrowPhasePair pair)
         {
-            try
-            {
+            // try
+            // {
                 overlapMapping.Add(pair.BroadPhaseOverlap, pair);
                 pair.OnAddedToNarrowPhase();
                 CreatingPair?.Invoke(pair);
-            }
-            catch { }
+            // }
+            // catch { }
         }
 
         ///<summary>
